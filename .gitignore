@@ -34,6 +34,8 @@ frontend/.cache/
 # .NET / C# (backend)
 backend/bin/
 backend/obj/
+.vs/
+**/.vs/
 **/bin/
 **/obj/
 *.user
