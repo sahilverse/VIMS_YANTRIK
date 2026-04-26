@@ -42,6 +42,8 @@ backend/obj/
 *.suo
 *.userosscache
 *.sln.docstates
+appsettings.Development.json
+**/appsettings.Development.json
 
 # Test and coverage artifacts
 coverage/
