@@ -8,8 +8,8 @@ const outfit = Outfit({
 });
 
 export const metadata: Metadata = {
-  title: "VIMS | Yantrik Vehicle Management",
-  description: "Enterprise Vehicle Parts Selling and Inventory Management System",
+  title: "Yantrik Vehicle Management System",
+  description: "Vehicle Parts Selling and Inventory Management System",
 };
 
 export default function RootLayout({
