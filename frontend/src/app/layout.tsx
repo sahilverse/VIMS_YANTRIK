@@ -1,15 +1,17 @@
 import type { Metadata } from "next";
 import { Outfit } from "next/font/google";
+import Providers from "@/context/Providers";
 import "./globals.css";
 
 const outfit = Outfit({
   subsets: ["latin"],
   variable: "--font-outfit",
+  weight: ["300", "400", "500", "600", "700", "800"],
 });
 
 export const metadata: Metadata = {
-  title: "Yantrik Vehicle Management System",
-  description: "Vehicle Parts Selling and Inventory Management System",
+  title: "VIMS | Yantrik Vehicle Management",
+  description: "Advanced Vehicle Inventory and Garage Management System",
 };
 
 export default function RootLayout({
@@ -18,9 +20,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
-      <body className={`${outfit.variable} font-sans antialiased bg-background text-foreground`}>
-        {children}
+    <html lang="en">
+      <body className={`${outfit.variable} font-sans antialiased bg-background text-foreground min-h-screen`}>
+        <Providers>
+          {children}
+        </Providers>
       </body>
     </html>
   );
