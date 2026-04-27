@@ -140,6 +140,7 @@ namespace Yantrik.Services
                     Email = user.Email!,
                     FullName = user.CustomerProfile?.FullName ?? user.StaffProfile?.FullName ?? "User",
                     Role = roles.FirstOrDefault() ?? "No Role",
+                    Phone = user.StaffProfile?.Phone ?? user.CustomerProfile?.Phone,
                     Code = user.StaffProfile?.EmployeeCode ?? user.CustomerProfile?.CustomerCode
                 }
             };

@@ -123,6 +123,7 @@ namespace Yantrik.Services
                 Email = user.Email!,
                 FullName = user.StaffProfile?.FullName ?? user.CustomerProfile?.FullName ?? "User",
                 Role = role,
+                Phone = user.StaffProfile?.Phone ?? user.CustomerProfile?.Phone,
                 Code = user.StaffProfile?.EmployeeCode ?? user.CustomerProfile?.CustomerCode
             };
         }
@@ -146,6 +147,7 @@ namespace Yantrik.Services
                 Email = u.Email!,
                 FullName = u.StaffProfile?.FullName ?? string.Empty,
                 Role = _userManager.GetRolesAsync(u).Result.FirstOrDefault() ?? "Staff",
+                Phone = u.StaffProfile?.Phone,
                 Code = u.StaffProfile?.EmployeeCode
             });
 
