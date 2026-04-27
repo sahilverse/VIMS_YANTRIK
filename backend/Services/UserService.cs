@@ -124,7 +124,8 @@ namespace Yantrik.Services
                 FullName = user.StaffProfile?.FullName ?? user.CustomerProfile?.FullName ?? "User",
                 Role = role,
                 Phone = user.StaffProfile?.Phone ?? user.CustomerProfile?.Phone,
-                Code = user.StaffProfile?.EmployeeCode ?? user.CustomerProfile?.CustomerCode
+                Code = user.StaffProfile?.EmployeeCode ?? user.CustomerProfile?.CustomerCode,
+                IsActive = user.IsActive
             };
         }
 
@@ -148,7 +149,8 @@ namespace Yantrik.Services
                 FullName = u.StaffProfile?.FullName ?? string.Empty,
                 Role = _userManager.GetRolesAsync(u).Result.FirstOrDefault() ?? "Staff",
                 Phone = u.StaffProfile?.Phone,
-                Code = u.StaffProfile?.EmployeeCode
+                Code = u.StaffProfile?.EmployeeCode,
+                IsActive = u.IsActive
             });
 
             var pagedResponse = new PagedResponse<UserDto>(userDtos, totalCount, @params.PageNumber, @params.PageSize);

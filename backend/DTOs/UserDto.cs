@@ -16,6 +16,8 @@ namespace Yantrik.DTOs
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public string? Code { get; set; }
+
+        public bool IsActive { get; set; }
     }
 
     public class RegisterRequest
