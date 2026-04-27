@@ -12,5 +12,6 @@ namespace Yantrik.Interfaces
         Task<ApiResponse<AuthResponse>> LoginAsync(LoginRequest request);
         Task<ApiResponse<AuthResponse>> RefreshTokenAsync(string refreshToken);
         Task<ApiResponse<bool>> LogoutAsync(string refreshToken);
+        Task<ApiResponse<bool>> ChangePasswordAsync(System.Guid userId, ChangePasswordRequest request);
     }
 }

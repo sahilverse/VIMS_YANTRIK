@@ -96,6 +96,20 @@ namespace Yantrik.Controllers
             return Ok(ApiResponse<bool>.SuccessResponse(true, "Logged out successfully"));
         }
 
+        [Authorize]
+        [HttpPost("change-password")]
+        public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequest request)
+        {
+            var userId = System.Guid.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value 
+                ?? throw new System.UnauthorizedAccessException("User ID not found in token"));
+
+            var response = await _authService.ChangePasswordAsync(userId, request);
+            if (!response.Success)
+                return BadRequest(response);
+
+            return Ok(response);
+        }
+
         private void SetRefreshTokenCookie(string refreshToken)
         {
             var expiryDays = double.Parse(_config["Jwt:RefreshTokenExpiryDays"] ?? throw new InvalidOperationException("JWT Refresh Token Expiry is missing."));

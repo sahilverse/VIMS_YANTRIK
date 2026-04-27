@@ -237,6 +237,28 @@ namespace Yantrik.Services
             return ApiResponse<AuthResponse>.SuccessResponse(response, "Authenticated successfully");
         }
 
+        public async Task<ApiResponse<bool>> ChangePasswordAsync(Guid userId, ChangePasswordRequest request)
+        {
+            var user = await _userManager.FindByIdAsync(userId.ToString());
+            if (user == null)
+                return ApiResponse<bool>.FailureResponse("User not found");
+
+            var passwordCheck = await _userManager.CheckPasswordAsync(user, request.CurrentPassword);
+            if (!passwordCheck)
+                return ApiResponse<bool>.FailureResponse("Current password is incorrect",
+                    new Dictionary<string, string> { { "currentPassword", "Current password is incorrect" } });
+
+            var result = await _userManager.ChangePasswordAsync(user, request.CurrentPassword, request.NewPassword);
+            if (!result.Succeeded)
+                return ApiResponse<bool>.FailureResponse("Password change failed",
+                    result.Errors.ToDictionary(e => e.Code, e => e.Description));
+
+            user.MustChangePassword = false;
+            await _userManager.UpdateAsync(user);
+
+            return ApiResponse<bool>.SuccessResponse(true, "Password changed successfully");
+        }
+
         private string GenerateRandomPassword()
         {
             const string chars = "ABCDEFGHJKLMNOPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz0123456789!@#$%^&*";
