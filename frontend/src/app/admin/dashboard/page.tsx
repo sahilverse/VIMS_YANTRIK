@@ -46,7 +46,7 @@ export default function AdminDashboard() {
             <span className="text-[10px] font-bold text-emerald-600 px-2 py-1 bg-emerald-50 rounded-full">+12.5%</span>
           </div>
           <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-widest block mb-1">Total Revenue</label>
-          <div className="text-3xl font-extrabold tracking-tight">$0.00</div>
+          <div className="text-3xl font-extrabold tracking-tight">Rs. 0.00</div>
           <button className="mt-6 text-[10px] font-bold text-zinc-400 hover:text-zinc-900 transition-colors uppercase tracking-widest flex items-center gap-1 cursor-pointer">
             View full report <ArrowRight className="h-3 w-3" />
           </button>

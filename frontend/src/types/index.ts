@@ -28,6 +28,7 @@ export interface UserDto {
   email: string;
   fullName: string;
   role: RoleName;
+  phone?: string;
   code?: string;
 }
 
