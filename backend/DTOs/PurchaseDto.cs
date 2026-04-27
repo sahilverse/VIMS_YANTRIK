@@ -15,6 +15,7 @@ namespace Yantrik.DTOs
         public DateTime Date { get; set; }
         public decimal TotalAmount { get; set; }
         public PaymentStatus PaymentStatus { get; set; }
+        public int ItemCount { get; set; }
         public List<PurchaseItemDto> Items { get; set; } = new();
     }
 

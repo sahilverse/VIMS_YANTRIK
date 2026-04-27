@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using Yantrik.Common;
 using Yantrik.DTOs;
 using Yantrik.Entities;
@@ -34,7 +35,8 @@ namespace Yantrik.Services
                 StaffName = i.Staff?.FullName ?? "Unknown",
                 Date = i.Date,
                 TotalAmount = i.TotalAmount,
-                PaymentStatus = i.PaymentStatus
+                PaymentStatus = i.PaymentStatus,
+                ItemCount = i.Items.Count
             });
 
             var response = new PagedResponse<PurchaseInvoiceDto>(dtos, totalCount, @params.PageNumber, @params.PageSize);
@@ -71,8 +73,14 @@ namespace Yantrik.Services
             return ApiResponse<PurchaseInvoiceDto>.SuccessResponse(dto);
         }
 
-        public async Task<ApiResponse<PurchaseInvoiceDto>> CreatePurchaseAsync(Guid staffId, CreatePurchaseRequest request)
+        public async Task<ApiResponse<PurchaseInvoiceDto>> CreatePurchaseAsync(Guid userId, CreatePurchaseRequest request)
         {
+            var user = await _unitOfWork.Users.Find(u => u.Id == userId).FirstOrDefaultAsync();
+            var staffProfile = await _unitOfWork.Staff.Find(s => s.UserId == userId).FirstOrDefaultAsync();
+            
+            if (staffProfile == null)
+                return ApiResponse<PurchaseInvoiceDto>.FailureResponse("Only staff members can create purchases");
+
             var invoiceNumber = await _sequenceService.GetNextCodeAsync(SequenceType.PurchaseInvoice);
 
             var invoice = new Invoice
@@ -80,8 +88,8 @@ namespace Yantrik.Services
                 InvoiceNumber = invoiceNumber,
                 Type = InvoiceType.Purchase,
                 VendorId = request.VendorId,
-                StaffId = staffId,
-                Date = request.Date,
+                StaffId = staffProfile.Id,
+                Date = DateTime.SpecifyKind(request.Date, DateTimeKind.Utc),
                 PaymentStatus = request.PaymentStatus,
                 Items = new List<InvoiceItem>()
             };
@@ -109,7 +117,7 @@ namespace Yantrik.Services
             }
 
             invoice.TotalAmount = totalAmount;
-            invoice.SubTotal = totalAmount; // For now assuming total is subtotal
+            invoice.SubTotal = totalAmount;
 
             await _unitOfWork.Invoices.AddAsync(invoice);
             await _unitOfWork.CompleteAsync();

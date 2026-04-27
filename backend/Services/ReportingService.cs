@@ -21,19 +21,32 @@ namespace Yantrik.Services
 
         public async Task<ApiResponse<FinancialReportDto>> GetDailyReportAsync(DateTime date)
         {
-            var start = date.Date;
+            var start = DateTime.SpecifyKind(date.Date, DateTimeKind.Utc);
             var end = start.AddDays(1);
 
             var invoices = await _unitOfWork.Invoices.Find(i => i.Date >= start && i.Date < end).ToListAsync();
             
             var report = CalculateSummary(invoices);
 
+            // Generate data points for each hour of the day
+            report.ChartData = Enumerable.Range(0, 24)
+                .Select(hour => 
+                {
+                    var hourInvoices = invoices.Where(i => i.Date.Hour == hour).ToList();
+                    return new ReportDataPoint
+                    {
+                        Label = $"{hour:00}:00",
+                        Revenue = hourInvoices.Where(i => i.Type == InvoiceType.Sale).Sum(i => i.TotalAmount),
+                        Expense = hourInvoices.Where(i => i.Type == InvoiceType.Purchase).Sum(i => i.TotalAmount)
+                    };
+                }).ToList();
+
             return ApiResponse<FinancialReportDto>.SuccessResponse(report);
         }
 
         public async Task<ApiResponse<FinancialReportDto>> GetMonthlyReportAsync(int year, int month)
         {
-            var start = new DateTime(year, month, 1);
+            var start = new DateTime(year, month, 1, 0, 0, 0, DateTimeKind.Utc);
             var end = start.AddMonths(1);
 
             var invoices = await _unitOfWork.Invoices.Find(i => i.Date >= start && i.Date < end).ToListAsync();
@@ -58,7 +71,7 @@ namespace Yantrik.Services
 
         public async Task<ApiResponse<FinancialReportDto>> GetYearlyReportAsync(int year)
         {
-            var start = new DateTime(year, 1, 1);
+            var start = new DateTime(year, 1, 1, 0, 0, 0, DateTimeKind.Utc);
             var end = start.AddYears(1);
 
             var invoices = await _unitOfWork.Invoices.Find(i => i.Date >= start && i.Date < end).ToListAsync();

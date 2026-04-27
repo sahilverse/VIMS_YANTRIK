@@ -42,8 +42,8 @@ namespace Yantrik.Controllers
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
             if (userIdClaim == null) return Unauthorized();
             
-            var staffId = Guid.Parse(userIdClaim.Value);
-            var response = await _purchaseService.CreatePurchaseAsync(staffId, request);
+            var userId = Guid.Parse(userIdClaim.Value);
+            var response = await _purchaseService.CreatePurchaseAsync(userId, request);
             
             if (!response.Success) return BadRequest(response);
             return Ok(response);

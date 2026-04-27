@@ -29,6 +29,7 @@ namespace Yantrik.Repositories
         public async Task<(IEnumerable<Invoice> Items, int TotalCount)> GetPagedInvoicesAsync(int pageNumber, int pageSize, string? search, InvoiceType? type)
         {
             var query = _dbSet
+                .Include(i => i.Items)
                 .Include(i => i.Vendor)
                 .Include(i => i.Customer)
                 .Include(i => i.Staff)
