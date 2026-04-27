@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
 import { usePurchaseListQuery } from '@/hooks/api/usePurchaseApi';
 import { Receipt, Search, Loader2, ArrowRight } from 'lucide-react';
+import ViewPurchaseModal from './ViewPurchaseModal';
+import { PurchaseInvoiceDto } from '@/types';
 
 export default function PurchaseTable() {
   const [pageNumber, setPageNumber] = useState(1);
+  const [selectedPurchaseId, setSelectedPurchaseId] = useState<string | null>(null);
   const pageSize = 10;
   
   const { data: response, isLoading } = usePurchaseListQuery({
@@ -89,12 +92,13 @@ export default function PurchaseTable() {
                     <td className="px-6 py-4 text-right">
                       <div className="text-sm font-extrabold text-zinc-900">Rs. {purchase.totalAmount.toFixed(2)}</div>
                       <div className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mt-0.5">
-                        {purchase.items.length} items
+                        {purchase.itemCount || purchase.items?.length || 0} items
                       </div>
                     </td>
                     <td className="px-6 py-4 text-right">
                       <button
-                        className="inline-flex items-center justify-center p-2 text-zinc-400 hover:text-zinc-900 hover:bg-zinc-100 rounded-lg transition-all"
+                        onClick={() => setSelectedPurchaseId(purchase.id)}
+                        className="inline-flex items-center justify-center p-2 text-zinc-400 hover:text-zinc-900 hover:bg-zinc-100 rounded-lg transition-all cursor-pointer"
                         title="View Details"
                       >
                         <ArrowRight className="h-4 w-4" />
@@ -132,6 +136,12 @@ export default function PurchaseTable() {
           </div>
         </div>
       )}
+
+      <ViewPurchaseModal 
+        isOpen={!!selectedPurchaseId} 
+        onClose={() => setSelectedPurchaseId(null)} 
+        purchaseId={selectedPurchaseId} 
+      />
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { useForm, useFieldArray } from 'react-hook-form';
+import { useForm, useFieldArray, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { createPurchaseSchema, CreatePurchaseFormValues } from '@/lib/validations/admin';
 import { useCreatePurchaseMutation } from '@/hooks/api/usePurchaseApi';
@@ -29,7 +29,10 @@ export default function CreatePurchaseModal({ isOpen, onClose }: CreatePurchaseM
     name: 'items'
   });
 
-  const watchItems = watch('items');
+  const watchItems = useWatch({
+    control,
+    name: 'items'
+  }) || [];
 
   const { data: vendorResponse } = useVendorListQuery({}, isOpen);
   const { data: partResponse } = usePartListQuery({ pageSize: 100 }, isOpen); 

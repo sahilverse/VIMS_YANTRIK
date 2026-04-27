@@ -134,6 +134,7 @@ export interface PurchaseInvoiceDto {
   date: string;
   totalAmount: number;
   paymentStatus: PaymentStatus;
+  itemCount?: number;
   items: PurchaseItemDto[];
 }
 
