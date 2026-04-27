@@ -21,21 +21,56 @@ namespace Yantrik.Services
             
             if (sequence == null)
             {
-                // Initialize default sequences if they don't exist
-                sequence = type switch
-                {
-                    SequenceType.Customer => new Sequence { Type = SequenceType.Customer, LastNumber = 5000 },
-                    SequenceType.Staff => new Sequence { Type = SequenceType.Staff, LastNumber = 2600 },
-                    SequenceType.Invoice => new Sequence { Type = SequenceType.Invoice, LastNumber = 20000 },
-                    _ => new Sequence { Type = type, LastNumber = 1 }
-                };
+                sequence = new Sequence { Type = type, LastNumber = GetInitialDefault(type) };
                 _context.Sequences.Add(sequence);
+            }
+
+            int actualMax = await GetMaxFromDbAsync(type);
+            if (sequence.LastNumber < actualMax)
+            {
+                sequence.LastNumber = actualMax;
             }
 
             sequence.LastNumber++;
             await _context.SaveChangesAsync();
 
             return sequence.LastNumber.ToString();
+        }
+
+        private int GetInitialDefault(SequenceType type)
+        {
+            return type switch
+            {
+                SequenceType.Customer => 5000,
+                SequenceType.Staff => 1000,
+                SequenceType.Invoice => 20000,
+                _ => 1
+            };
+        }
+
+        private async Task<int> GetMaxFromDbAsync(SequenceType type)
+        {
+            try
+            {
+                System.Collections.Generic.List<string> codes = type switch
+                {
+                    SequenceType.Staff => await _context.StaffProfiles.Select(s => s.EmployeeCode).ToListAsync(),
+                    SequenceType.Customer => await _context.Customers.Select(c => c.CustomerCode).ToListAsync(),
+                    SequenceType.Invoice => await _context.Invoices.Select(i => i.InvoiceNumber).ToListAsync(),
+                    _ => new System.Collections.Generic.List<string>()
+                };
+
+                if (codes == null || codes.Count == 0) return GetInitialDefault(type);
+
+                return codes
+                    .Select(c => int.TryParse(c, out int val) ? val : 0)
+                    .DefaultIfEmpty(GetInitialDefault(type))
+                    .Max();
+            }
+            catch
+            {
+                return GetInitialDefault(type);
+            }
         }
     }
 }
