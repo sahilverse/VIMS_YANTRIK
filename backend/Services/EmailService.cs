@@ -64,7 +64,7 @@ namespace Yantrik.Services
                         <p style='margin: 5px 0 0 0;'><strong>Temporary Password:</strong> <span style='color: #e74c3c;'>{temporaryPassword}</span></p>
                     </div>
                     <p style='margin-top: 20px;'>For security reasons, you will be required to change your password upon your first login.</p>
-                    <p><a href='http://localhost:3000/login' style='display: inline-block; background-color: #3498db; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;'>Login to Dashboard</a></p>
+                    <p><a href='http://localhost:3000' style='display: inline-block; background-color: #3498db; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;'>Login to Dashboard</a></p>
                     <hr style='border: 0; border-top: 1px solid #eee; margin: 20px 0;'>
                     <p style='font-size: 0.8em; color: #7f8c8d;'>This is an automated message. Please do not reply to this email.</p>
                 </div>

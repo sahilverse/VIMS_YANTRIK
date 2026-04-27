@@ -25,7 +25,7 @@ namespace Yantrik.Services
                 sequence = type switch
                 {
                     SequenceType.Customer => new Sequence { Type = SequenceType.Customer, LastNumber = 5000 },
-                    SequenceType.Staff => new Sequence { Type = SequenceType.Staff, LastNumber = 1000 },
+                    SequenceType.Staff => new Sequence { Type = SequenceType.Staff, LastNumber = 2600 },
                     SequenceType.Invoice => new Sequence { Type = SequenceType.Invoice, LastNumber = 20000 },
                     _ => new Sequence { Type = type, LastNumber = 1 }
                 };
