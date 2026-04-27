@@ -126,6 +126,8 @@ namespace Yantrik.Services
             if (userExists != null)
                 return ApiResponse<AuthResponse>.FailureResponse("Email is already registered");
 
+            var tempPassword = GenerateRandomPassword();
+
             var user = new User
             {
                 Email = request.Email,
@@ -139,13 +141,13 @@ namespace Yantrik.Services
                 }
             };
 
-            var result = await _userManager.CreateAsync(user, request.Password);
+            var result = await _userManager.CreateAsync(user, tempPassword);
             if (!result.Succeeded)
                 return ApiResponse<AuthResponse>.FailureResponse("Registration failed", result.Errors.ToDictionary(e => e.Code, e => e.Description));
 
             await _userManager.AddToRoleAsync(user, request.Role.ToString());
 
-            BackgroundJob.Enqueue<IEmailService>(x => x.SendWelcomeEmailAsync(user.Email, user.StaffProfile.FullName, request.Password));
+            BackgroundJob.Enqueue<IEmailService>(x => x.SendWelcomeEmailAsync(user.Email, user.StaffProfile.FullName, tempPassword));
 
             return await GenerateAuthResponseAsync(user);
         }
