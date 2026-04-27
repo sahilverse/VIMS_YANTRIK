@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { InventoryService } from '@/services/inventory.service';
 import { queryKeys } from '@/lib/query-keys';
-import { InventoryPaginationParams, Category, Part, ApiResponse, PagedResponse } from '@/types';
+import { InventoryPaginationParams, Category,  ApiResponse } from '@/types';
 import { toast } from 'sonner';
 import { CreateCategoryFormValues, CreatePartFormValues } from '@/lib/validations/admin';
 

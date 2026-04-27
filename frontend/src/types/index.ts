@@ -112,3 +112,40 @@ export interface CreatePartRequest {
 export interface InventoryPaginationParams extends PaginationParams {
   categoryId?: string;
 }
+
+export type PaymentStatus = 'Paid' | 'Credit' | 'Overdue';
+
+export interface PurchaseItemDto {
+  partId: string;
+  partName: string;
+  sku: string;
+  quantity: number;
+  unitPrice: number;
+  total: number;
+}
+
+export interface PurchaseInvoiceDto {
+  id: string;
+  invoiceNumber: string;
+  vendorId: string;
+  vendorName: string;
+  staffId: string;
+  staffName: string;
+  date: string;
+  totalAmount: number;
+  paymentStatus: PaymentStatus;
+  items: PurchaseItemDto[];
+}
+
+export interface CreatePurchaseItemRequest {
+  partId: string;
+  quantity: number;
+  unitPrice: number;
+}
+
+export interface CreatePurchaseRequest {
+  vendorId: string;
+  date?: string;
+  paymentStatus: PaymentStatus;
+  items: CreatePurchaseItemRequest[];
+}

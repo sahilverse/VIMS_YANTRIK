@@ -54,8 +54,9 @@ export const purchaseItemSchema = z.object({
 
 export const createPurchaseSchema = z.object({
   vendorId: z.string().min(1, 'Vendor is required'),
-  paymentStatus: z.enum(['Paid', 'Unpaid', 'Partial']),
+  paymentStatus: z.enum(['Paid', 'Credit', 'Overdue']),
   items: z.array(purchaseItemSchema).min(1, 'At least one item is required'),
+  date: z.string().optional(),
 });
 
 export type PurchaseItemFormValues = z.infer<typeof purchaseItemSchema>;
