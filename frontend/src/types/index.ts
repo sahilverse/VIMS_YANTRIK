@@ -7,6 +7,22 @@ export interface ApiResponse<T> {
   errors?: Record<string, string[]>;
 }
 
+export interface PaginationParams {
+  pageNumber?: number;
+  pageSize?: number;
+  search?: string;
+}
+
+export interface PagedResponse<T> {
+  items: T[];
+  pageNumber: number;
+  pageSize: number;
+  totalPages: number;
+  totalItems: number;
+  hasPreviousPage: boolean;
+  hasNextPage: boolean;
+}
+
 export interface UserDto {
   id: string;
   email: string;

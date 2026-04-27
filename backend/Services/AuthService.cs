@@ -21,7 +21,7 @@ namespace Yantrik.Services
         private readonly ITokenService _tokenService;
         private readonly ISequenceService _sequenceService;
         private readonly IEmailService _emailService;
-        private readonly AppDbContext _context;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly IConfiguration _config;
 
         public AuthService(
@@ -30,7 +30,7 @@ namespace Yantrik.Services
             ITokenService tokenService,
             ISequenceService sequenceService,
             IEmailService emailService,
-            AppDbContext context,
+            IUnitOfWork unitOfWork,
             IConfiguration config)
         {
             _userManager = userManager;
@@ -38,7 +38,7 @@ namespace Yantrik.Services
             _tokenService = tokenService;
             _sequenceService = sequenceService;
             _emailService = emailService;
-            _context = context;
+            _unitOfWork = unitOfWork;
             _config = config;
         }
 
@@ -154,10 +154,10 @@ namespace Yantrik.Services
 
         public async Task<ApiResponse<AuthResponse>> LoginAsync(LoginRequest request)
         {
-            var user = await _context.Users
+            var user = await _unitOfWork.Users.Find(u => u.Email == request.Email)
                 .Include(u => u.CustomerProfile)
                 .Include(u => u.StaffProfile)
-                .FirstOrDefaultAsync(u => u.Email == request.Email);
+                .FirstOrDefaultAsync();
 
             if (user == null || !await _userManager.CheckPasswordAsync(user, request.Password))
                 return ApiResponse<AuthResponse>.FailureResponse("Invalid email or password");
@@ -172,18 +172,13 @@ namespace Yantrik.Services
         {
             var hashedToken = _tokenService.HashToken(refreshToken);
             
-            var tokenRecord = await _context.RefreshTokens
-                .Include(r => r.User)
-                .ThenInclude(u => u.CustomerProfile)
-                .Include(r => r.User)
-                .ThenInclude(u => u.StaffProfile)
-                .FirstOrDefaultAsync(r => r.TokenHash == hashedToken);
+            var tokenRecord = await _unitOfWork.RefreshTokens.GetByHashAsync(hashedToken);
 
             if (tokenRecord == null || tokenRecord.IsRevoked || tokenRecord.ExpiryDate <= DateTime.UtcNow)
                 return ApiResponse<AuthResponse>.FailureResponse("Your session has expired. Please login again.");
 
             tokenRecord.IsRevoked = true;
-            _context.RefreshTokens.Update(tokenRecord);
+            _unitOfWork.RefreshTokens.Update(tokenRecord);
 
             return await GenerateAuthResponseAsync(tokenRecord.User);
         }
@@ -191,13 +186,13 @@ namespace Yantrik.Services
         public async Task<ApiResponse<bool>> LogoutAsync(string refreshToken)
         {
             var hashedToken = _tokenService.HashToken(refreshToken);
-            var tokenRecord = await _context.RefreshTokens.FirstOrDefaultAsync(r => r.TokenHash == hashedToken);
+            var tokenRecord = await _unitOfWork.RefreshTokens.Find(r => r.TokenHash == hashedToken).FirstOrDefaultAsync();
             
             if (tokenRecord != null)
             {
                 tokenRecord.IsRevoked = true;
-                _context.RefreshTokens.Update(tokenRecord);
-                await _context.SaveChangesAsync();
+                _unitOfWork.RefreshTokens.Update(tokenRecord);
+                await _unitOfWork.CompleteAsync();
             }
             return ApiResponse<bool>.SuccessResponse(true, "Logged out successfully");
         }
@@ -217,8 +212,8 @@ namespace Yantrik.Services
                 IsRevoked = false
             };
 
-            _context.RefreshTokens.Add(refreshTokenEntity);
-            await _context.SaveChangesAsync();
+            await _unitOfWork.RefreshTokens.AddAsync(refreshTokenEntity);
+            await _unitOfWork.CompleteAsync();
 
             var response = new AuthResponse
             {

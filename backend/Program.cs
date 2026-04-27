@@ -14,6 +14,7 @@ using Yantrik.Entities;
 using Yantrik.Interfaces;
 using Yantrik.Services;
 using Yantrik.Validators;
+using Yantrik.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -69,8 +70,10 @@ builder.Services.AddHangfireServer();
 // Register Services
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<ISequenceService, SequenceService>();
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 // Register Validators
 builder.Services.AddFluentValidationAutoValidation();
