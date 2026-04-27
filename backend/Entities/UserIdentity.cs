@@ -1,28 +1,26 @@
+using System;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Identity;
 using Yantrik.Common;
 
 namespace Yantrik.Entities
 {
-
-    public class User : BaseEntity
+    public class User : IdentityUser<Guid>
     {
-        public string Email { get; set; } = string.Empty;
-        public string PasswordHash { get; set; } = string.Empty;
         public bool IsActive { get; set; } = true;
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime? UpdatedAt { get; set; }
 
-        public ICollection<Role> Roles { get; set; } = new List<Role>();
         public ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
         public StaffProfile? StaffProfile { get; set; }
         public Customer? CustomerProfile { get; set; }
     }
 
-    public class Role : BaseEntity
+    public class Role : IdentityRole<Guid>
     {
-        public Guid UserId { get; set; }
-        public UserRole Name { get; set; }
         public string? Description { get; set; }
-
-        public User User { get; set; } = null!;
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime? UpdatedAt { get; set; }
     }
 
     public class RefreshToken : BaseEntity
@@ -35,3 +33,4 @@ namespace Yantrik.Entities
         public User User { get; set; } = null!;
     }
 }
+

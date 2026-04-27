@@ -1,15 +1,15 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using System;
 using System.Linq;
 using Yantrik.Entities;
 
 namespace Yantrik.Data
 {
-    public class AppDbContext : DbContext
+    public class AppDbContext : IdentityDbContext<User, Role, Guid>
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
-        public DbSet<User> Users { get; set; }
-        public DbSet<Role> Roles { get; set; }
         public DbSet<RefreshToken> RefreshTokens { get; set; }
         public DbSet<StaffProfile> StaffProfiles { get; set; }
         public DbSet<Customer> Customers { get; set; }
@@ -29,18 +29,7 @@ namespace Yantrik.Data
         {
             base.OnModelCreating(modelBuilder);
 
-            // Relationships
-
-            // User - Roles (One to Many)
-            modelBuilder.Entity<Role>()
-                .HasOne(r => r.User)
-                .WithMany(u => u.Roles)
-                .HasForeignKey(r => r.UserId);
-
             // Store Enums as Strings
-            modelBuilder.Entity<Role>()
-                .Property(r => r.Name)
-                .HasConversion<string>();
 
             modelBuilder.Entity<Invoice>()
                 .Property(i => i.Type)

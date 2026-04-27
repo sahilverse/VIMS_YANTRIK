@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -35,8 +36,8 @@ namespace Yantrik.Middleware
                 context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
 
                 var response = _env.IsDevelopment()
-                    ? new ApiResponse<string> { Success = false, Message = ex.Message, Errors = new System.Collections.Generic.List<string> { ex.StackTrace?.ToString() ?? "" } }
-                    : new ApiResponse<string> { Success = false, Message = "Internal Server Error" };
+                    ? ApiResponse<string>.FailureResponse(ex.Message, new Dictionary<string, string> { { "StackTrace", ex.StackTrace?.ToString() ?? "No stack trace available" } })
+                    : ApiResponse<string>.FailureResponse("Internal Server Error", "Something went wrong on our side. Please try again later.");
 
                 var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
                 var json = JsonSerializer.Serialize(response, options);
