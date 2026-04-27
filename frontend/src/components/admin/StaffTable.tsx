@@ -3,6 +3,7 @@
 import React from 'react';
 import { UserDto } from '@/types';
 import { Edit3, ToggleLeft, ToggleRight, MoreHorizontal } from 'lucide-react';
+import { useAuth } from '@/context/AuthContext';
 
 interface StaffTableProps {
   staff: UserDto[];
@@ -26,6 +27,8 @@ function SkeletonRow() {
 }
 
 export default function StaffTable({ staff, isLoading, onEdit, onToggleStatus, togglePendingId }: StaffTableProps) {
+  const { user: currentUser } = useAuth();
+
   if (isLoading) {
     return (
       <div className="bg-white border border-zinc-200/50 rounded-2xl shadow-sm overflow-hidden">
@@ -101,8 +104,8 @@ export default function StaffTable({ staff, isLoading, onEdit, onToggleStatus, t
               </td>
               <td className="px-6 py-5">
                 <div className="flex items-center gap-2">
-                  <div className="h-2 w-2 bg-emerald-500 rounded-full" />
-                  <span className="text-xs font-bold text-zinc-500">Active</span>
+                  <div className={`h-2 w-2 rounded-full ${member.isActive ? 'bg-emerald-500' : 'bg-red-500'}`} />
+                  <span className="text-xs font-bold text-zinc-500">{member.isActive ? 'Active' : 'Inactive'}</span>
                 </div>
               </td>
               <td className="px-6 py-5">
@@ -118,12 +121,14 @@ export default function StaffTable({ staff, isLoading, onEdit, onToggleStatus, t
                     onClick={() => onToggleStatus(member.id)}
                     disabled={togglePendingId === member.id}
                     className="p-2 text-zinc-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-all cursor-pointer disabled:opacity-50"
-                    title="Toggle Status"
+                    title={member.isActive ? 'Deactivate' : 'Activate'}
                   >
                     {togglePendingId === member.id ? (
                       <ToggleLeft className="h-4 w-4 animate-pulse" />
+                    ) : member.isActive ? (
+                      <ToggleRight className="h-4 w-4 text-emerald-500" />
                     ) : (
-                      <ToggleRight className="h-4 w-4" />
+                      <ToggleLeft className="h-4 w-4 text-zinc-400" />
                     )}
                   </button>
                 </div>

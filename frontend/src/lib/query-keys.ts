@@ -9,6 +9,11 @@ export const queryKeys = {
     list: (filters: any) => [...queryKeys.inventory.all, 'list', { filters }] as const,
     detail: (id: string) => [...queryKeys.inventory.all, 'detail', id] as const,
   },
+  vendors: {
+    all: ['vendors'] as const,
+    list: (params: any) => [...queryKeys.vendors.all, 'list', params] as const,
+    detail: (id: string) => [...queryKeys.vendors.all, 'detail', id] as const,
+  },
   customers: {
     all: ['customers'] as const,
     list: (params: any) => [...queryKeys.customers.all, 'list', params] as const,

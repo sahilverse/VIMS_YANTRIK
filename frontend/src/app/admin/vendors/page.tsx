@@ -1,44 +1,55 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useAuth } from '@/context/AuthContext';
-import { useStaffListQuery, useToggleStaffStatusMutation } from '@/hooks/api/useUserApi';
-import { UserDto } from '@/types';
+import { useVendorListQuery, useDeleteVendorMutation } from '@/hooks/api/useVendorApi';
+import { Vendor } from '@/types';
 import { Button } from '@/components/ui/button';
-import { Search, UserPlus, ChevronLeft, ChevronRight } from 'lucide-react';
-import StaffTable from '@/components/admin/StaffTable';
-import AddStaffModal from '@/components/admin/AddStaffModal';
-import EditStaffModal from '@/components/admin/EditStaffModal';
+import { Search, Plus, ChevronLeft, ChevronRight } from 'lucide-react';
+import VendorTable from '@/components/admin/VendorTable';
+import AddVendorModal from '@/components/admin/AddVendorModal';
+import EditVendorModal from '@/components/admin/EditVendorModal';
+import { ConfirmModal } from '@/components/ui/ConfirmModal';
 
-export default function StaffPage() {
+export default function VendorsPage() {
   const [search, setSearch] = useState('');
   const [pageNumber, setPageNumber] = useState(1);
   const [isAddOpen, setIsAddOpen] = useState(false);
-  const [editingStaff, setEditingStaff] = useState<UserDto | null>(null);
+  const [editingVendor, setEditingVendor] = useState<Vendor | null>(null);
+  const [vendorToDelete, setVendorToDelete] = useState<string | null>(null);
 
   const pageSize = 10;
-  const { data, isLoading } = useStaffListQuery({ pageNumber, pageSize, search });
-  const toggleMutation = useToggleStaffStatusMutation();
-  const { user: currentUser } = useAuth();
+  const { data, isLoading } = useVendorListQuery({ pageNumber, pageSize, search });
+  const deleteMutation = useDeleteVendorMutation();
 
   const paged = data?.data;
-
-  const staff = (paged?.items ?? []).filter(member => member.id !== currentUser?.id);
-  const displayTotalCount = Math.max(0, (paged?.totalItems || 0) - 1);
+  const vendors = paged?.items ?? [];
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearch(e.target.value);
     setPageNumber(1);
   };
 
+  const handleDeleteClick = (id: string) => {
+    setVendorToDelete(id);
+  };
+
+  const confirmDelete = () => {
+    if (vendorToDelete) {
+      deleteMutation.mutate(vendorToDelete, {
+        onSuccess: () => {
+          setVendorToDelete(null);
+        }
+      });
+    }
+  };
+
   return (
     <>
-      {/* Page Header */}
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-2xl font-extrabold tracking-tight">Staff Management</h1>
+          <h1 className="text-2xl font-extrabold tracking-tight">Vendor Management</h1>
           <p className="text-xs font-bold text-zinc-400 mt-1 uppercase tracking-wider">
-            {paged ? `${displayTotalCount} team members` : 'Loading...'}
+            {paged ? `${paged.totalItems} suppliers` : 'Loading...'}
           </p>
         </div>
         <Button
@@ -46,17 +57,16 @@ export default function StaffPage() {
           size="sm"
           className="h-11 bg-zinc-950 text-white hover:bg-zinc-800 rounded-xl text-xs font-bold px-6 transition-all shadow-xl shadow-black/10 cursor-pointer active:scale-[0.98]"
         >
-          <UserPlus className="h-4 w-4 mr-2" /> Add Staff
+          <Plus className="h-4 w-4 mr-2" /> Add Vendor
         </Button>
       </div>
 
-      {/* Search */}
       <div className="mb-6">
         <div className="relative max-w-md group">
           <Search className="absolute left-4 top-3.5 h-4 w-4 text-zinc-400 group-focus-within:text-zinc-900 transition-colors" />
           <input
             type="text"
-            placeholder="Search by name, email, or code..."
+            placeholder="Search by company name, email, or contact person..."
             value={search}
             onChange={handleSearch}
             className="w-full h-11 pl-11 pr-4 bg-white border border-zinc-200/50 focus:border-zinc-300 rounded-xl text-sm font-medium transition-all outline-none shadow-sm"
@@ -64,16 +74,14 @@ export default function StaffPage() {
         </div>
       </div>
 
-      {/* Table */}
-      <StaffTable
-        staff={staff}
+      <VendorTable
+        vendors={vendors}
         isLoading={isLoading}
-        onEdit={(member) => setEditingStaff(member)}
-        onToggleStatus={(id) => toggleMutation.mutate(id)}
-        togglePendingId={toggleMutation.isPending ? (toggleMutation.variables as string) : null}
+        onEdit={(vendor) => setEditingVendor(vendor)}
+        onDelete={handleDeleteClick}
+        deletePendingId={deleteMutation.isPending ? (deleteMutation.variables as string) : null}
       />
 
-      {/* Pagination */}
       {paged && paged.totalPages > 1 && (
         <div className="flex items-center justify-between mt-6">
           <p className="text-xs font-bold text-zinc-400">
@@ -98,9 +106,19 @@ export default function StaffPage() {
         </div>
       )}
 
-      {/* Modals */}
-      <AddStaffModal isOpen={isAddOpen} onClose={() => setIsAddOpen(false)} />
-      <EditStaffModal isOpen={!!editingStaff} onClose={() => setEditingStaff(null)} staff={editingStaff} />
+      <AddVendorModal isOpen={isAddOpen} onClose={() => setIsAddOpen(false)} />
+      <EditVendorModal isOpen={!!editingVendor} onClose={() => setEditingVendor(null)} vendor={editingVendor} />
+
+      <ConfirmModal
+        isOpen={!!vendorToDelete}
+        title="Delete Vendor"
+        description="Are you sure you want to delete this vendor? This action cannot be undone and will remove all associated data."
+        confirmText="Delete Vendor"
+        isDestructive
+        isLoading={deleteMutation.isPending}
+        onConfirm={confirmDelete}
+        onClose={() => setVendorToDelete(null)}
+      />
     </>
   );
 }

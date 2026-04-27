@@ -30,6 +30,7 @@ export interface UserDto {
   role: RoleName;
   phone?: string;
   code?: string;
+  isActive: boolean;
 }
 
 export interface AuthResponse {
@@ -62,4 +63,13 @@ export interface Vehicle extends BaseEntity {
   model?: string;
   year?: number;
   vin?: string;
+}
+
+export interface Vendor {
+  id: string;
+  companyName: string;
+  contactPerson?: string;
+  email?: string;
+  phone?: string;
+  address?: string;
 }

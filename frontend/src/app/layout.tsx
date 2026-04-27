@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Outfit } from "next/font/google";
 import Providers from "@/context/Providers";
+import { Toaster } from "sonner";
 import "./globals.css";
 
 const outfit = Outfit({
@@ -24,6 +25,7 @@ export default function RootLayout({
       <body className={`${outfit.variable} font-sans antialiased bg-background text-foreground min-h-screen`}>
         <Providers>
           {children}
+          <Toaster richColors position="top-center" />
         </Providers>
       </body>
     </html>

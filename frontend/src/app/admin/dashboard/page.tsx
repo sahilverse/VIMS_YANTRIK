@@ -13,9 +13,21 @@ import {
 } from 'lucide-react';
 import AddStaffModal from '@/components/admin/AddStaffModal';
 
+import { useStaffListQuery } from '@/hooks/api/useUserApi';
+import { useVendorListQuery } from '@/hooks/api/useVendorApi';
+import { Briefcase } from 'lucide-react';
+
 export default function AdminDashboard() {
   const { user } = useAuth();
   const [isAddModalOpen, setIsAddModalOpen] = React.useState(false);
+
+  const { data: staffData } = useStaffListQuery({ pageNumber: 1, pageSize: 1 });
+  const totalStaffCount = staffData?.data?.totalItems || 0;
+
+  const displayStaffCount = Math.max(0, totalStaffCount - 1);
+
+  const { data: vendorData } = useVendorListQuery({ pageNumber: 1, pageSize: 1 });
+  const displayVendorCount = vendorData?.data?.totalItems || 0;
 
   return (
     <>
@@ -41,14 +53,13 @@ export default function AdminDashboard() {
         <div className="p-8 bg-white border border-zinc-200/50 rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer group">
           <div className="flex justify-between items-start mb-6">
             <div className="p-2.5 bg-zinc-50 text-zinc-900 rounded-xl group-hover:bg-zinc-950 group-hover:text-white transition-all">
-              <TrendingUp className="h-5 w-5" />
+              <Briefcase className="h-5 w-5" />
             </div>
-            <span className="text-[10px] font-bold text-emerald-600 px-2 py-1 bg-emerald-50 rounded-full">+12.5%</span>
           </div>
-          <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-widest block mb-1">Total Revenue</label>
-          <div className="text-3xl font-extrabold tracking-tight">Rs. 0.00</div>
+          <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-widest block mb-1">Total Vendors</label>
+          <div className="text-3xl font-extrabold tracking-tight">{displayVendorCount}</div>
           <button className="mt-6 text-[10px] font-bold text-zinc-400 hover:text-zinc-900 transition-colors uppercase tracking-widest flex items-center gap-1 cursor-pointer">
-            View full report <ArrowRight className="h-3 w-3" />
+            Manage vendors <ArrowRight className="h-3 w-3" />
           </button>
         </div>
 
@@ -62,8 +73,8 @@ export default function AdminDashboard() {
               <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Active</span>
             </div>
           </div>
-          <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-widest block mb-1">Staff Online</label>
-          <div className="text-3xl font-extrabold tracking-tight">1</div>
+          <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-widest block mb-1">Total Staff</label>
+          <div className="text-3xl font-extrabold tracking-tight">{displayStaffCount}</div>
           <div className="mt-6 text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Across all shifts</div>
         </div>
 
