@@ -18,7 +18,7 @@ namespace Yantrik.Validators
 
             RuleFor(x => x.FullName)
                 .NotEmpty().WithMessage("Full Name is required")
-                .MaximumLength(200).WithMessage("Full Name cannot exceed 200 characters");
+                .MaximumLength(40).WithMessage("Full Name cannot exceed 40 characters");
         }
     }
 
