@@ -32,7 +32,8 @@ namespace Yantrik.Repositories
                 query = query.Where(u => 
                     u.Email!.ToLower().Contains(search) || 
                     u.StaffProfile!.FullName.ToLower().Contains(search) ||
-                    u.StaffProfile!.EmployeeCode.ToLower().Contains(search));
+                    u.StaffProfile!.EmployeeCode.ToLower().Contains(search)) ||
+                    u.StaffProfile!.Phone.ToLower().Contains(search);
             }
 
             var totalCount = await query.CountAsync();
