@@ -1,5 +1,5 @@
-using System;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -22,7 +22,8 @@ namespace Yantrik.Controllers
             _config = config;
         }
 
-        [HttpPost("register")]
+        // Public: Customer Self-Registration
+        [HttpPost("self-register")]
         public async Task<IActionResult> Register([FromBody] RegisterRequest request)
         {
             var response = await _authService.RegisterAsync(request);
@@ -30,6 +31,29 @@ namespace Yantrik.Controllers
                 return BadRequest(response);
 
             SetRefreshTokenCookie(response.Data!.RefreshToken);
+            return Ok(response);
+        }
+
+        // Staff/Admin Only: Register walk-in customer with vehicle
+        [Authorize(Roles = "Admin,Staff")]
+        [HttpPost("register-customer")]
+        public async Task<IActionResult> RegisterCustomer([FromBody] CustomerWithVehicleRegisterRequest request)
+        {
+            var response = await _authService.RegisterCustomerWithVehicleAsync(request);
+            if (!response.Success)
+                return BadRequest(response);
+            return Ok(response);
+        }
+
+        // Admin Only: Register new Staff or Admin
+        [Authorize(Roles = "Admin")]
+        [HttpPost("register-staff")]
+        public async Task<IActionResult> RegisterStaff([FromBody] StaffRegisterRequest request)
+        {
+            var response = await _authService.RegisterStaffAsync(request);
+            if (!response.Success)
+                return BadRequest(response);
+
             return Ok(response);
         }
 
@@ -74,13 +98,13 @@ namespace Yantrik.Controllers
 
         private void SetRefreshTokenCookie(string refreshToken)
         {
-            var expiryDays = double.Parse(_config["Jwt:RefreshTokenExpiryDays"] ?? "7");
+            var expiryDays = double.Parse(_config["Jwt:RefreshTokenExpiryDays"] ?? throw new InvalidOperationException("JWT Refresh Token Expiry is missing."));
             var cookieOptions = new CookieOptions
             {
                 HttpOnly = true,
                 Secure = true, 
                 SameSite = SameSiteMode.None, 
-                Expires = DateTime.UtcNow.AddDays(expiryDays) 
+                Expires = System.DateTime.UtcNow.AddDays(expiryDays) 
             };
             Response.Cookies.Append("refreshToken", refreshToken, cookieOptions);
         }

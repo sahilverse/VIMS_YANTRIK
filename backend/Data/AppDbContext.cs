@@ -11,6 +11,7 @@ namespace Yantrik.Data
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
         public DbSet<RefreshToken> RefreshTokens { get; set; }
+        public DbSet<Sequence> Sequences { get; set; }
         public DbSet<StaffProfile> StaffProfiles { get; set; }
         public DbSet<Customer> Customers { get; set; }
         public DbSet<Vehicle> Vehicles { get; set; }
@@ -28,6 +29,33 @@ namespace Yantrik.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+            
+            // Indexing for search performance
+            modelBuilder.Entity<Customer>(entity =>
+            {
+                entity.HasIndex(c => c.CustomerCode).IsUnique();
+                entity.HasIndex(c => c.Phone);
+                entity.HasIndex(c => c.FullName);
+            });
+
+            modelBuilder.Entity<StaffProfile>(entity =>
+            {
+                entity.HasIndex(s => s.EmployeeCode).IsUnique();
+            });
+
+            modelBuilder.Entity<Vehicle>(entity =>
+            {
+                entity.HasIndex(v => v.PlateNumber).IsUnique();
+            });
+
+            modelBuilder.Entity<Sequence>(entity =>
+            {
+                entity.HasIndex(s => s.Type).IsUnique();
+            });
+
+            modelBuilder.Entity<Sequence>()
+                .Property(s => s.Type)
+                .HasConversion<string>();
 
             // Store Enums as Strings
 

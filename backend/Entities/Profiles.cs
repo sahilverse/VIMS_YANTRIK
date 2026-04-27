@@ -34,7 +34,6 @@ namespace Yantrik.Entities
     public class Vehicle : BaseEntity
     {
         public Guid CustomerId { get; set; }
-        public string VehicleCode { get; set; } = string.Empty;
         public string PlateNumber { get; set; } = string.Empty;
         public string? Make { get; set; }
         public string? Model { get; set; }

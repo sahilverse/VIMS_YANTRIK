@@ -12,8 +12,8 @@ using Yantrik.Data;
 namespace Yantrik.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260427111249_InitialIdentitySetup")]
-    partial class InitialIdentitySetup
+    [Migration("20260427132055_AddSearchIndexes")]
+    partial class AddSearchIndexes
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -241,6 +241,13 @@ namespace Yantrik.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CustomerCode")
+                        .IsUnique();
+
+                    b.HasIndex("FullName");
+
+                    b.HasIndex("Phone");
+
                     b.HasIndex("UserId")
                         .IsUnique();
 
@@ -458,27 +465,15 @@ namespace Yantrik.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
                     b.Property<DateTime>("ExpiryDate")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("IsRevoked")
                         .HasColumnType("boolean");
 
-                    b.Property<string>("ReasonRevoked")
-                        .HasColumnType("text");
-
-                    b.Property<string>("ReplacedByToken")
-                        .HasColumnType("text");
-
                     b.Property<string>("TokenHash")
                         .IsRequired()
                         .HasColumnType("text");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid");
@@ -563,9 +558,6 @@ namespace Yantrik.Migrations
                         .IsConcurrencyToken()
                         .HasColumnType("text");
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
                     b.Property<string>("Description")
                         .HasColumnType("text");
 
@@ -577,9 +569,6 @@ namespace Yantrik.Migrations
                         .HasMaxLength(256)
                         .HasColumnType("character varying(256)");
 
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
-
                     b.HasKey("Id");
 
                     b.HasIndex("NormalizedName")
@@ -587,6 +576,33 @@ namespace Yantrik.Migrations
                         .HasDatabaseName("RoleNameIndex");
 
                     b.ToTable("AspNetRoles", (string)null);
+                });
+
+            modelBuilder.Entity("Yantrik.Entities.Sequence", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("LastNumber")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Type")
+                        .IsUnique();
+
+                    b.ToTable("Sequences");
                 });
 
             modelBuilder.Entity("Yantrik.Entities.StaffProfile", b =>
@@ -616,6 +632,9 @@ namespace Yantrik.Migrations
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("EmployeeCode")
+                        .IsUnique();
 
                     b.HasIndex("UserId")
                         .IsUnique();
@@ -654,6 +673,9 @@ namespace Yantrik.Migrations
 
                     b.Property<DateTimeOffset?>("LockoutEnd")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("MustChangePassword")
+                        .HasColumnType("boolean");
 
                     b.Property<string>("NormalizedEmail")
                         .HasMaxLength(256)
@@ -725,16 +747,15 @@ namespace Yantrik.Migrations
                     b.Property<string>("VIN")
                         .HasColumnType("text");
 
-                    b.Property<string>("VehicleCode")
-                        .IsRequired()
-                        .HasColumnType("text");
-
                     b.Property<int?>("Year")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
 
                     b.HasIndex("CustomerId");
+
+                    b.HasIndex("PlateNumber")
+                        .IsUnique();
 
                     b.ToTable("Vehicles");
                 });

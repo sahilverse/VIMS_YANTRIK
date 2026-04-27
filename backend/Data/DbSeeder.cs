@@ -41,8 +41,8 @@ namespace Yantrik.Data
                         IsActive = true,
                         StaffProfile = new StaffProfile
                         {
-                            FullName = config["AdminUser:FullName"] ?? "System Admin",
-                            EmployeeCode = "ADM-001"
+                            FullName = config["AdminUser:FullName"]!,
+                            EmployeeCode = "1001"
                         }
                     };
 

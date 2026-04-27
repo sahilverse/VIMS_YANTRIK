@@ -4,8 +4,11 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using System.Text.Json.Serialization;
 using FluentValidation;
 using FluentValidation.AspNetCore;
+using Hangfire;
+using Hangfire.Redis.StackExchange;
 using Yantrik.Data;
 using Yantrik.Entities;
 using Yantrik.Interfaces;
@@ -54,9 +57,20 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
+// Configure Hangfire with Redis
+builder.Services.AddHangfire(configuration => configuration
+    .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+    .UseSimpleAssemblyNameTypeSerializer()
+    .UseRecommendedSerializerSettings()
+    .UseRedisStorage(builder.Configuration["Redis"]!));
+
+builder.Services.AddHangfireServer();
+
 // Register Services
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddScoped<ISequenceService, SequenceService>();
 
 // Register Validators
 builder.Services.AddFluentValidationAutoValidation();
@@ -103,7 +117,6 @@ builder.Services.AddSwaggerGen(options =>
         Description = "Vehicle Parts Selling and Inventory Management System API"
     });
 
-    // Add JWT Authentication support in Swagger
     options.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
     {
         Name = "Authorization",
@@ -130,12 +143,21 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
+// Configure JSON to handle Enums as Strings globally
+builder.Services.Configure<Microsoft.AspNetCore.Http.Json.JsonOptions>(options =>
+{
+    options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
+});
+builder.Services.Configure<Microsoft.AspNetCore.Mvc.JsonOptions>(options =>
+{
+    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+});
+
 var app = builder.Build();
 
 // Global Error Handling
 app.UseMiddleware<Yantrik.Middleware.ExceptionMiddleware>();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -144,18 +166,17 @@ if (app.Environment.IsDevelopment())
         options.SwaggerEndpoint("/swagger/v1/swagger.json", "Yantrik VIMS API");
         options.RoutePrefix = string.Empty;
     });
+    
+    app.UseHangfireDashboard("/hangfire");
 }
 
 app.UseHttpsRedirection();
-
 app.UseCors("DefaultPolicy");
-
 app.UseAuthentication();
 app.UseAuthorization();
-
 app.MapControllers();
 
-// Seed Roles
+// Data Seeding
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
