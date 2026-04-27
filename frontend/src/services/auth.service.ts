@@ -34,11 +34,6 @@ export const AuthService = {
     return response.data;
   },
 
-  getAllStaff: async () => {
-    const response = await api.get<ApiResponse<AuthResponse['user'][]>>('/auth/users');
-    return response.data;
-  },
-
   getProfile: async () => {
     const response = await api.get<ApiResponse<AuthResponse['user']>>('/auth/profile');
     return response.data;
