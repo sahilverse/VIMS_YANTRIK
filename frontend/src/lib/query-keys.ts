@@ -24,6 +24,12 @@ export const queryKeys = {
     list: (params: any) => [...queryKeys.purchases.all, 'list', params] as const,
     detail: (id: string) => [...queryKeys.purchases.all, 'detail', id] as const,
   },
+  reports: {
+    all: ['reports'] as const,
+    daily: (date?: string) => [...queryKeys.reports.all, 'daily', date] as const,
+    monthly: (year?: number, month?: number) => [...queryKeys.reports.all, 'monthly', year, month] as const,
+    yearly: (year?: number) => [...queryKeys.reports.all, 'yearly', year] as const,
+  },
   services: {
     all: ['services'] as const,
     list: (params: any) => [...queryKeys.services.all, 'list', params] as const,

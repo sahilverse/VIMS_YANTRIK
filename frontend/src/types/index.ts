@@ -149,3 +149,18 @@ export interface CreatePurchaseRequest {
   paymentStatus: PaymentStatus;
   items: CreatePurchaseItemRequest[];
 }
+
+export interface ReportDataPoint {
+  label: string;
+  revenue: number;
+  expense: number;
+}
+
+export interface FinancialReportDto {
+  totalRevenue: number;
+  totalExpense: number;
+  netProfit: number;
+  totalSalesCount: number;
+  totalPurchasesCount: number;
+  chartData: ReportDataPoint[];
+}
