@@ -3,7 +3,6 @@ using Yantrik.Common;
 
 namespace Yantrik.Entities
 {
-    public enum UserRole { Admin, Staff, Customer }
 
     public class User : BaseEntity
     {

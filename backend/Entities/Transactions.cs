@@ -4,8 +4,6 @@ using Yantrik.Common;
 
 namespace Yantrik.Entities
 {
-    public enum InvoiceType { Sale, Purchase }
-    public enum PaymentStatus { Paid, Credit, Overdue }
 
     public class Invoice : BaseEntity
     {

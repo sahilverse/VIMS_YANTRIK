@@ -4,6 +4,13 @@ export type PartRequestStatus = 'Requested' | 'Fulfilled';
 export type NotificationType = 'StockAlert' | 'OverduePayment' | 'AIPrediction';
 export type ReportType = 'Financial' | 'Inventory' | 'Customer';
 
+export interface ApiResponse<T> {
+  success: boolean;
+  message?: string;
+  data?: T;
+  errors?: string[];
+}
+
 export interface BaseEntity {
   id: string;
   createdAt: string;

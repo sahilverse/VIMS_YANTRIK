@@ -3,10 +3,6 @@ using Yantrik.Common;
 
 namespace Yantrik.Entities
 {
-    public enum AppointmentStatus { Pending, Confirmed, Done, Cancelled }
-    public enum PartRequestStatus { Requested, Fulfilled }
-    public enum NotificationType { StockAlert, OverduePayment, AIPrediction }
-    public enum ReportType { Financial, Inventory, Customer }
 
     public class Appointment : BaseEntity
     {
