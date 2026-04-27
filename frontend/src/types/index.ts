@@ -73,3 +73,42 @@ export interface Vendor {
   phone?: string;
   address?: string;
 }
+
+export interface Category {
+  id: string;
+  name: string;
+  description?: string;
+}
+
+export interface Part {
+  id: string;
+  sku: string;
+  name: string;
+  description?: string;
+  unitPrice: number;
+  costPrice: number;
+  stockQuantity: number;
+  minThreshold: number;
+  categoryId: string;
+  categoryName: string;
+}
+
+export interface CreateCategoryRequest {
+  name: string;
+  description?: string;
+}
+
+export interface CreatePartRequest {
+  sku: string;
+  name: string;
+  description?: string;
+  unitPrice: number;
+  costPrice: number;
+  stockQuantity: number;
+  minThreshold: number;
+  categoryId: string;
+}
+
+export interface InventoryPaginationParams extends PaginationParams {
+  categoryId?: string;
+}
