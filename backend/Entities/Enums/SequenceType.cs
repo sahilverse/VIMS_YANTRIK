@@ -4,7 +4,8 @@ namespace Yantrik.Entities
     {
         Customer,
         Staff,
-        Invoice,
+        SalesInvoice,
+        PurchaseInvoice,
         PartRequest
     }
 }

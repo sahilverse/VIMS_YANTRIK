@@ -19,6 +19,13 @@ namespace Yantrik.Repositories
             return await _dbSet.FirstOrDefaultAsync(u => u.Email == email);
         }
 
+        public async Task<User?> GetByIdWithProfileAsync(Guid id)
+        {
+            return await _dbSet
+                .Include(u => u.StaffProfile)
+                .FirstOrDefaultAsync(u => u.Id == id);
+        }
+
         public async Task<(IEnumerable<User> Items, int TotalCount)> GetPagedStaffAsync(int pageNumber, int pageSize, string? search)
         {
             var query = _dbSet
@@ -32,8 +39,8 @@ namespace Yantrik.Repositories
                 query = query.Where(u => 
                     u.Email!.ToLower().Contains(search) || 
                     u.StaffProfile!.FullName.ToLower().Contains(search) ||
-                    u.StaffProfile!.EmployeeCode.ToLower().Contains(search)) ||
-                    u.StaffProfile!.Phone.ToLower().Contains(search);
+                    u.StaffProfile!.EmployeeCode.ToLower().Contains(search) ||
+                    u.StaffProfile!.Phone.ToLower().Contains(search));
             }
 
             var totalCount = await query.CountAsync();

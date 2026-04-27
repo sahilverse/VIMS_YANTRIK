@@ -3,10 +3,8 @@ import { ApiResponse, AuthResponse } from '@/types';
 import {
   LoginFormValues,
   RegisterFormValues,
-  ChangePasswordFormValues,
-  CreateStaffFormValues
+  ChangePasswordFormValues
 } from '@/lib/validations/auth';
-
 
 export const AuthService = {
   login: async (data: LoginFormValues) => {
@@ -29,13 +27,8 @@ export const AuthService = {
     return response.data;
   },
 
-  createStaff: async (data: CreateStaffFormValues) => {
-    const response = await api.post<ApiResponse<AuthResponse['user']>>('/auth/register-staff', data);
-    return response.data;
-  },
-
   getProfile: async () => {
-    const response = await api.get<ApiResponse<AuthResponse['user']>>('/auth/profile');
+    const response = await api.get<ApiResponse<AuthResponse['user']>>('/users/me');
     return response.data;
   }
 };

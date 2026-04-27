@@ -34,7 +34,19 @@ namespace Yantrik.Services
             sequence.LastNumber++;
             await _context.SaveChangesAsync();
 
-            return sequence.LastNumber.ToString();
+            return GetPrefix(type) + sequence.LastNumber.ToString();
+        }
+
+        private string GetPrefix(SequenceType type)
+        {
+            return type switch
+            {
+                SequenceType.Customer => "CUST-",
+                SequenceType.Staff => "EMP-",
+                SequenceType.SalesInvoice => "SINV-",
+                SequenceType.PurchaseInvoice => "PINV-",
+                _ => ""
+            };
         }
 
         private int GetInitialDefault(SequenceType type)
@@ -43,7 +55,8 @@ namespace Yantrik.Services
             {
                 SequenceType.Customer => 5000,
                 SequenceType.Staff => 1000,
-                SequenceType.Invoice => 20000,
+                SequenceType.SalesInvoice => 20000,
+                SequenceType.PurchaseInvoice => 30000,
                 _ => 1
             };
         }
@@ -52,18 +65,25 @@ namespace Yantrik.Services
         {
             try
             {
-                System.Collections.Generic.List<string> codes = type switch
+                System.Collections.Generic.List<string?> codes = type switch
                 {
                     SequenceType.Staff => await _context.StaffProfiles.Select(s => s.EmployeeCode).ToListAsync(),
                     SequenceType.Customer => await _context.Customers.Select(c => c.CustomerCode).ToListAsync(),
-                    SequenceType.Invoice => await _context.Invoices.Select(i => i.InvoiceNumber).ToListAsync(),
-                    _ => new System.Collections.Generic.List<string>()
+                    SequenceType.SalesInvoice => await _context.Invoices.Where(i => i.Type == InvoiceType.Sale).Select(i => i.InvoiceNumber).ToListAsync(),
+                    SequenceType.PurchaseInvoice => await _context.Invoices.Where(i => i.Type == InvoiceType.Purchase).Select(i => i.InvoiceNumber).ToListAsync(),
+                    _ => new System.Collections.Generic.List<string?>()
                 };
 
                 if (codes == null || codes.Count == 0) return GetInitialDefault(type);
 
+                string prefix = GetPrefix(type);
                 return codes
-                    .Select(c => int.TryParse(c, out int val) ? val : 0)
+                    .Where(c => !string.IsNullOrEmpty(c))
+                    .Select(c => 
+                    {
+                        var numericPart = c!.Replace(prefix, "");
+                        return int.TryParse(numericPart, out int val) ? val : 0;
+                    })
                     .DefaultIfEmpty(GetInitialDefault(type))
                     .Max();
             }

@@ -7,8 +7,6 @@ namespace Yantrik.Interfaces
     public interface IAuthService
     {
         Task<ApiResponse<AuthResponse>> RegisterAsync(RegisterRequest request);
-        Task<ApiResponse<AuthResponse>> RegisterCustomerWithVehicleAsync(CustomerWithVehicleRegisterRequest request);
-        Task<ApiResponse<AuthResponse>> RegisterStaffAsync(StaffRegisterRequest request);
         Task<ApiResponse<AuthResponse>> LoginAsync(LoginRequest request);
         Task<ApiResponse<AuthResponse>> RefreshTokenAsync(string refreshToken);
         Task<ApiResponse<bool>> LogoutAsync(string refreshToken);

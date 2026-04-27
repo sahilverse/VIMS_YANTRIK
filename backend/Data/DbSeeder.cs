@@ -42,7 +42,8 @@ namespace Yantrik.Data
                         StaffProfile = new StaffProfile
                         {
                             FullName = config["AdminUser:FullName"]!,
-                            EmployeeCode = "1001"
+                            EmployeeCode = "EMP-1001",
+                            Phone = "9876543210"
                         }
                     };
 

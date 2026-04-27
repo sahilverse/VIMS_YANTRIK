@@ -14,6 +14,14 @@ namespace Yantrik.Entities
         public ICollection<Invoice> Invoices { get; set; } = new List<Invoice>();
     }
 
+    public class Category : BaseEntity
+    {
+        public string Name { get; set; } = string.Empty;
+        public string? Description { get; set; }
+        
+        public ICollection<Part> Parts { get; set; } = new List<Part>();
+    }
+
     public class Part : BaseEntity
     {
         public string SKU { get; set; } = string.Empty;
@@ -23,6 +31,9 @@ namespace Yantrik.Entities
         public decimal CostPrice { get; set; }
         public int StockQuantity { get; set; }
         public int MinThreshold { get; set; } = 10;
+
+        public Guid CategoryId { get; set; }
+        public Category Category { get; set; } = null!;
         
         public ICollection<InvoiceItem> InvoiceItems { get; set; } = new List<InvoiceItem>();
     }

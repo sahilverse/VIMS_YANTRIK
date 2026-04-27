@@ -12,6 +12,10 @@ namespace Yantrik.Repositories
         public ICustomerRepository Customers { get; private set; }
         public IUserRepository Users { get; private set; }
         public IRefreshTokenRepository RefreshTokens { get; private set; }
+        public IVendorRepository Vendors { get; private set; }
+        public ICategoryRepository Categories { get; private set; }
+        public IPartRepository Parts { get; private set; }
+        public IInvoiceRepository Invoices { get; private set; }
 
         public UnitOfWork(AppDbContext context)
         {
@@ -20,6 +24,10 @@ namespace Yantrik.Repositories
             Customers = new CustomerRepository(_context);
             Users = new UserRepository(_context);
             RefreshTokens = new RefreshTokenRepository(_context);
+            Vendors = new VendorRepository(_context);
+            Categories = new CategoryRepository(_context);
+            Parts = new PartRepository(_context);
+            Invoices = new InvoiceRepository(_context);
         }
 
         public async Task<int> CompleteAsync()

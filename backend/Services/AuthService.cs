@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Hangfire;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -17,27 +16,21 @@ namespace Yantrik.Services
     public class AuthService : IAuthService
     {
         private readonly UserManager<User> _userManager;
-        private readonly RoleManager<Role> _roleManager;
         private readonly ITokenService _tokenService;
         private readonly ISequenceService _sequenceService;
-        private readonly IEmailService _emailService;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IConfiguration _config;
 
         public AuthService(
             UserManager<User> userManager,
-            RoleManager<Role> roleManager,
             ITokenService tokenService,
             ISequenceService sequenceService,
-            IEmailService emailService,
             IUnitOfWork unitOfWork,
             IConfiguration config)
         {
             _userManager = userManager;
-            _roleManager = roleManager;
             _tokenService = tokenService;
             _sequenceService = sequenceService;
-            _emailService = emailService;
             _unitOfWork = unitOfWork;
             _config = config;
         }
@@ -73,85 +66,6 @@ namespace Yantrik.Services
             return await GenerateAuthResponseAsync(user);
         }
 
-        public async Task<ApiResponse<AuthResponse>> RegisterCustomerWithVehicleAsync(CustomerWithVehicleRegisterRequest request)
-        {
-            var tempPassword = GenerateRandomPassword();
-            var email = request.Email ?? $"{request.Phone}@vims.temp";
-
-            var userExists = await _userManager.FindByEmailAsync(email);
-            if (userExists != null)
-                return ApiResponse<AuthResponse>.FailureResponse("A user with this email or phone already exists");
-
-            var user = new User
-            {
-                Email = email,
-                UserName = email,
-                MustChangePassword = true,
-                CustomerProfile = new Customer
-                {
-                    CustomerCode = await _sequenceService.GetNextCodeAsync(SequenceType.Customer),
-                    FullName = request.FullName,
-                    Phone = request.Phone,
-                    Address = request.Address,
-                    Vehicles = new List<Vehicle>
-                    {
-                        new Vehicle
-                        {
-                            PlateNumber = request.PlateNumber,
-                            Make = request.Make,
-                            Model = request.Model,
-                            Year = request.Year
-                        }
-                    }
-                }
-            };
-
-            var result = await _userManager.CreateAsync(user, tempPassword);
-            if (!result.Succeeded)
-                return ApiResponse<AuthResponse>.FailureResponse("Registration failed", result.Errors.ToDictionary(e => e.Code, e => e.Description));
-
-            await _userManager.AddToRoleAsync(user, UserRole.Customer.ToString());
-
-            if (!string.IsNullOrEmpty(request.Email))
-            {
-                BackgroundJob.Enqueue<IEmailService>(x => x.SendWelcomeEmailAsync(user.Email, user.CustomerProfile.FullName, tempPassword));
-            }
-
-            return await GenerateAuthResponseAsync(user);
-        }
-
-        public async Task<ApiResponse<AuthResponse>> RegisterStaffAsync(StaffRegisterRequest request)
-        {
-            var userExists = await _userManager.FindByEmailAsync(request.Email);
-            if (userExists != null)
-                return ApiResponse<AuthResponse>.FailureResponse("Email is already registered");
-
-            var tempPassword = GenerateRandomPassword();
-
-            var user = new User
-            {
-                Email = request.Email,
-                UserName = request.Email,
-                MustChangePassword = true,
-                StaffProfile = new StaffProfile
-                {
-                    EmployeeCode = await _sequenceService.GetNextCodeAsync(SequenceType.Staff),
-                    FullName = request.FullName,
-                    Phone = request.Phone
-                }
-            };
-
-            var result = await _userManager.CreateAsync(user, tempPassword);
-            if (!result.Succeeded)
-                return ApiResponse<AuthResponse>.FailureResponse("Registration failed", result.Errors.ToDictionary(e => e.Code, e => e.Description));
-
-            await _userManager.AddToRoleAsync(user, request.Role.ToString());
-
-            BackgroundJob.Enqueue<IEmailService>(x => x.SendWelcomeEmailAsync(user.Email, user.StaffProfile.FullName, tempPassword));
-
-            return await GenerateAuthResponseAsync(user);
-        }
-
         public async Task<ApiResponse<AuthResponse>> LoginAsync(LoginRequest request)
         {
             var user = await _unitOfWork.Users.Find(u => u.Email == request.Email)
@@ -171,7 +85,6 @@ namespace Yantrik.Services
         public async Task<ApiResponse<AuthResponse>> RefreshTokenAsync(string refreshToken)
         {
             var hashedToken = _tokenService.HashToken(refreshToken);
-            
             var tokenRecord = await _unitOfWork.RefreshTokens.GetByHashAsync(hashedToken);
 
             if (tokenRecord == null || tokenRecord.IsRevoked || tokenRecord.ExpiryDate <= DateTime.UtcNow)
@@ -208,7 +121,7 @@ namespace Yantrik.Services
             {
                 UserId = user.Id,
                 TokenHash = hashedRefreshToken,
-                ExpiryDate = DateTime.UtcNow.AddDays(double.Parse(_config["Jwt:RefreshTokenExpiryDays"] ?? throw new InvalidOperationException("JWT Refresh Token Expiry is missing."))),
+                ExpiryDate = DateTime.UtcNow.AddDays(double.Parse(_config["Jwt:RefreshTokenExpiryDays"] ?? "7")),
                 IsRevoked = false
             };
 
@@ -242,8 +155,7 @@ namespace Yantrik.Services
 
             var passwordCheck = await _userManager.CheckPasswordAsync(user, request.CurrentPassword);
             if (!passwordCheck)
-                return ApiResponse<bool>.FailureResponse("Current password is incorrect",
-                    new Dictionary<string, string> { { "currentPassword", "Current password is incorrect" } });
+                return ApiResponse<bool>.FailureResponse("Current password is incorrect");
 
             var result = await _userManager.ChangePasswordAsync(user, request.CurrentPassword, request.NewPassword);
             if (!result.Succeeded)
@@ -254,14 +166,6 @@ namespace Yantrik.Services
             await _userManager.UpdateAsync(user);
 
             return ApiResponse<bool>.SuccessResponse(true, "Password changed successfully");
-        }
-
-        private string GenerateRandomPassword()
-        {
-            const string chars = "ABCDEFGHJKLMNOPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz0123456789!@#$%^&*";
-            var random = new Random();
-            return new string(Enumerable.Repeat(chars, 12)
-                .Select(s => s[random.Next(s.Length)]).ToArray()) + "1aA!";
         }
     }
 }

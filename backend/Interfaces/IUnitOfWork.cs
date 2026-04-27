@@ -9,6 +9,10 @@ namespace Yantrik.Interfaces
         ICustomerRepository Customers { get; }
         IUserRepository Users { get; }
         IRefreshTokenRepository RefreshTokens { get; }
+        IVendorRepository Vendors { get; }
+        ICategoryRepository Categories { get; }
+        IPartRepository Parts { get; }
+        IInvoiceRepository Invoices { get; }
         
         Task<int> CompleteAsync();
     }
