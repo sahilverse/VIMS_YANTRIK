@@ -4,7 +4,7 @@ import React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { createStaffSchema, CreateStaffFormValues } from '@/lib/validations/auth';
-import { useCreateStaffMutation } from '@/hooks/api/useAuthApi';
+import { useCreateStaffMutation } from '@/hooks/api/useUserApi';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {

@@ -4,7 +4,6 @@ import { queryKeys } from '@/lib/query-keys';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
 
-
 export const useLoginMutation = () => {
   const { setAuth } = useAuth();
   const router = useRouter();
@@ -76,25 +75,6 @@ export const useLogoutMutation = () => {
       clearAuth();
       queryClient.clear();
     }
-  });
-};
-
-export const useCreateStaffMutation = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: AuthService.createStaff,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.auth.users() });
-    }
-  });
-};
-
-export const useStaffListQuery = (enabled = true) => {
-  return useQuery({
-    queryKey: queryKeys.auth.users(),
-    queryFn: AuthService.getAllStaff,
-    enabled,
   });
 };
 
