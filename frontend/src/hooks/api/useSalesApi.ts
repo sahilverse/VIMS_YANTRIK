@@ -46,7 +46,7 @@ export const useCreateSaleMutation = () => {
       queryClient.invalidateQueries({ queryKey: ['sales'] });
       queryClient.invalidateQueries({ queryKey: ['inventory', 'parts'] }); 
       queryClient.invalidateQueries({ queryKey: ['sales', 'stats'] });
-      toast.success('Sale recorded successfully');
+      toast.success('Sale recorded');
     },
     onError: (error: any) => {
       const message = error.response?.data?.message || 'Failed to record sale';
@@ -70,6 +70,22 @@ export const useUpdateSaleStatusMutation = () => {
     },
     onError: () => {
       toast.error('Failed to update sale status');
+    }
+  });
+};
+
+export const useSendInvoiceEmailMutation = () => {
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const response = await api.post<ApiResponse<string>>(`/sales/${id}/email`);
+      return response.data;
+    },
+    onSuccess: () => {
+      toast.success('Invoice email sent');
+    },
+    onError: (error: any) => {
+      const message = error.response?.data?.message || 'Failed to send invoice email';
+      toast.error(message);
     }
   });
 };

@@ -65,7 +65,7 @@ export const useRegisterCustomerMutation = () => {
       toast.error('Failed to register customer');
     },
     onSuccess: () => {
-      toast.success('Customer and vehicle registered successfully');
+      toast.success('Customer registered');
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.customers.all });

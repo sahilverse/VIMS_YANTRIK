@@ -9,13 +9,11 @@ import {
   Shield,
   LayoutDashboard,
   Users,
-  Package,
   Receipt,
   Settings,
   Search,
   Bell,
   LogOut,
-  UserPlus,
   BarChart3
 } from 'lucide-react';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
@@ -24,7 +22,6 @@ const navItems = [
   { label: 'Overview', href: '/staff/dashboard', icon: LayoutDashboard },
   { label: 'Customers', href: '/staff/customers', icon: Users },
   { label: 'Sales', href: '/staff/sales', icon: Receipt },
-  { label: 'Inventory', href: '/staff/inventory', icon: Package },
   { label: 'Reports', href: '/staff/reports', icon: BarChart3 },
 ];
 

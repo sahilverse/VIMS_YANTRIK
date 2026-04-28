@@ -10,6 +10,7 @@ namespace Yantrik.DTOs
         public string InvoiceNumber { get; set; } = string.Empty;
         public Guid CustomerId { get; set; }
         public string CustomerName { get; set; } = string.Empty;
+        public string CustomerEmail { get; set; } = string.Empty;
         public Guid EmployeeId { get; set; }
         public string EmployeeName { get; set; } = string.Empty;
         public DateTime Date { get; set; }

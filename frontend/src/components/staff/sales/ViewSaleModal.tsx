@@ -1,5 +1,5 @@
-import { X, Receipt, User, Calendar, FileText, Loader2 } from 'lucide-react';
-import { useSaleDetailQuery } from '@/hooks/api/useSalesApi';
+import { X, Receipt, User, Calendar, FileText, Loader2, Mail } from 'lucide-react';
+import { useSaleDetailQuery, useSendInvoiceEmailMutation } from '@/hooks/api/useSalesApi';
 
 interface ViewSaleModalProps {
   isOpen: boolean;
@@ -10,6 +10,7 @@ interface ViewSaleModalProps {
 export default function ViewSaleModal({ isOpen, onClose, saleId }: ViewSaleModalProps) {
   const { data: response, isLoading } = useSaleDetailQuery(saleId!);
   const sale = response?.data;
+  const sendEmailMutation = useSendInvoiceEmailMutation();
 
   if (!isOpen) return null;
 
@@ -114,9 +115,24 @@ export default function ViewSaleModal({ isOpen, onClose, saleId }: ViewSaleModal
           </div>
 
           <div className="bg-zinc-950 text-white rounded-2xl p-6 flex items-center justify-between shadow-xl shadow-black/5">
-            <span className="text-xs font-bold uppercase tracking-widest text-zinc-400">Total Bill Amount</span>
-            <span className="text-2xl font-black">Rs. {sale.totalAmount.toFixed(2)}</span>
+            <div className="flex flex-col">
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 mb-1">Total Bill Amount</span>
+              <span className="text-2xl font-black italic">Rs. {sale.totalAmount.toLocaleString()}</span>
             </div>
+            
+            <button
+              onClick={() => sendEmailMutation.mutate(sale.id)}
+              disabled={sendEmailMutation.isPending}
+              className="bg-white/10 hover:bg-white/20 text-white px-5 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-all active:scale-95 flex items-center gap-2 disabled:opacity-50 disabled:active:scale-100 cursor-pointer"
+            >
+              {sendEmailMutation.isPending ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Mail className="h-4 w-4 text-zinc-400" />
+              )}
+              Send via Email
+            </button>
+          </div>
 
           </div>
         )}

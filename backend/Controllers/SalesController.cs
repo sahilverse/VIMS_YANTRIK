@@ -22,6 +22,31 @@ namespace Yantrik.Controllers
             _salesService = salesService;
         }
 
+        [HttpPost("{id}/email")]
+        public async Task<IActionResult> SendInvoiceEmail(Guid id)
+        {
+            var response = await _salesService.GetSaleByIdAsync(id);
+            if (!response.Success || response.Data == null) 
+                return NotFound(ApiResponse<string>.FailureResponse("Sale not found"));
+
+            var sale = response.Data;
+
+            if (string.IsNullOrEmpty(sale.CustomerEmail))
+                return BadRequest(ApiResponse<string>.FailureResponse("Customer has no email address recorded"));
+
+            
+            Hangfire.BackgroundJob.Enqueue<IEmailService>(x => x.SendInvoiceEmailAsync(
+                sale.CustomerEmail,
+                sale.CustomerName,
+                sale.InvoiceNumber,
+                sale.TotalAmount,
+                sale.Date.ToString("MMM dd, yyyy"),
+                sale.Items
+            ));
+
+            return Ok(ApiResponse<string>.SuccessResponse(null, "Invoice email queued for delivery"));
+        }
+
         [HttpGet("stats")]
         public async Task<IActionResult> GetStats()
         {

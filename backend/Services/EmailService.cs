@@ -4,8 +4,11 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using MimeKit;
 using MimeKit.Text;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
-using Yantrik.Interfaces;
+using Yantrik.DTOs;
+using Yantrik.Interfaces.Services;
 
 namespace Yantrik.Services
 {
@@ -72,8 +75,78 @@ namespace Yantrik.Services
 
             await SendEmailAsync(to, subject, body);
         }
+
+        public async Task SendInvoiceEmailAsync(string to, string customerName, string invoiceNumber, decimal amount, string date, List<SaleItemDto> items)
+        {
+            var itemsHtml = string.Join("", items.Select(item => $@"
+                <tr>
+                    <td style='padding: 12px 0; border-bottom: 1px solid #eee;'>
+                        <div style='font-size: 14px; font-weight: 700; color: #111;'>{item.PartName}</div>
+                        <div style='font-size: 11px; color: #999; text-transform: uppercase;'>SKU: {item.SKU}</div>
+                    </td>
+                    <td style='padding: 12px 0; border-bottom: 1px solid #eee; text-align: center; font-size: 14px; color: #555;'>{item.Quantity}</td>
+                    <td style='padding: 12px 0; border-bottom: 1px solid #eee; text-align: right; font-size: 14px; font-weight: 700; color: #111;'>Rs. {item.Total.ToString("N2")}</td>
+                </tr>
+            "));
+
+            var subject = $"Invoice {invoiceNumber} from Yantrik VIMS";
+            var body = $@"
+                <div style='font-family: Segoe UI, Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: auto; border: 1px solid #f0f0f0; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05);'>
+                    <div style='background-color: #000; padding: 30px; text-align: center; color: #fff;'>
+                        <h1 style='margin: 0; font-size: 24px; font-weight: 900; letter-spacing: -0.02em;'>YANTRIK VIMS</h1>
+                        <p style='margin: 5px 0 0 0; font-size: 12px; font-weight: 600; opacity: 0.6; text-transform: uppercase; letter-spacing: 0.1em;'>Invoice Confirmation</p>
+                    </div>
+                    <div style='padding: 40px;'>
+                        <h2 style='margin: 0 0 20px 0; font-size: 20px; font-weight: 800; color: #111;'>Hello {customerName},</h2>
+                        <p style='margin: 0 0 30px 0; font-size: 15px; color: #555; line-height: 1.6;'>Thank you for choosing Yantrik VIMS. Your service invoice is now ready for review. Please find the transaction summary below.</p>
+                        
+                        <div style='background-color: #f8f9fa; border-radius: 12px; padding: 25px; border: 1px solid #eee; margin-bottom: 30px;'>
+                            <table style='width: 100%; border-collapse: collapse;'>
+                                <tr>
+                                    <td style='padding-bottom: 10px; font-size: 11px; font-weight: 800; color: #999; text-transform: uppercase; letter-spacing: 0.05em;'>Invoice Number</td>
+                                    <td style='padding-bottom: 10px; font-size: 11px; font-weight: 800; color: #999; text-transform: uppercase; letter-spacing: 0.05em; text-align: right;'>Date</td>
+                                </tr>
+                                <tr>
+                                    <td style='font-size: 16px; font-weight: 700; color: #111;'>{invoiceNumber}</td>
+                                    <td style='font-size: 16px; font-weight: 700; color: #111; text-align: right;'>{date}</td>
+                                </tr>
+                            </table>
+                        </div>
+
+                        <div style='margin-bottom: 30px;'>
+                            <h3 style='font-size: 12px; font-weight: 800; color: #999; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 15px; border-bottom: 2px solid #000; padding-bottom: 8px; display: inline-block;'>Itemized Summary</h3>
+                            <table style='width: 100%; border-collapse: collapse;'>
+                                <thead>
+                                    <tr>
+                                        <th style='text-align: left; font-size: 11px; font-weight: 800; color: #999; text-transform: uppercase; padding-bottom: 10px;'>Description</th>
+                                        <th style='text-align: center; font-size: 11px; font-weight: 800; color: #999; text-transform: uppercase; padding-bottom: 10px;'>Qty</th>
+                                        <th style='text-align: right; font-size: 11px; font-weight: 800; color: #999; text-transform: uppercase; padding-bottom: 10px;'>Amount</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {itemsHtml}
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <td colspan='2' style='padding-top: 20px; font-size: 14px; font-weight: 700; color: #111;'>Total Amount</td>
+                                        <td style='padding-top: 20px; text-align: right; font-size: 20px; font-weight: 900; color: #000;'>Rs. {amount.ToString("N2")}</td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                        
+                        <div style='margin-top: 40px; text-align: center;'>
+                            <p style='margin-bottom: 20px; font-size: 13px; color: #777;'>Need help with this invoice? Contact our support team.</p>
+                            <a href='#' style='display: inline-block; background-color: #000; color: #fff; padding: 16px 32px; text-decoration: none; border-radius: 12px; font-weight: 700; font-size: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);'>View Full Dashboard</a>
+                        </div>
+                    </div>
+                    <div style='background-color: #fafafa; padding: 20px; text-align: center; border-top: 1px solid #f0f0f0;'>
+                        <p style='margin: 0; font-size: 11px; color: #aaa; font-weight: 600;'>&copy; 2026 Yantrik VIMS. All rights reserved.</p>
+                    </div>
+                </div>
+            ";
+
+            await SendEmailAsync(to, subject, body);
+        }
     }
 }
-
-
-
