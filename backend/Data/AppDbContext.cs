@@ -21,14 +21,12 @@ namespace Yantrik.Data
         public DbSet<StockMovement> StockMovements { get; set; }
         public DbSet<Invoice> Invoices { get; set; }
         public DbSet<InvoiceItem> InvoiceItems { get; set; }
-        public DbSet<Payment> Payments { get; set; }
         public DbSet<LoyaltyTransaction> LoyaltyTransactions { get; set; }
         public DbSet<Appointment> Appointments { get; set; }
         public DbSet<ServiceRecord> ServiceRecords { get; set; }
         public DbSet<Review> Reviews { get; set; }
         public DbSet<PartRequest> PartRequests { get; set; }
         public DbSet<Notification> Notifications { get; set; }
-        public DbSet<EmailLog> EmailLogs { get; set; }
         public DbSet<AIPrediction> AIPredictions { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

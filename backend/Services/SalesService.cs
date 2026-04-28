@@ -159,8 +159,12 @@ namespace Yantrik.Services
 
                 await _unitOfWork.Invoices.AddAsync(invoice);
                 
-                // Update Customer Total Spend
+                // Update Customer Total Spend and Last Purchase Date
                 customer.TotalSpend += totalAmount;
+                if (invoice.PaymentStatus == PaymentStatus.Paid || invoice.PaymentStatus == PaymentStatus.Partial)
+                {
+                    customer.LastPurchaseDate = invoice.Date;
+                }
                 _unitOfWork.Customers.Update(customer);
 
                 await _unitOfWork.CompleteAsync();
@@ -184,6 +188,17 @@ namespace Yantrik.Services
             invoice.PaymentStatus = status;
             
             _unitOfWork.Invoices.Update(invoice);
+
+            if (status == PaymentStatus.Paid || status == PaymentStatus.Partial)
+            {
+                var customer = await _unitOfWork.Customers.GetByIdAsync(invoice.CustomerId ?? Guid.Empty);
+                if (customer != null)
+                {
+                    customer.LastPurchaseDate = DateTime.UtcNow;
+                    _unitOfWork.Customers.Update(customer);
+                }
+            }
+
             await _unitOfWork.CompleteAsync();
 
             return await GetSaleByIdAsync(id);

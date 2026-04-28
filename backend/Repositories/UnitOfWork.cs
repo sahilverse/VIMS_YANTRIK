@@ -18,14 +18,12 @@ namespace Yantrik.Repositories
         public IInvoiceRepository Invoices { get; private set; }
         public IVehicleRepository Vehicles { get; private set; }
         public IStockMovementRepository StockMovements { get; private set; }
-        public IPaymentRepository Payments { get; private set; }
         public ILoyaltyTransactionRepository LoyaltyTransactions { get; private set; }
         public IAppointmentRepository Appointments { get; private set; }
         public IServiceRecordRepository ServiceRecords { get; private set; }
         public IReviewRepository Reviews { get; private set; }
         public IPartRequestRepository PartRequests { get; private set; }
         public INotificationRepository Notifications { get; private set; }
-        public IEmailLogRepository EmailLogs { get; private set; }
         public IAIPredictionRepository AIPredictions { get; private set; }
 
         public UnitOfWork(AppDbContext context)
@@ -41,14 +39,12 @@ namespace Yantrik.Repositories
             Invoices = new InvoiceRepository(_context);
             Vehicles = new VehicleRepository(_context);
             StockMovements = new StockMovementRepository(_context);
-            Payments = new PaymentRepository(_context);
             LoyaltyTransactions = new LoyaltyTransactionRepository(_context);
             Appointments = new AppointmentRepository(_context);
             ServiceRecords = new ServiceRecordRepository(_context);
             Reviews = new ReviewRepository(_context);
             PartRequests = new PartRequestRepository(_context);
             Notifications = new NotificationRepository(_context);
-            EmailLogs = new EmailLogRepository(_context);
             AIPredictions = new AIPredictionRepository(_context);
         }
 
