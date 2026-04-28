@@ -1,5 +1,5 @@
 import api from '@/lib/api';
-import { ApiResponse, UserDto, PagedResponse, PaginationParams } from '@/types';
+import { ApiResponse, UserDto, PagedResponse, PaginationParams, UserProfileDto, UpdateProfileRequest } from '@/types';
 import { CreateStaffFormValues } from '@/lib/validations/auth'; 
 
 export interface CreateCustomerFormValues {
@@ -36,6 +36,16 @@ export const UserService = {
 
   toggleStatus: async (id: string) => {
     const response = await api.patch<ApiResponse<boolean>>(`/users/staff/${id}/toggle-status`);
+    return response.data;
+  },
+
+  getProfile: async () => {
+    const response = await api.get<ApiResponse<UserProfileDto>>('/users/profile');
+    return response.data;
+  },
+
+  updateProfile: async (data: UpdateProfileRequest) => {
+    const response = await api.put<ApiResponse<boolean>>('/users/profile', data);
     return response.data;
   }
 };

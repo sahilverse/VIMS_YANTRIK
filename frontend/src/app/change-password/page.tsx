@@ -9,10 +9,30 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Loader2, ArrowRight, Lock, ShieldCheck } from 'lucide-react';
 import Link from 'next/link';
+import { useAuth } from '@/context/AuthContext';
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 
 export default function ChangePasswordPage() {
+  const { mustChangePassword, isLoading } = useAuth();
+  const router = useRouter();
   const [serverError, setServerError] = useState<string | null>(null);
   const changePasswordMutation = useChangePasswordMutation();
+
+  useEffect(() => {
+    if (!isLoading && !mustChangePassword) {
+      router.push('/');
+    }
+  }, [isLoading, mustChangePassword, router]);
+
+  if (isLoading || !mustChangePassword) {
+    return (
+      <div className="h-screen flex flex-col items-center justify-center space-y-4">
+        <Loader2 className="h-8 w-8 text-zinc-900 animate-spin" />
+        <p className="text-xs font-bold text-zinc-400 uppercase tracking-widest">Validating Security Session...</p>
+      </div>
+    );
+  }
 
   const {
     register,

@@ -114,13 +114,43 @@ export const useUpdatePartMutation = () => {
 
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: CreatePartFormValues }) => InventoryService.updatePart(id, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.inventory.all });
-      queryClient.invalidateQueries({ queryKey: queryKeys.reports.dashboard() });
-      toast.success('Part updated successfully');
+    onMutate: async ({ id, data }) => {
+      const qKey = queryKeys.inventory.all;
+      await queryClient.cancelQueries({ queryKey: qKey });
+
+      const previousQueries = queryClient.getQueriesData<ApiResponse<PagedResponse<Part>>>({ queryKey: qKey });
+
+      queryClient.setQueriesData({ queryKey: qKey }, (old: any) => {
+        if (!old || !old.data) return old;
+        // Handle both PagedResponse and flat arrays if applicable
+        if (old.data.items) {
+            return {
+                ...old,
+                data: {
+                    ...old.data,
+                    items: old.data.items.map((part: Part) => part.id === id ? { ...part, ...data } : part)
+                }
+            };
+        }
+        return old;
+      });
+
+      return { previousQueries, qKey };
     },
-    onError: (error: any) => {
-      toast.error(error?.response?.data?.message || 'Failed to update part');
+    onError: (err, variables, context) => {
+      if (context?.previousQueries) {
+        context.previousQueries.forEach(([queryKey, data]) => {
+          if (data) queryClient.setQueryData(queryKey, data);
+        });
+      }
+      toast.error('Failed to update part');
+    },
+    onSettled: (data, error, variables, context) => {
+      queryClient.invalidateQueries({ queryKey: context?.qKey });
+      queryClient.invalidateQueries({ queryKey: queryKeys.reports.dashboard() });
+    },
+    onSuccess: () => {
+      toast.success('Part updated successfully');
     }
   });
 };
@@ -130,13 +160,39 @@ export const useDeletePartMutation = () => {
 
   return useMutation({
     mutationFn: InventoryService.deletePart,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.inventory.all });
-      queryClient.invalidateQueries({ queryKey: queryKeys.reports.dashboard() });
-      toast.success('Part deleted successfully');
+    onMutate: async (id) => {
+      const qKey = queryKeys.inventory.all;
+      await queryClient.cancelQueries({ queryKey: qKey });
+
+      const previousQueries = queryClient.getQueriesData<ApiResponse<PagedResponse<Part>>>({ queryKey: qKey });
+
+      queryClient.setQueriesData({ queryKey: qKey }, (old: any) => {
+        if (!old || !old.data || !old.data.items) return old;
+        return {
+          ...old,
+          data: {
+            ...old.data,
+            items: old.data.items.filter((part: Part) => part.id !== id)
+          }
+        };
+      });
+
+      return { previousQueries, qKey };
     },
-    onError: (error: any) => {
-      toast.error(error?.response?.data?.message || 'Failed to delete part');
+    onError: (err, id, context) => {
+      if (context?.previousQueries) {
+        context.previousQueries.forEach(([queryKey, data]) => {
+          if (data) queryClient.setQueryData(queryKey, data);
+        });
+      }
+      toast.error('Failed to delete part');
+    },
+    onSettled: (data, error, id, context) => {
+      queryClient.invalidateQueries({ queryKey: context?.qKey });
+      queryClient.invalidateQueries({ queryKey: queryKeys.reports.dashboard() });
+    },
+    onSuccess: () => {
+      toast.success('Part deleted successfully');
     }
   });
 };
