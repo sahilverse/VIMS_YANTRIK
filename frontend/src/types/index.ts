@@ -234,3 +234,39 @@ export interface RegisterCustomerRequest {
   model?: string;
   year?: number;
 }
+
+export interface SaleItemDto {
+  partId: string;
+  partName: string;
+  sku: string;
+  quantity: number;
+  unitPrice: number;
+  total: number;
+}
+
+export interface SaleInvoiceDto {
+  id: string;
+  invoiceNumber: string;
+  customerId: string;
+  customerName: string;
+  employeeId: string;
+  employeeName: string;
+  date: string;
+  totalAmount: number;
+  paymentStatus: PaymentStatus;
+  itemCount?: number;
+  items: SaleItemDto[];
+}
+
+export interface CreateSaleItemRequest {
+  partId: string;
+  quantity: number;
+  unitPrice: number;
+}
+
+export interface CreateSaleRequest {
+  customerId: string;
+  date?: string;
+  paymentStatus: PaymentStatus;
+  items: CreateSaleItemRequest[];
+}
