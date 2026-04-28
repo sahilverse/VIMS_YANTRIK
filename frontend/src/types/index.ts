@@ -57,6 +57,7 @@ export interface Customer extends BaseEntity {
   totalSpend: number;
   lastPurchaseDate?: string;
   vehicles: Vehicle[];
+  salesHistory?: SaleInvoiceDto[];
 }
 
 export interface Vehicle extends BaseEntity {
@@ -275,4 +276,35 @@ export interface StaffSalesStats {
   todayRevenue: number;
   totalTransactions: number;
   pendingPaymentsCount: number;
+}
+
+export interface RegularCustomer {
+  id: string;
+  fullName: string;
+  customerCode: string;
+  visitCount: number;
+  totalSpent: number;
+}
+
+export interface HighSpender {
+  id: string;
+  fullName: string;
+  customerCode: string;
+  totalSpent: number;
+  visitCount: number;
+}
+
+export interface PendingCredit {
+  invoiceId: string;
+  invoiceNumber: string;
+  customerName: string;
+  amount: number;
+  status: string;
+  date: string;
+}
+
+export interface CustomerReport {
+  regulars: RegularCustomer[];
+  highSpenders: HighSpender[];
+  pendingCredits: PendingCredit[];
 }

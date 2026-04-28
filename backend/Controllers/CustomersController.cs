@@ -78,7 +78,23 @@ namespace Yantrik.Controllers
                     Model = v.Model,
                     Year = v.Year,
                     VIN = v.VIN
-                }).ToList()
+                }).ToList(),
+                SalesHistory = customer.Invoices
+                    .Where(i => i.Type == InvoiceType.Sale)
+                    .OrderByDescending(i => i.Date)
+                    .Select(i => new SaleInvoiceDto
+                    {
+                        Id = i.Id,
+                        InvoiceNumber = i.InvoiceNumber,
+                        CustomerId = i.CustomerId ?? Guid.Empty,
+                        CustomerName = customer.FullName,
+                        EmployeeId = i.EmployeeId,
+                        EmployeeName = i.Employee?.FullName ?? "Unknown",
+                        Date = i.Date,
+                        TotalAmount = i.TotalAmount,
+                        PaymentStatus = i.PaymentStatus,
+                        ItemCount = i.Items.Count
+                    }).ToList()
             };
 
             return Ok(dto);

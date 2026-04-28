@@ -7,7 +7,7 @@ using Yantrik.Interfaces;
 
 namespace Yantrik.Controllers
 {
-    [Authorize(Roles = "Admin")]
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class ReportsController : ControllerBase
@@ -19,6 +19,7 @@ namespace Yantrik.Controllers
             _reportingService = reportingService;
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpGet("daily")]
         public async Task<IActionResult> GetDailyReport([FromQuery] DateTime? date)
         {
@@ -26,6 +27,7 @@ namespace Yantrik.Controllers
             return Ok(response);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpGet("monthly")]
         public async Task<IActionResult> GetMonthlyReport([FromQuery] int? year, [FromQuery] int? month)
         {
@@ -34,6 +36,7 @@ namespace Yantrik.Controllers
             return Ok(response);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpGet("yearly")]
         public async Task<IActionResult> GetYearlyReport([FromQuery] int? year)
         {
@@ -42,10 +45,19 @@ namespace Yantrik.Controllers
             return Ok(response);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpGet("dashboard-stats")]
         public async Task<IActionResult> GetDashboardStats()
         {
             var response = await _reportingService.GetAdminDashboardStatsAsync();
+            return Ok(response);
+        }
+
+        [Authorize(Roles = "Admin,Staff")]
+        [HttpGet("customer")]
+        public async Task<IActionResult> GetCustomerReport()
+        {
+            var response = await _reportingService.GetCustomerReportAsync();
             return Ok(response);
         }
     }

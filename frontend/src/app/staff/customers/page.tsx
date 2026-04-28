@@ -164,7 +164,7 @@ export default function CustomersPage() {
                           <History className="h-5 w-5" />
                         </Link>
                         <Link
-                          href={`/staff/sales?customerId=${customer.id}`}
+                          href={`/staff/sales?customerId=${customer.id}&action=new`}
                           className="p-2.5 hover:bg-zinc-100 rounded-xl text-zinc-400 hover:text-zinc-900 transition-all cursor-pointer"
                           title="New Sale"
                         >

@@ -15,7 +15,8 @@ import {
   Search,
   Bell,
   LogOut,
-  UserPlus
+  UserPlus,
+  BarChart3
 } from 'lucide-react';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
 
@@ -24,6 +25,7 @@ const navItems = [
   { label: 'Customers', href: '/staff/customers', icon: Users },
   { label: 'Sales', href: '/staff/sales', icon: Receipt },
   { label: 'Inventory', href: '/staff/inventory', icon: Package },
+  { label: 'Reports', href: '/staff/reports', icon: BarChart3 },
 ];
 
 export default function StaffLayout({ children }: { children: React.ReactNode }) {

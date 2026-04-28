@@ -149,6 +149,56 @@ namespace Yantrik.Services
             return ApiResponse<AdminDashboardStatsDto>.SuccessResponse(stats);
         }
 
+        public async Task<ApiResponse<CustomerReportDto>> GetCustomerReportAsync()
+        {
+            var report = new CustomerReportDto();
+
+            // 1. Regulars: Top 10 by invoice count
+            report.Regulars = await _unitOfWork.Customers
+                .Find(c => true)
+                .OrderByDescending(c => c.Invoices.Count)
+                .Take(10)
+                .Select(c => new RegularCustomerDto
+                {
+                    Id = c.Id,
+                    FullName = c.FullName,
+                    CustomerCode = c.CustomerCode,
+                    VisitCount = c.Invoices.Count,
+                    TotalSpent = c.TotalSpend
+                }).ToListAsync();
+
+            // 2. High Spenders: Top 10 by total spend
+            report.HighSpenders = await _unitOfWork.Customers
+                .Find(c => true)
+                .OrderByDescending(c => c.TotalSpend)
+                .Take(10)
+                .Select(c => new HighSpenderDto
+                {
+                    Id = c.Id,
+                    FullName = c.FullName,
+                    CustomerCode = c.CustomerCode,
+                    TotalSpent = c.TotalSpend,
+                    VisitCount = c.Invoices.Count
+                }).ToListAsync();
+
+            // 3. Pending Credits: All unpaid/partial sale invoices
+            report.PendingCredits = await _unitOfWork.Invoices
+                .Find(i => i.Type == InvoiceType.Sale && i.PaymentStatus != PaymentStatus.Paid)
+                .OrderByDescending(i => i.Date)
+                .Include(i => i.Customer)
+                .Select(i => new PendingCreditDto
+                {
+                    InvoiceId = i.Id,
+                    InvoiceNumber = i.InvoiceNumber,
+                    CustomerName = i.Customer != null ? i.Customer.FullName : "Unknown",
+                    Amount = i.TotalAmount,
+                    Status = i.PaymentStatus.ToString(),
+                    Date = i.Date
+                }).ToListAsync();
+
+            return ApiResponse<CustomerReportDto>.SuccessResponse(report);
+        }
+
         private FinancialReportDto CalculateSummary(IEnumerable<Invoice> invoices)
         {
             var sales = invoices.Where(i => i.Type == InvoiceType.Sale).ToList();

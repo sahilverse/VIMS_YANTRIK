@@ -14,6 +14,7 @@ namespace Yantrik.DTOs
         public decimal TotalSpend { get; set; }
         public string? Email { get; set; }
         public List<VehicleDto> Vehicles { get; set; } = new();
+        public List<SaleInvoiceDto> SalesHistory { get; set; } = new();
     }
 }
 

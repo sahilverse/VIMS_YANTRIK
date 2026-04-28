@@ -11,6 +11,7 @@ namespace Yantrik.Interfaces.Services
         Task<ApiResponse<FinancialReportDto>> GetMonthlyReportAsync(int year, int month);
         Task<ApiResponse<FinancialReportDto>> GetYearlyReportAsync(int year);
         Task<ApiResponse<AdminDashboardStatsDto>> GetAdminDashboardStatsAsync();
+        Task<ApiResponse<CustomerReportDto>> GetCustomerReportAsync();
     }
 }
 
