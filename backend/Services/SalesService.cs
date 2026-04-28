@@ -186,5 +186,32 @@ namespace Yantrik.Services
 
             return await GetSaleByIdAsync(id);
         }
+
+        public async Task<ApiResponse<StaffSalesStatsDto>> GetStaffSalesStatsAsync()
+        {
+            var today = DateTime.UtcNow.Date;
+            var tomorrow = today.AddDays(1);
+
+            var todayInvoices = await _unitOfWork.Invoices
+                .Find(i => i.Type == InvoiceType.Sale && i.Date >= today && i.Date < tomorrow)
+                .ToListAsync();
+
+            var pendingPaymentsCount = await _unitOfWork.Invoices
+                .Find(i => i.Type == InvoiceType.Sale && i.PaymentStatus != PaymentStatus.Paid)
+                .CountAsync();
+
+            var totalTransactions = await _unitOfWork.Invoices
+                .Find(i => i.Type == InvoiceType.Sale)
+                .CountAsync();
+
+            var stats = new StaffSalesStatsDto
+            {
+                TodayRevenue = todayInvoices.Sum(i => i.TotalAmount),
+                TotalTransactions = totalTransactions,
+                PendingPaymentsCount = pendingPaymentsCount
+            };
+
+            return ApiResponse<StaffSalesStatsDto>.SuccessResponse(stats);
+        }
     }
 }

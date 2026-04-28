@@ -22,6 +22,13 @@ namespace Yantrik.Controllers
             _salesService = salesService;
         }
 
+        [HttpGet("stats")]
+        public async Task<IActionResult> GetStats()
+        {
+            var response = await _salesService.GetStaffSalesStatsAsync();
+            return Ok(response);
+        }
+
         [HttpGet]
         public async Task<IActionResult> GetSales([FromQuery] InvoiceQueryParams queryParams)
         {

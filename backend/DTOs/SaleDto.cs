@@ -43,4 +43,10 @@ namespace Yantrik.DTOs
         public int Quantity { get; set; }
         public decimal UnitPrice { get; set; }
     }
+    public class StaffSalesStatsDto
+    {
+        public decimal TodayRevenue { get; set; }
+        public int TotalTransactions { get; set; }
+        public int PendingPaymentsCount { get; set; }
+    }
 }

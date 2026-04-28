@@ -1,7 +1,17 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import api from '@/lib/api';
-import { ApiResponse, PagedResponse, SaleInvoiceDto, CreateSaleRequest, PaymentStatus } from '@/types';
+import { ApiResponse, PagedResponse, SaleInvoiceDto, CreateSaleRequest, PaymentStatus, StaffSalesStats } from '@/types';
 import { toast } from 'sonner';
+
+export const useSalesStatsQuery = () => {
+  return useQuery({
+    queryKey: ['sales', 'stats'],
+    queryFn: async () => {
+      const response = await api.get<ApiResponse<StaffSalesStats>>('/sales/stats');
+      return response.data;
+    },
+  });
+};
 
 export const useSalesListQuery = (params: any) => {
   return useQuery({
@@ -35,6 +45,7 @@ export const useCreateSaleMutation = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['sales'] });
       queryClient.invalidateQueries({ queryKey: ['inventory', 'parts'] }); 
+      queryClient.invalidateQueries({ queryKey: ['sales', 'stats'] });
       toast.success('Sale recorded successfully');
     },
     onError: (error: any) => {
@@ -54,6 +65,7 @@ export const useUpdateSaleStatusMutation = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['sales'] });
+      queryClient.invalidateQueries({ queryKey: ['sales', 'stats'] });
       toast.success('Sale status updated');
     },
     onError: () => {

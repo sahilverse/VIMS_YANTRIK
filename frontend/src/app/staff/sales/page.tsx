@@ -13,17 +13,45 @@ import { useSearchParams } from 'next/navigation';
 import SalesTable from '@/components/staff/sales/SalesTable';
 import CreateSaleModal from '@/components/staff/sales/CreateSaleModal';
 import { Button } from '@/components/ui/button';
+import { useSalesStatsQuery } from '@/hooks/api/useSalesApi';
 
 export default function SalesPage() {
   const searchParams = useSearchParams();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const initialCustomerId = searchParams.get('customerId') || undefined;
 
+  const { data: statsResponse } = useSalesStatsQuery();
+  const stats = statsResponse?.data;
+
   useEffect(() => {
     if (searchParams.get('action') === 'new') {
       setIsCreateOpen(true);
     }
   }, [searchParams]);
+
+  const statItems = [
+    { 
+      label: "Today's Sales", 
+      value: `Rs. ${stats?.todayRevenue?.toFixed(2) || '0.00'}`, 
+      icon: TrendingUp, 
+      color: "text-emerald-600", 
+      bg: "bg-emerald-50" 
+    },
+    { 
+      label: "Total Transactions", 
+      value: stats?.totalTransactions?.toString() || '0', 
+      icon: Receipt, 
+      color: "text-blue-600", 
+      bg: "bg-blue-50" 
+    },
+    { 
+      label: "Pending Payments", 
+      value: stats?.pendingPaymentsCount?.toString() || '0', 
+      icon: History, 
+      color: "text-amber-600", 
+      bg: "bg-amber-50" 
+    },
+  ];
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
@@ -49,11 +77,7 @@ export default function SalesPage() {
 
       {/* Stats Summary (Mini) */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-        {[
-          { label: "Today's Sales", value: "Rs. 0.00", icon: TrendingUp, color: "text-emerald-600", bg: "bg-emerald-50" },
-          { label: "Total Transactions", value: "0", icon: Receipt, color: "text-blue-600", bg: "bg-blue-50" },
-          { label: "Pending Payments", value: "0", icon: History, color: "text-amber-600", bg: "bg-amber-50" },
-        ].map((stat, i) => (
+        {statItems.map((stat, i) => (
           <div key={i} className="bg-white p-6 rounded-3xl border border-zinc-100 shadow-sm flex items-center gap-4">
             <div className={`p-3 rounded-2xl ${stat.bg} ${stat.color}`}>
               <stat.icon className="h-5 w-5" />

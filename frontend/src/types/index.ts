@@ -270,3 +270,9 @@ export interface CreateSaleRequest {
   paymentStatus: PaymentStatus;
   items: CreateSaleItemRequest[];
 }
+
+export interface StaffSalesStats {
+  todayRevenue: number;
+  totalTransactions: number;
+  pendingPaymentsCount: number;
+}

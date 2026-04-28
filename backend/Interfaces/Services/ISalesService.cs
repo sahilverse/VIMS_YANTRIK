@@ -12,5 +12,6 @@ namespace Yantrik.Interfaces.Services
         Task<ApiResponse<SaleInvoiceDto>> GetSaleByIdAsync(Guid id);
         Task<ApiResponse<SaleInvoiceDto>> CreateSaleAsync(Guid staffUserId, CreateSaleRequest request);
         Task<ApiResponse<SaleInvoiceDto>> UpdateSaleStatusAsync(Guid id, PaymentStatus status);
+        Task<ApiResponse<StaffSalesStatsDto>> GetStaffSalesStatsAsync();
     }
 }
