@@ -21,9 +21,16 @@ namespace Yantrik.Services
             _sequenceService = sequenceService;
         }
 
-        public async Task<ApiResponse<PagedResponse<PurchaseInvoiceDto>>> GetPagedPurchasesAsync(PaginationParams @params)
+        public async Task<ApiResponse<PagedResponse<PurchaseInvoiceDto>>> GetPagedPurchasesAsync(InvoiceQueryParams @params)
         {
-            var (invoices, totalCount) = await _unitOfWork.Invoices.GetPagedInvoicesAsync(@params.PageNumber, @params.PageSize, @params.Search, InvoiceType.Purchase);
+            var (invoices, totalCount) = await _unitOfWork.Invoices.GetPagedInvoicesAsync(
+                @params.PageNumber, 
+                @params.PageSize, 
+                @params.Search, 
+                InvoiceType.Purchase,
+                @params.StartDate,
+                @params.EndDate,
+                @params.Status);
 
             var dtos = invoices.Select(i => new PurchaseInvoiceDto
             {
@@ -137,6 +144,20 @@ namespace Yantrik.Services
             await _unitOfWork.CompleteAsync();
 
             return await GetPurchaseByIdAsync(invoice.Id);
+        }
+        public async Task<ApiResponse<PurchaseInvoiceDto>> UpdatePurchaseStatusAsync(Guid id, PaymentStatus status)
+        {
+            var invoice = await _unitOfWork.Invoices.GetByIdAsync(id);
+            if (invoice == null || invoice.Type != InvoiceType.Purchase)
+                return ApiResponse<PurchaseInvoiceDto>.FailureResponse("Purchase invoice not found");
+
+            invoice.PaymentStatus = status;
+            invoice.IsPaid = status == PaymentStatus.Paid;
+            
+            _unitOfWork.Invoices.Update(invoice);
+            await _unitOfWork.CompleteAsync();
+
+            return await GetPurchaseByIdAsync(id);
         }
     }
 }

@@ -4,7 +4,7 @@ import { queryKeys } from '@/lib/query-keys';
 import { PaginationParams } from '@/types';
 import { toast } from 'sonner';
 
-export const usePurchaseListQuery = (params: PaginationParams, enabled = true) => {
+export const usePurchaseListQuery = (params: any, enabled = true) => {
   return useQuery({
     queryKey: queryKeys.purchases.list(params),
     queryFn: () => PurchaseService.getPurchases(params),
@@ -17,6 +17,21 @@ export const usePurchaseDetailQuery = (id: string, enabled = true) => {
     queryKey: queryKeys.purchases.detail(id),
     queryFn: () => PurchaseService.getPurchaseById(id),
     enabled,
+  });
+};
+
+export const useUpdatePurchaseStatusMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: PurchaseService.updateStatus,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.purchases.all });
+      toast.success('Purchase status updated successfully');
+    },
+    onError: (error: any) => {
+      toast.error(error?.response?.data?.message || 'Failed to update purchase status');
+    }
   });
 };
 

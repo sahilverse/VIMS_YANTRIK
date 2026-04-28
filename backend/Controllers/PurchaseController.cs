@@ -22,7 +22,7 @@ namespace Yantrik.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetPurchases([FromQuery] PaginationParams @params)
+        public async Task<IActionResult> GetPurchases([FromQuery] InvoiceQueryParams @params)
         {
             var response = await _purchaseService.GetPagedPurchasesAsync(@params);
             return Ok(response);
@@ -33,6 +33,14 @@ namespace Yantrik.Controllers
         {
             var response = await _purchaseService.GetPurchaseByIdAsync(id);
             if (!response.Success) return NotFound(response);
+            return Ok(response);
+        }
+
+        [HttpPut("{id}/status")]
+        public async Task<IActionResult> UpdateStatus(Guid id, [FromBody] UpdatePurchaseStatusRequest request)
+        {
+            var response = await _purchaseService.UpdatePurchaseStatusAsync(id, request.Status);
+            if (!response.Success) return BadRequest(response);
             return Ok(response);
         }
 

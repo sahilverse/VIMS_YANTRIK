@@ -26,7 +26,14 @@ namespace Yantrik.Repositories
                 .FirstOrDefaultAsync(i => i.Id == id);
         }
 
-        public async Task<(IEnumerable<Invoice> Items, int TotalCount)> GetPagedInvoicesAsync(int pageNumber, int pageSize, string? search, InvoiceType? type)
+        public async Task<(IEnumerable<Invoice> Items, int TotalCount)> GetPagedInvoicesAsync(
+            int pageNumber, 
+            int pageSize, 
+            string? search, 
+            InvoiceType? type,
+            DateTime? startDate = null,
+            DateTime? endDate = null,
+            PaymentStatus? status = null)
         {
             var query = _dbSet
                 .Include(i => i.Items)
@@ -38,6 +45,23 @@ namespace Yantrik.Repositories
             if (type.HasValue)
             {
                 query = query.Where(i => i.Type == type.Value);
+            }
+
+            if (status.HasValue)
+            {
+                query = query.Where(i => i.PaymentStatus == status.Value);
+            }
+
+            if (startDate.HasValue)
+            {
+                var start = DateTime.SpecifyKind(startDate.Value.Date, DateTimeKind.Utc);
+                query = query.Where(i => i.Date >= start);
+            }
+
+            if (endDate.HasValue)
+            {
+                var end = DateTime.SpecifyKind(endDate.Value.Date.AddDays(1).AddTicks(-1), DateTimeKind.Utc);
+                query = query.Where(i => i.Date <= end);
             }
 
             if (!string.IsNullOrWhiteSpace(search))
