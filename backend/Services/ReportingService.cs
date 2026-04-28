@@ -94,6 +94,61 @@ namespace Yantrik.Services
             return ApiResponse<FinancialReportDto>.SuccessResponse(report);
         }
 
+        public async Task<ApiResponse<AdminDashboardStatsDto>> GetAdminDashboardStatsAsync()
+        {
+            var today = DateTime.UtcNow.Date;
+            var tomorrow = today.AddDays(1);
+
+            var staffCount = await _unitOfWork.Staff.Find(x => true).CountAsync();
+            var vendorCount = await _unitOfWork.Vendors.Find(x => true).CountAsync();
+            
+            var todayInvoices = await _unitOfWork.Invoices
+                .Find(i => i.Date >= today && i.Date < tomorrow)
+                .ToListAsync();
+
+            var todaySales = todayInvoices.Where(i => i.Type == InvoiceType.Sale).ToList();
+            
+            var lowStockParts = await _unitOfWork.Parts
+                .Find(p => p.StockQuantity <= p.MinThreshold)
+                .Take(10)
+                .Select(p => new DashboardLowStockPartDto
+                {
+                    Id = p.Id,
+                    Name = p.Name,
+                    SKU = p.SKU,
+                    StockQuantity = p.StockQuantity,
+                    MinThreshold = p.MinThreshold
+                }).ToListAsync();
+
+            var recentPurchases = await _unitOfWork.Invoices
+                .Find(i => i.Type == InvoiceType.Purchase)
+                .OrderByDescending(i => i.Date)
+                .Take(10)
+                .Include(i => i.Vendor)
+                .Select(i => new DashboardPurchaseDto
+                {
+                    Id = i.Id,
+                    InvoiceNumber = i.InvoiceNumber,
+                    VendorName = i.Vendor != null ? i.Vendor.CompanyName : "N/A",
+                    TotalAmount = i.TotalAmount,
+                    PaymentStatus = i.PaymentStatus.ToString(),
+                    Date = i.Date
+                }).ToListAsync();
+
+            var stats = new AdminDashboardStatsDto
+            {
+                TotalStaffCount = staffCount,
+                TotalVendorCount = vendorCount,
+                TodayRevenue = todaySales.Sum(s => s.TotalAmount),
+                TodaySalesCount = todaySales.Count,
+                LowStockCount = await _unitOfWork.Parts.Find(p => p.StockQuantity <= p.MinThreshold).CountAsync(),
+                LowStockParts = lowStockParts,
+                RecentPurchases = recentPurchases
+            };
+
+            return ApiResponse<AdminDashboardStatsDto>.SuccessResponse(stats);
+        }
+
         private FinancialReportDto CalculateSummary(IEnumerable<Invoice> invoices)
         {
             var sales = invoices.Where(i => i.Type == InvoiceType.Sale).ToList();

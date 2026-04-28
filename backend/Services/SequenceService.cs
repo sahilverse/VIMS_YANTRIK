@@ -65,13 +65,13 @@ namespace Yantrik.Services
         {
             try
             {
-                System.Collections.Generic.List<string?> codes = type switch
+                var codes = type switch
                 {
-                    SequenceType.Staff => await _context.StaffProfiles.Select(s => s.EmployeeCode).ToListAsync(),
-                    SequenceType.Customer => await _context.Customers.Select(c => c.CustomerCode).ToListAsync(),
-                    SequenceType.SalesInvoice => await _context.Invoices.Where(i => i.Type == InvoiceType.Sale).Select(i => i.InvoiceNumber).ToListAsync(),
-                    SequenceType.PurchaseInvoice => await _context.Invoices.Where(i => i.Type == InvoiceType.Purchase).Select(i => i.InvoiceNumber).ToListAsync(),
-                    _ => new System.Collections.Generic.List<string?>()
+                    SequenceType.Staff => await _context.StaffProfiles.Select(s => (string?)s.EmployeeCode).ToListAsync(),
+                    SequenceType.Customer => await _context.Customers.Select(c => (string?)c.CustomerCode).ToListAsync(),
+                    SequenceType.SalesInvoice => await _context.Invoices.Where(i => i.Type == InvoiceType.Sale).Select(i => (string?)i.InvoiceNumber).ToListAsync(),
+                    SequenceType.PurchaseInvoice => await _context.Invoices.Where(i => i.Type == InvoiceType.Purchase).Select(i => (string?)i.InvoiceNumber).ToListAsync(),
+                    _ => new List<string?>()
                 };
 
                 if (codes == null || codes.Count == 0) return GetInitialDefault(type);

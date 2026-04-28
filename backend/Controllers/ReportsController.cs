@@ -41,5 +41,12 @@ namespace Yantrik.Controllers
             var response = await _reportingService.GetYearlyReportAsync(year ?? now.Year);
             return Ok(response);
         }
+
+        [HttpGet("dashboard-stats")]
+        public async Task<IActionResult> GetDashboardStats()
+        {
+            var response = await _reportingService.GetAdminDashboardStatsAsync();
+            return Ok(response);
+        }
     }
 }
