@@ -57,6 +57,27 @@ namespace Yantrik.Repositories
             return await _context.SaveChangesAsync();
         }
 
+        public async Task BeginTransactionAsync()
+        {
+            await _context.Database.BeginTransactionAsync();
+        }
+
+        public async Task CommitTransactionAsync()
+        {
+            if (_context.Database.CurrentTransaction != null)
+            {
+                await _context.Database.CurrentTransaction.CommitAsync();
+            }
+        }
+
+        public async Task RollbackTransactionAsync()
+        {
+            if (_context.Database.CurrentTransaction != null)
+            {
+                await _context.Database.CurrentTransaction.RollbackAsync();
+            }
+        }
+
         public void Dispose()
         {
             _context.Dispose();

@@ -48,16 +48,35 @@ namespace Yantrik.Services
                 }
             };
 
-            var result = await _userManager.CreateAsync(user, tempPassword);
-            if (!result.Succeeded)
-                return ApiResponse<UserDto>.FailureResponse("Employee registration failed", result.Errors.ToDictionary(e => e.Code, e => e.Description));
+            await _unitOfWork.BeginTransactionAsync();
+            try
+            {
+                var result = await _userManager.CreateAsync(user, tempPassword);
+                if (!result.Succeeded)
+                {
+                    await _unitOfWork.RollbackTransactionAsync();
+                    return ApiResponse<UserDto>.FailureResponse("Employee registration failed", result.Errors.ToDictionary(e => e.Code, e => e.Description));
+                }
 
-            await _userManager.AddToRoleAsync(user, request.Role.ToString());
+                var roleResult = await _userManager.AddToRoleAsync(user, request.Role.ToString());
+                if (!roleResult.Succeeded)
+                {
+                    await _unitOfWork.RollbackTransactionAsync();
+                    return ApiResponse<UserDto>.FailureResponse("Failed to assign role", roleResult.Errors.ToDictionary(e => e.Code, e => e.Description));
+                }
 
-            // Send welcome email in background
-            Hangfire.BackgroundJob.Enqueue<IEmailService>(x => x.SendWelcomeEmailAsync(user.Email, user.Employee.FullName, tempPassword));
+                await _unitOfWork.CommitTransactionAsync();
 
-            return ApiResponse<UserDto>.SuccessResponse(MapToDto(user, request.Role.ToString()), "Employee created successfully. Welcome email sent.");
+                // Send welcome email in background
+                Hangfire.BackgroundJob.Enqueue<IEmailService>(x => x.SendWelcomeEmailAsync(user.Email, user.Employee.FullName, tempPassword));
+
+                return ApiResponse<UserDto>.SuccessResponse(MapToDto(user, request.Role.ToString()), "Employee created successfully. Welcome email sent.");
+            }
+            catch (System.Exception ex)
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+                return ApiResponse<UserDto>.FailureResponse($"Error during employee registration: {ex.Message}");
+            }
         }
 
         public async Task<ApiResponse<UserDto>> RegisterCustomerWithVehicleAsync(CustomerWithVehicleRegisterRequest request)
@@ -93,18 +112,37 @@ namespace Yantrik.Services
                 }
             };
 
-            var result = await _userManager.CreateAsync(user, tempPassword);
-            if (!result.Succeeded)
-                return ApiResponse<UserDto>.FailureResponse("Customer registration failed", result.Errors.ToDictionary(e => e.Code, e => e.Description));
-
-            await _userManager.AddToRoleAsync(user, UserRole.Customer.ToString());
-
-            if (!string.IsNullOrEmpty(request.Email))
+            await _unitOfWork.BeginTransactionAsync();
+            try
             {
-                Hangfire.BackgroundJob.Enqueue<IEmailService>(x => x.SendWelcomeEmailAsync(user.Email, user.CustomerProfile.FullName, tempPassword));
-            }
+                var result = await _userManager.CreateAsync(user, tempPassword);
+                if (!result.Succeeded)
+                {
+                    await _unitOfWork.RollbackTransactionAsync();
+                    return ApiResponse<UserDto>.FailureResponse("Customer registration failed", result.Errors.ToDictionary(e => e.Code, e => e.Description));
+                }
 
-            return ApiResponse<UserDto>.SuccessResponse(MapToDto(user, UserRole.Customer.ToString()), "Customer created successfully.");
+                var roleResult = await _userManager.AddToRoleAsync(user, UserRole.Customer.ToString());
+                if (!roleResult.Succeeded)
+                {
+                    await _unitOfWork.RollbackTransactionAsync();
+                    return ApiResponse<UserDto>.FailureResponse("Failed to assign customer role", roleResult.Errors.ToDictionary(e => e.Code, e => e.Description));
+                }
+
+                await _unitOfWork.CommitTransactionAsync();
+
+                if (!string.IsNullOrEmpty(request.Email))
+                {
+                    Hangfire.BackgroundJob.Enqueue<IEmailService>(x => x.SendWelcomeEmailAsync(user.Email, user.CustomerProfile.FullName, tempPassword));
+                }
+
+                return ApiResponse<UserDto>.SuccessResponse(MapToDto(user, UserRole.Customer.ToString()), "Customer created successfully.");
+            }
+            catch (System.Exception ex)
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+                return ApiResponse<UserDto>.FailureResponse($"Error during customer registration: {ex.Message}");
+            }
         }
 
         private string GenerateRandomPassword()
@@ -162,29 +200,42 @@ namespace Yantrik.Services
             var user = await _unitOfWork.Users.GetByIdWithProfileAsync(id);
             if (user == null) return ApiResponse<bool>.FailureResponse("Employee not found");
 
-            // Update Identity User
-            user.Email = request.Email;
-            user.UserName = request.Email;
-            var userResult = await _userManager.UpdateAsync(user);
-            if (!userResult.Succeeded)
-                return ApiResponse<bool>.FailureResponse("Failed to update user identity", 
-                    userResult.Errors.ToDictionary(e => e.Code, e => e.Description));
-
-            // Update Roles
-            var currentRoles = await _userManager.GetRolesAsync(user);
-            await _userManager.RemoveFromRolesAsync(user, currentRoles);
-            await _userManager.AddToRoleAsync(user, request.Role.ToString());
-
-            // Update Employee Profile
-            if (user.Employee != null)
+            await _unitOfWork.BeginTransactionAsync();
+            try
             {
-                user.Employee.FullName = request.FullName;
-                user.Employee.Phone = request.Phone ?? string.Empty;
-                _unitOfWork.Users.Update(user);
-                await _unitOfWork.CompleteAsync();
-            }
+                // Update Identity User
+                user.Email = request.Email;
+                user.UserName = request.Email;
+                var userResult = await _userManager.UpdateAsync(user);
+                if (!userResult.Succeeded)
+                {
+                    await _unitOfWork.RollbackTransactionAsync();
+                    return ApiResponse<bool>.FailureResponse("Failed to update user identity", 
+                        userResult.Errors.ToDictionary(e => e.Code, e => e.Description));
+                }
 
-            return ApiResponse<bool>.SuccessResponse(true, "Employee updated successfully");
+                // Update Roles
+                var currentRoles = await _userManager.GetRolesAsync(user);
+                await _userManager.RemoveFromRolesAsync(user, currentRoles);
+                await _userManager.AddToRoleAsync(user, request.Role.ToString());
+
+                // Update Employee Profile
+                if (user.Employee != null)
+                {
+                    user.Employee.FullName = request.FullName;
+                    user.Employee.Phone = request.Phone ?? string.Empty;
+                    _unitOfWork.Users.Update(user);
+                    await _unitOfWork.CompleteAsync();
+                }
+
+                await _unitOfWork.CommitTransactionAsync();
+                return ApiResponse<bool>.SuccessResponse(true, "Employee updated successfully");
+            }
+            catch (System.Exception ex)
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+                return ApiResponse<bool>.FailureResponse($"Error updating employee: {ex.Message}");
+            }
         }
 
         public async Task<ApiResponse<bool>> ToggleEmployeeStatusAsync(System.Guid id)

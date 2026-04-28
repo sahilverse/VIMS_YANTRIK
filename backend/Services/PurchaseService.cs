@@ -88,62 +88,75 @@ namespace Yantrik.Services
             if (employee == null)
                 return ApiResponse<PurchaseInvoiceDto>.FailureResponse("Only Employees can create purchases");
 
-            var invoiceNumber = await _sequenceService.GetNextCodeAsync(SequenceType.PurchaseInvoice);
-
-            var invoice = new Invoice
+            await _unitOfWork.BeginTransactionAsync();
+            try 
             {
-                InvoiceNumber = invoiceNumber,
-                Type = InvoiceType.Purchase,
-                VendorId = request.VendorId,
-                EmployeeId = employee.Id,
-                Date = DateTime.SpecifyKind(request.Date, DateTimeKind.Utc),
-                PaymentStatus = request.PaymentStatus,
-                Items = new List<InvoiceItem>()
-            };
+                var invoiceNumber = await _sequenceService.GetNextCodeAsync(SequenceType.PurchaseInvoice);
 
-            decimal totalAmount = 0;
-
-            foreach (var itemRequest in request.Items)
-            {
-                var part = await _unitOfWork.Parts.GetByIdAsync(itemRequest.PartId);
-                if (part == null) return ApiResponse<PurchaseInvoiceDto>.FailureResponse($"Part with ID {itemRequest.PartId} not found");
-
-                // Update Stock
-                part.StockQuantity += itemRequest.Quantity;
-                _unitOfWork.Parts.Update(part);
-
-                var invoiceItem = new InvoiceItem
+                var invoice = new Invoice
                 {
-                    PartId = itemRequest.PartId,
-                    Quantity = itemRequest.Quantity,
-                    UnitPrice = itemRequest.UnitPrice
+                    InvoiceNumber = invoiceNumber,
+                    Type = InvoiceType.Purchase,
+                    VendorId = request.VendorId,
+                    EmployeeId = employee.Id,
+                    Date = DateTime.SpecifyKind(request.Date, DateTimeKind.Utc),
+                    PaymentStatus = request.PaymentStatus,
+                    Items = new List<InvoiceItem>()
                 };
 
-                invoice.Items.Add(invoiceItem);
-                totalAmount += (itemRequest.Quantity * itemRequest.UnitPrice);
+                decimal totalAmount = 0;
 
-                // Create Stock Movement 
-                var stockMovement = new StockMovement
+                foreach (var itemRequest in request.Items)
                 {
-                    PartId = itemRequest.PartId,
-                    Type = MovementType.Purchase,
-                    Quantity = itemRequest.Quantity,
-                    UnitCost = itemRequest.UnitPrice,
-                    ReferenceType = ReferenceType.Invoice,
-                    ReferenceId = invoice.Id,
-                    CreatedBy = employee.Id
-                };
-                await _unitOfWork.StockMovements.AddAsync(stockMovement);
+                    var part = await _unitOfWork.Parts.GetByIdAsync(itemRequest.PartId);
+                    if (part == null) 
+                    {
+                        await _unitOfWork.RollbackTransactionAsync();
+                        return ApiResponse<PurchaseInvoiceDto>.FailureResponse($"Part with ID {itemRequest.PartId} not found");
+                    }
+
+                    // Update Stock
+                    part.StockQuantity += itemRequest.Quantity;
+                    _unitOfWork.Parts.Update(part);
+
+                    var invoiceItem = new InvoiceItem
+                    {
+                        PartId = itemRequest.PartId,
+                        Quantity = itemRequest.Quantity,
+                        UnitPrice = itemRequest.UnitPrice
+                    };
+
+                    invoice.Items.Add(invoiceItem);
+                    totalAmount += (itemRequest.Quantity * itemRequest.UnitPrice);
+
+                    // Create Stock Movement 
+                    var stockMovement = new StockMovement
+                    {
+                        PartId = itemRequest.PartId,
+                        Type = MovementType.Purchase,
+                        Quantity = itemRequest.Quantity,
+                        UnitCost = itemRequest.UnitPrice,
+                        ReferenceType = ReferenceType.Invoice,
+                        ReferenceId = invoice.Id,
+                        CreatedBy = employee.Id
+                    };
+                    await _unitOfWork.StockMovements.AddAsync(stockMovement);
+                }
+
+                invoice.TotalAmount = totalAmount;
+                invoice.SubTotal = totalAmount;
+
+                await _unitOfWork.Invoices.AddAsync(invoice);
+                await _unitOfWork.CompleteAsync();
+                await _unitOfWork.CommitTransactionAsync();
+
+                return await GetPurchaseByIdAsync(invoice.Id);
             }
-
-            invoice.TotalAmount = totalAmount;
-            invoice.SubTotal = totalAmount;
-            invoice.IsPaid = invoice.PaymentStatus == PaymentStatus.Paid;
-
-            await _unitOfWork.Invoices.AddAsync(invoice);
-            await _unitOfWork.CompleteAsync();
-
-            return await GetPurchaseByIdAsync(invoice.Id);
+            catch (Exception ex)
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+                return ApiResponse<PurchaseInvoiceDto>.FailureResponse($"Failed to create purchase: {ex.Message}");
+            }
         }
         public async Task<ApiResponse<PurchaseInvoiceDto>> UpdatePurchaseStatusAsync(Guid id, PaymentStatus status)
         {
@@ -152,7 +165,6 @@ namespace Yantrik.Services
                 return ApiResponse<PurchaseInvoiceDto>.FailureResponse("Purchase invoice not found");
 
             invoice.PaymentStatus = status;
-            invoice.IsPaid = status == PaymentStatus.Paid;
             
             _unitOfWork.Invoices.Update(invoice);
             await _unitOfWork.CompleteAsync();

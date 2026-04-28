@@ -54,16 +54,33 @@ namespace Yantrik.Services
                 }
             };
 
-            var result = await _userManager.CreateAsync(user, request.Password);
-            if (!result.Succeeded)
+            await _unitOfWork.BeginTransactionAsync();
+            try
             {
-                var errors = result.Errors.ToDictionary(e => e.Code, e => e.Description);
-                return ApiResponse<AuthResponse>.FailureResponse("Registration failed", errors);
+                var result = await _userManager.CreateAsync(user, request.Password);
+                if (!result.Succeeded)
+                {
+                    await _unitOfWork.RollbackTransactionAsync();
+                    var errors = result.Errors.ToDictionary(e => e.Code, e => e.Description);
+                    return ApiResponse<AuthResponse>.FailureResponse("Registration failed", errors);
+                }
+
+                var roleResult = await _userManager.AddToRoleAsync(user, UserRole.Customer.ToString());
+                if (!roleResult.Succeeded)
+                {
+                    await _unitOfWork.RollbackTransactionAsync();
+                    var errors = roleResult.Errors.ToDictionary(e => e.Code, e => e.Description);
+                    return ApiResponse<AuthResponse>.FailureResponse("Role assignment failed during registration", errors);
+                }
+
+                await _unitOfWork.CommitTransactionAsync();
+                return await GenerateAuthResponseAsync(user);
             }
-
-            await _userManager.AddToRoleAsync(user, UserRole.Customer.ToString());
-
-            return await GenerateAuthResponseAsync(user);
+            catch (Exception ex)
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+                return ApiResponse<AuthResponse>.FailureResponse($"An error occurred during registration: {ex.Message}");
+            }
         }
 
         public async Task<ApiResponse<AuthResponse>> LoginAsync(LoginRequest request)

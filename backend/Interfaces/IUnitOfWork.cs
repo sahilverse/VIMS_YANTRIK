@@ -26,6 +26,9 @@ namespace Yantrik.Interfaces
         IAIPredictionRepository AIPredictions { get; }
         
         Task<int> CompleteAsync();
+        Task BeginTransactionAsync();
+        Task CommitTransactionAsync();
+        Task RollbackTransactionAsync();
     }
 }
 

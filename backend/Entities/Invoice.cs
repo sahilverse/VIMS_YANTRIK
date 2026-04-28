@@ -20,7 +20,7 @@ namespace Yantrik.Entities
         public decimal DiscountAmount { get; set; }
         public decimal TotalAmount { get; set; }
         public PaymentStatus PaymentStatus { get; set; }
-        public bool IsPaid { get; set; }
+
 
         public Customer? Customer { get; set; }
         public Vendor? Vendor { get; set; }
