@@ -8,7 +8,9 @@ import { usePartListQuery } from '@/hooks/api/useInventoryApi';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { X, Receipt, Plus, Trash2 } from 'lucide-react';
+import { X, Receipt, Plus, Trash2, PlusCircle } from 'lucide-react';
+import AddVendorModal from '../AddVendorModal';
+import AddPartModal from '../inventory/AddPartModal';
 
 interface CreatePurchaseModalProps {
   isOpen: boolean;
@@ -16,7 +18,11 @@ interface CreatePurchaseModalProps {
 }
 
 export default function CreatePurchaseModal({ isOpen, onClose }: CreatePurchaseModalProps) {
-  const { register, handleSubmit, control, formState: { errors }, reset } = useForm<CreatePurchaseFormValues>({
+  const [isAddVendorOpen, setIsAddVendorOpen] = React.useState(false);
+  const [isAddPartOpen, setIsAddPartOpen] = React.useState(false);
+  const [activePartIndex, setActivePartIndex] = React.useState<number | null>(null);
+
+  const { register, handleSubmit, control, setValue, formState: { errors }, reset } = useForm<CreatePurchaseFormValues>({
     resolver: zodResolver(createPurchaseSchema) as any,
     defaultValues: {
       items: [{ partId: '', quantity: 1, unitPrice: 0 }],
@@ -85,7 +91,16 @@ export default function CreatePurchaseModal({ isOpen, onClose }: CreatePurchaseM
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-zinc-50/50 p-6 rounded-2xl border border-zinc-100">
             <div className="space-y-2">
-              <Label htmlFor="vendorId" className="text-xs font-bold uppercase tracking-wider text-zinc-500">Select Vendor</Label>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="vendorId" className="text-xs font-bold uppercase tracking-wider text-zinc-500">Select Vendor</Label>
+                <button 
+                  type="button"
+                  onClick={() => setIsAddVendorOpen(true)}
+                  className="text-[10px] font-bold text-zinc-400 hover:text-zinc-950 flex items-center gap-1 transition-colors"
+                >
+                  <PlusCircle className="h-3 w-3" /> Quick Add
+                </button>
+              </div>
               <select
                 id="vendorId"
                 {...register('vendorId')}
@@ -139,6 +154,19 @@ export default function CreatePurchaseModal({ isOpen, onClose }: CreatePurchaseM
                 return (
                   <div key={field.id} className="flex flex-wrap md:flex-nowrap gap-3 items-start p-4 rounded-xl border border-zinc-100 bg-white shadow-sm">
                     <div className="flex-1 min-w-[200px] space-y-1">
+                      <div className="flex items-center justify-between mb-1 px-1">
+                        <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Part</span>
+                        <button 
+                          type="button"
+                          onClick={() => {
+                            setActivePartIndex(index);
+                            setIsAddPartOpen(true);
+                          }}
+                          className="text-[10px] font-bold text-zinc-400 hover:text-zinc-950 flex items-center gap-1 transition-colors"
+                        >
+                          <PlusCircle className="h-3 w-3" /> New
+                        </button>
+                      </div>
                       <select
                         {...register(`items.${index}.partId`)}
                         className="w-full h-10 px-3 bg-zinc-50 border border-transparent focus:bg-white focus:border-zinc-200 rounded-lg text-sm font-medium transition-all outline-none"
@@ -219,6 +247,24 @@ export default function CreatePurchaseModal({ isOpen, onClose }: CreatePurchaseM
           </div>
         </form>
       </div>
+      <AddVendorModal
+        isOpen={isAddVendorOpen}
+        onClose={() => setIsAddVendorOpen(false)}
+        onSuccess={(vendorId) => setValue('vendorId', vendorId)}
+      />
+
+      <AddPartModal
+        isOpen={isAddPartOpen}
+        onClose={() => {
+          setIsAddPartOpen(false);
+          setActivePartIndex(null);
+        }}
+        onSuccess={(partId) => {
+          if (activePartIndex !== null) {
+            setValue(`items.${activePartIndex}.partId`, partId);
+          }
+        }}
+      />
     </div>
   );
 }

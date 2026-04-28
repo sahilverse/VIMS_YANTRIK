@@ -11,9 +11,10 @@ import { X, Truck, Loader2, ArrowRight } from 'lucide-react';
 interface AddVendorModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onSuccess?: (vendorId: string) => void;
 }
 
-export default function AddVendorModal({ isOpen, onClose }: AddVendorModalProps) {
+export default function AddVendorModal({ isOpen, onClose, onSuccess }: AddVendorModalProps) {
   const createMutation = useCreateVendorMutation();
 
   const {
@@ -27,8 +28,11 @@ export default function AddVendorModal({ isOpen, onClose }: AddVendorModalProps)
 
   const onSubmit = (data: CreateVendorFormValues) => {
     createMutation.mutate(data, {
-      onSuccess: () => {
+      onSuccess: (response) => {
         reset();
+        if (onSuccess && response.data?.id) {
+          onSuccess(response.data.id);
+        }
         onClose();
       }
     });

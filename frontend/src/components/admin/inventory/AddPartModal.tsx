@@ -11,9 +11,10 @@ import { X, PackagePlus } from 'lucide-react';
 interface AddPartModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onSuccess?: (partId: string) => void;
 }
 
-export default function AddPartModal({ isOpen, onClose }: AddPartModalProps) {
+export default function AddPartModal({ isOpen, onClose, onSuccess }: AddPartModalProps) {
   const { register, handleSubmit, formState: { errors }, reset } = useForm<CreatePartFormValues>({
     resolver: zodResolver(createPartSchema) as any,
     defaultValues: {
@@ -33,8 +34,11 @@ export default function AddPartModal({ isOpen, onClose }: AddPartModalProps) {
 
   const onSubmit = (data: CreatePartFormValues) => {
     createPart.mutate(data, {
-      onSuccess: () => {
+      onSuccess: (response) => {
         reset();
+        if (onSuccess && response.data?.id) {
+          onSuccess(response.data.id);
+        }
         onClose();
       }
     });

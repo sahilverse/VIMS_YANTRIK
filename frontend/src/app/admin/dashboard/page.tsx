@@ -32,7 +32,7 @@ export default function AdminDashboard() {
   const { data: vendorData } = useVendorListQuery({ pageNumber: 1, pageSize: 1 });
   const displayVendorCount = vendorData?.data?.totalItems || 0;
 
-  const today = new Date().toISOString();
+  const today = React.useMemo(() => new Date().toISOString().split('T')[0], []);
   const { data: dailyReport } = useDailyReportQuery(today);
   const revenue = dailyReport?.data?.totalRevenue || 0;
 
