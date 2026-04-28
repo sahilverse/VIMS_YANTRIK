@@ -9,3 +9,6 @@ namespace Yantrik.Common
         public DateTime? UpdatedAt { get; set; }
     }
 }
+
+
+

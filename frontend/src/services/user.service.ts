@@ -14,13 +14,13 @@ export interface CreateCustomerFormValues {
 }
 
 export const UserService = {
-  getStaff: async (params: PaginationParams) => {
-    const response = await api.get<ApiResponse<PagedResponse<UserDto>>>('/users/staff', { params });
+  getEmployees: async (params: PaginationParams) => {
+    const response = await api.get<ApiResponse<PagedResponse<UserDto>>>('/users/employees', { params });
     return response.data;
   },
 
-  createStaff: async (data: CreateStaffFormValues) => {
-    const response = await api.post<ApiResponse<UserDto>>('/users/staff', data);
+  createEmployee: async (data: CreateStaffFormValues) => {
+    const response = await api.post<ApiResponse<UserDto>>('/users/employee', data);
     return response.data;
   },
 
@@ -29,13 +29,13 @@ export const UserService = {
     return response.data;
   },
 
-  updateStaff: async (id: string, data: any) => {
-    const response = await api.put<ApiResponse<boolean>>(`/users/staff/${id}`, data);
+  updateEmployee: async (id: string, data: any) => {
+    const response = await api.put<ApiResponse<boolean>>(`/users/employee/${id}`, data);
     return response.data;
   },
 
-  toggleStatus: async (id: string) => {
-    const response = await api.patch<ApiResponse<boolean>>(`/users/staff/${id}/toggle-status`);
+  toggleEmployeeStatus: async (id: string) => {
+    const response = await api.patch<ApiResponse<boolean>>(`/users/employee/${id}/toggle-status`);
     return response.data;
   },
 

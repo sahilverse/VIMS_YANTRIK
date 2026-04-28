@@ -3,9 +3,12 @@ namespace Yantrik.Entities
     public enum SequenceType
     {
         Customer,
-        Staff,
+        Employee,
         SalesInvoice,
         PurchaseInvoice,
         PartRequest
     }
 }
+
+
+

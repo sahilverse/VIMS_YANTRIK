@@ -1,5 +1,5 @@
-import React from 'react';
-import { useForm } from 'react-hook-form';
+import React, { useMemo, useState } from 'react';
+import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { createPartSchema, CreatePartFormValues } from '@/lib/validations/admin';
 import { useCreatePartMutation, useCategoryListQuery } from '@/hooks/api/useInventoryApi';
@@ -7,6 +7,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { X, PackagePlus } from 'lucide-react';
+import SearchableSelect from '@/components/ui/SearchableSelect';
+import AddCategoryModal from './AddCategoryModal';
 
 interface AddPartModalProps {
   isOpen: boolean;
@@ -15,18 +17,33 @@ interface AddPartModalProps {
 }
 
 export default function AddPartModal({ isOpen, onClose, onSuccess }: AddPartModalProps) {
-  const { register, handleSubmit, formState: { errors }, reset } = useForm<CreatePartFormValues>({
+  const [isAddCategoryOpen, setIsAddCategoryOpen] = useState(false);
+  const [categorySearch, setCategorySearch] = useState('');
+  const [localCategories, setLocalCategories] = useState<any[]>([]);
+
+  const { register, handleSubmit, control, setValue, formState: { errors }, reset } = useForm<CreatePartFormValues>({
     resolver: zodResolver(createPartSchema) as any,
     defaultValues: {
       minThreshold: 10,
       stockQuantity: 0,
       unitPrice: 0,
       costPrice: 0,
+      categoryId: ''
     }
   });
 
-  const { data: categoryResponse } = useCategoryListQuery(isOpen);
-  const categories = categoryResponse?.data || [];
+  const categoryId = useWatch({
+    control,
+    name: 'categoryId'
+  });
+
+  const { data: categoryResponse, isLoading: isLoadingCategories } = useCategoryListQuery(isOpen);
+  
+  const categories = useMemo(() => {
+    const serverCategories = categoryResponse?.data?.map(c => ({ id: c.id, label: c.name })) || [];
+    const combined = [...localCategories, ...serverCategories];
+    return Array.from(new Map(combined.map(c => [c.id, c])).values());
+  }, [categoryResponse, localCategories]);
 
   const createPart = useCreatePartMutation();
 
@@ -36,6 +53,7 @@ export default function AddPartModal({ isOpen, onClose, onSuccess }: AddPartModa
     createPart.mutate(data, {
       onSuccess: (response) => {
         reset();
+        setLocalCategories([]);
         if (onSuccess && response.data?.id) {
           onSuccess(response.data.id);
         }
@@ -47,10 +65,10 @@ export default function AddPartModal({ isOpen, onClose, onSuccess }: AddPartModa
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-950/20 backdrop-blur-sm overflow-y-auto">
       <div 
-        className="bg-white rounded-3xl w-full max-w-2xl overflow-hidden shadow-2xl animate-in fade-in zoom-in-95 duration-200 my-8"
+        className="bg-white rounded-3xl w-full max-w-2xl shadow-2xl animate-in fade-in zoom-in-95 duration-200 my-8"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="p-6 border-b border-zinc-100 flex items-center justify-between bg-zinc-50/50 sticky top-0 z-10">
+        <div className="p-6 border-b border-zinc-100 flex items-center justify-between bg-zinc-50/50 sticky top-0 z-10 rounded-t-3xl">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-zinc-100 rounded-xl">
               <PackagePlus className="h-5 w-5 text-zinc-700" />
@@ -93,17 +111,17 @@ export default function AddPartModal({ isOpen, onClose, onSuccess }: AddPartModa
             </div>
 
             <div className="space-y-2 md:col-span-2">
-              <Label htmlFor="categoryId" className="text-xs font-bold uppercase tracking-wider text-zinc-500">Category</Label>
-              <select
-                id="categoryId"
-                {...register('categoryId')}
-                className="w-full h-11 px-3 bg-zinc-50 border border-transparent focus:bg-white focus:border-zinc-300 rounded-xl text-sm font-medium transition-all outline-none"
-              >
-                <option value="">Select a category</option>
-                {categories.map(cat => (
-                  <option key={cat.id} value={cat.id}>{cat.name}</option>
-                ))}
-              </select>
+              <Label className="text-xs font-bold uppercase tracking-wider text-zinc-500">Category</Label>
+              <SearchableSelect
+                options={categories}
+                value={categoryId}
+                onChange={(val) => setValue('categoryId', val, { shouldValidate: true })}
+                onSearch={setCategorySearch}
+                isLoading={isLoadingCategories}
+                onQuickAdd={() => setIsAddCategoryOpen(true)}
+                quickAddLabel="Create New Category"
+                placeholder="Search or select category..."
+              />
               {errors.categoryId && <p className="text-xs font-bold text-red-500">{errors.categoryId.message}</p>}
             </div>
 
@@ -183,6 +201,16 @@ export default function AddPartModal({ isOpen, onClose, onSuccess }: AddPartModa
           </div>
         </form>
       </div>
+
+      <AddCategoryModal 
+        isOpen={isAddCategoryOpen}
+        onClose={() => setIsAddCategoryOpen(false)}
+        onSuccess={(categoryId) => {
+          setValue('categoryId', categoryId, { shouldValidate: true });
+          setLocalCategories(prev => [{ id: categoryId, label: 'New Category (Refreshing...)' }, ...prev]);
+        }}
+      />
     </div>
   );
 }
+

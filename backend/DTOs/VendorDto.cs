@@ -24,3 +24,6 @@ namespace Yantrik.DTOs
         public string? Address { get; set; }
     }
 }
+
+
+

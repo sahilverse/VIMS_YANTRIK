@@ -27,7 +27,7 @@ namespace Yantrik.Services
             _emailService = emailService;
         }
 
-        public async Task<ApiResponse<UserDto>> RegisterStaffAsync(StaffRegisterRequest request)
+        public async Task<ApiResponse<UserDto>> RegisterEmployeeAsync(EmployeeRegisterRequest request)
         {
             var userExists = await _userManager.FindByEmailAsync(request.Email);
             if (userExists != null)
@@ -40,9 +40,9 @@ namespace Yantrik.Services
                 Email = request.Email,
                 UserName = request.Email,
                 MustChangePassword = true,
-                StaffProfile = new StaffProfile
+                Employee = new Employee
                 {
-                    EmployeeCode = await _sequenceService.GetNextCodeAsync(SequenceType.Staff),
+                    EmployeeCode = await _sequenceService.GetNextCodeAsync(SequenceType.Employee),
                     FullName = request.FullName,
                     Phone = request.Phone
                 }
@@ -50,14 +50,14 @@ namespace Yantrik.Services
 
             var result = await _userManager.CreateAsync(user, tempPassword);
             if (!result.Succeeded)
-                return ApiResponse<UserDto>.FailureResponse("Staff registration failed", result.Errors.ToDictionary(e => e.Code, e => e.Description));
+                return ApiResponse<UserDto>.FailureResponse("Employee registration failed", result.Errors.ToDictionary(e => e.Code, e => e.Description));
 
             await _userManager.AddToRoleAsync(user, request.Role.ToString());
 
             // Send welcome email in background
-            Hangfire.BackgroundJob.Enqueue<IEmailService>(x => x.SendWelcomeEmailAsync(user.Email, user.StaffProfile.FullName, tempPassword));
+            Hangfire.BackgroundJob.Enqueue<IEmailService>(x => x.SendWelcomeEmailAsync(user.Email, user.Employee.FullName, tempPassword));
 
-            return ApiResponse<UserDto>.SuccessResponse(MapToDto(user, request.Role.ToString()), "Staff member created successfully. Welcome email sent.");
+            return ApiResponse<UserDto>.SuccessResponse(MapToDto(user, request.Role.ToString()), "Employee created successfully. Welcome email sent.");
         }
 
         public async Task<ApiResponse<UserDto>> RegisterCustomerWithVehicleAsync(CustomerWithVehicleRegisterRequest request)
@@ -121,10 +121,10 @@ namespace Yantrik.Services
             {
                 Id = user.Id,
                 Email = user.Email!,
-                FullName = user.StaffProfile?.FullName ?? user.CustomerProfile?.FullName ?? "User",
+                FullName = user.Employee?.FullName ?? user.CustomerProfile?.FullName ?? "User",
                 Role = role,
-                Phone = user.StaffProfile?.Phone ?? user.CustomerProfile?.Phone,
-                Code = user.StaffProfile?.EmployeeCode ?? user.CustomerProfile?.CustomerCode,
+                Phone = user.Employee?.Phone ?? user.CustomerProfile?.Phone,
+                Code = user.Employee?.EmployeeCode ?? user.CustomerProfile?.CustomerCode,
                 IsActive = user.IsActive
             };
         }
@@ -138,18 +138,18 @@ namespace Yantrik.Services
             return ApiResponse<UserDto>.SuccessResponse(MapToDto(user, roles.FirstOrDefault() ?? "No Role"));
         }
 
-        public async Task<ApiResponse<PagedResponse<UserDto>>> GetPagedStaffAsync(PaginationParams @params)
+        public async Task<ApiResponse<PagedResponse<UserDto>>> GetPagedEmployeesAsync(PaginationParams @params)
         {
-            var (users, totalCount) = await _unitOfWork.Users.GetPagedStaffAsync(@params.PageNumber, @params.PageSize, @params.Search);
+            var (users, totalCount) = await _unitOfWork.Users.GetPagedEmployeesAsync(@params.PageNumber, @params.PageSize, @params.Search);
 
             var userDtos = users.Select(u => new UserDto
             {
                 Id = u.Id,
                 Email = u.Email!,
-                FullName = u.StaffProfile?.FullName ?? string.Empty,
+                FullName = u.Employee?.FullName ?? string.Empty,
                 Role = _userManager.GetRolesAsync(u).Result.FirstOrDefault() ?? "Staff",
-                Phone = u.StaffProfile?.Phone,
-                Code = u.StaffProfile?.EmployeeCode,
+                Phone = u.Employee?.Phone,
+                Code = u.Employee?.EmployeeCode,
                 IsActive = u.IsActive
             });
 
@@ -157,10 +157,10 @@ namespace Yantrik.Services
             return ApiResponse<PagedResponse<UserDto>>.SuccessResponse(pagedResponse);
         }
 
-        public async Task<ApiResponse<bool>> UpdateStaffAsync(System.Guid id, UpdateStaffRequest request)
+        public async Task<ApiResponse<bool>> UpdateEmployeeAsync(System.Guid id, UpdateEmployeeRequest request)
         {
             var user = await _unitOfWork.Users.GetByIdWithProfileAsync(id);
-            if (user == null) return ApiResponse<bool>.FailureResponse("Staff member not found");
+            if (user == null) return ApiResponse<bool>.FailureResponse("Employee not found");
 
             // Update Identity User
             user.Email = request.Email;
@@ -175,19 +175,19 @@ namespace Yantrik.Services
             await _userManager.RemoveFromRolesAsync(user, currentRoles);
             await _userManager.AddToRoleAsync(user, request.Role.ToString());
 
-            // Update Staff Profile
-            if (user.StaffProfile != null)
+            // Update Employee Profile
+            if (user.Employee != null)
             {
-                user.StaffProfile.FullName = request.FullName;
-                user.StaffProfile.Phone = request.Phone ?? string.Empty;
+                user.Employee.FullName = request.FullName;
+                user.Employee.Phone = request.Phone ?? string.Empty;
                 _unitOfWork.Users.Update(user);
                 await _unitOfWork.CompleteAsync();
             }
 
-            return ApiResponse<bool>.SuccessResponse(true, "Staff member updated successfully");
+            return ApiResponse<bool>.SuccessResponse(true, "Employee updated successfully");
         }
 
-        public async Task<ApiResponse<bool>> ToggleStaffStatusAsync(System.Guid id)
+        public async Task<ApiResponse<bool>> ToggleEmployeeStatusAsync(System.Guid id)
         {
             var user = await _unitOfWork.Users.GetByIdAsync(id);
             if (user == null) return ApiResponse<bool>.FailureResponse("User not found");
@@ -212,10 +212,10 @@ namespace Yantrik.Services
             {
                 UserId = user.Id,
                 Email = user.Email!,
-                FullName = user.StaffProfile?.FullName ?? user.CustomerProfile?.FullName ?? "User",
-                Phone = user.StaffProfile?.Phone ?? user.CustomerProfile?.Phone,
+                FullName = user.Employee?.FullName ?? user.CustomerProfile?.FullName ?? "User",
+                Phone = user.Employee?.Phone ?? user.CustomerProfile?.Phone,
                 Address = user.CustomerProfile?.Address,
-                Code = user.StaffProfile?.EmployeeCode ?? user.CustomerProfile?.CustomerCode ?? "N/A",
+                Code = user.Employee?.EmployeeCode ?? user.CustomerProfile?.CustomerCode ?? "N/A",
                 Role = role
             };
 
@@ -227,10 +227,10 @@ namespace Yantrik.Services
             var user = await _unitOfWork.Users.GetByIdWithProfileAsync(userId);
             if (user == null) return ApiResponse<bool>.FailureResponse("User not found");
 
-            if (user.StaffProfile != null)
+            if (user.Employee != null)
             {
-                user.StaffProfile.FullName = request.FullName;
-                user.StaffProfile.Phone = request.Phone;
+                user.Employee.FullName = request.FullName;
+                user.Employee.Phone = request.Phone;
             }
             else if (user.CustomerProfile != null)
             {
@@ -252,3 +252,6 @@ namespace Yantrik.Services
         }
     }
 }
+
+
+

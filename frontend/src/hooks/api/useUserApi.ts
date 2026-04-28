@@ -7,7 +7,7 @@ import { toast } from 'sonner';
 export const useStaffListQuery = (params: PaginationParams, enabled = true) => {
   return useQuery({
     queryKey: [...queryKeys.auth.users(), params],
-    queryFn: () => UserService.getStaff(params),
+    queryFn: () => UserService.getEmployees(params),
     enabled,
   });
 };
@@ -16,13 +16,13 @@ export const useCreateStaffMutation = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: UserService.createStaff,
+    mutationFn: UserService.createEmployee,
     onSuccess: (res) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.auth.users() });
-      toast.success(res.message || 'Staff member created successfully');
+      toast.success('Employee created successfully');
     },
     onError: (error: any) => {
-      toast.error(error?.response?.data?.message || 'Failed to create staff member');
+      toast.error(error?.response?.data?.message || 'Failed to create employee');
     }
   });
 };
@@ -46,7 +46,7 @@ export const useUpdateStaffMutation = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: any }) => UserService.updateStaff(id, data),
+    mutationFn: ({ id, data }: { id: string; data: any }) => UserService.updateEmployee(id, data),
     onMutate: async ({ id, data }) => {
       const qKey = queryKeys.auth.users();
       await queryClient.cancelQueries({ queryKey: qKey });
@@ -72,13 +72,13 @@ export const useUpdateStaffMutation = () => {
           if (data) queryClient.setQueryData(queryKey, data);
         });
       }
-      toast.error('Failed to update staff member');
+      toast.error('Failed to update employee');
     },
     onSettled: (data, error, variables, context) => {
       queryClient.invalidateQueries({ queryKey: context?.qKey });
     },
     onSuccess: (res) => {
-      toast.success(res.message || 'Staff member updated successfully');
+      toast.success(res.message || 'Employee updated successfully');
     }
   });
 };
@@ -87,7 +87,7 @@ export const useToggleStaffStatusMutation = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (id: string) => UserService.toggleStatus(id),
+    mutationFn: (id: string) => UserService.toggleEmployeeStatus(id),
     onMutate: async (id) => {
       await queryClient.cancelQueries({ queryKey: queryKeys.auth.users() });
 

@@ -62,7 +62,7 @@ export default function PurchaseTable() {
                 let statusColor = 'bg-zinc-100 text-zinc-600';
                 if (purchase.paymentStatus === 'Paid') statusColor = 'bg-emerald-100 text-emerald-700';
                 if (purchase.paymentStatus === 'Overdue') statusColor = 'bg-red-100 text-red-700';
-                if (purchase.paymentStatus === 'Credit') statusColor = 'bg-orange-100 text-orange-700';
+                if (purchase.paymentStatus === 'Partial') statusColor = 'bg-orange-100 text-orange-700';
 
                 return (
                   <tr key={purchase.id} className="hover:bg-zinc-50/50 transition-colors group">

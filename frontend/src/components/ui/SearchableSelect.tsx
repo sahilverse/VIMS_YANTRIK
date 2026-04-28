@@ -93,6 +93,19 @@ export default function SearchableSelect({
             </div>
           </div>
 
+          {onQuickAdd && (
+            <button
+              type="button"
+              onClick={() => {
+                onQuickAdd();
+                setIsOpen(false);
+              }}
+              className="w-full p-4 flex items-center justify-center gap-2 bg-zinc-50 border-b cursor-pointer border-zinc-100 hover:bg-zinc-100 transition-all text-xs font-black text-zinc-900 uppercase tracking-widest"
+            >
+              <PlusCircle className="h-4 w-4" /> {quickAddLabel}
+            </button>
+          )}
+
           <div className="max-h-60 overflow-y-auto p-1">
             {isLoading ? (
               <div className="p-4 flex flex-col items-center justify-center gap-2">
@@ -126,19 +139,6 @@ export default function SearchableSelect({
               ))
             )}
           </div>
-
-          {onQuickAdd && (
-            <button
-              type="button"
-              onClick={() => {
-                onQuickAdd();
-                setIsOpen(false);
-              }}
-              className="w-full p-4 flex items-center justify-center gap-2 bg-zinc-50 border-t cursor-pointer border-zinc-100 hover:bg-zinc-100 transition-all text-xs font-black text-zinc-900 uppercase tracking-widest"
-            >
-              <PlusCircle className="h-4 w-4" /> {quickAddLabel}
-            </button>
-          )}
         </div>
       )}
     </div>

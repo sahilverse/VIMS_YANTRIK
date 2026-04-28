@@ -70,7 +70,7 @@ namespace Yantrik.Services
         {
             var user = await _unitOfWork.Users.Find(u => u.Email == request.Email)
                 .Include(u => u.CustomerProfile)
-                .Include(u => u.StaffProfile)
+                .Include(u => u.Employee)
                 .FirstOrDefaultAsync();
 
             if (user == null || !await _userManager.CheckPasswordAsync(user, request.Password))
@@ -78,6 +78,9 @@ namespace Yantrik.Services
 
             if (!user.IsActive)
                 return ApiResponse<AuthResponse>.FailureResponse("Your account is deactivated. Please contact support.");
+
+            user.LastLoginAt = DateTime.UtcNow;
+            _unitOfWork.Users.Update(user);
 
             return await GenerateAuthResponseAsync(user);
         }
@@ -138,10 +141,10 @@ namespace Yantrik.Services
                 {
                     Id = user.Id,
                     Email = user.Email!,
-                    FullName = user.CustomerProfile?.FullName ?? user.StaffProfile?.FullName ?? "User",
+                    FullName = user.CustomerProfile?.FullName ?? user.Employee?.FullName ?? "User",
                     Role = roles.FirstOrDefault() ?? "No Role",
-                    Phone = user.StaffProfile?.Phone ?? user.CustomerProfile?.Phone,
-                    Code = user.StaffProfile?.EmployeeCode ?? user.CustomerProfile?.CustomerCode,
+                    Phone = user.Employee?.Phone ?? user.CustomerProfile?.Phone,
+                    Code = user.Employee?.EmployeeCode ?? user.CustomerProfile?.CustomerCode,
                     IsActive = user.IsActive
                 }
             };
@@ -171,3 +174,6 @@ namespace Yantrik.Services
         }
     }
 }
+
+
+

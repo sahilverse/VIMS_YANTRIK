@@ -18,8 +18,11 @@ namespace Yantrik.Repositories
                 .Include(r => r.User)
                 .ThenInclude(u => u.CustomerProfile)
                 .Include(r => r.User)
-                .ThenInclude(u => u.StaffProfile)
+                .ThenInclude(u => u.Employee)
                 .FirstOrDefaultAsync(r => r.TokenHash == hash);
         }
     }
 }
+
+
+

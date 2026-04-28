@@ -10,8 +10,8 @@ namespace Yantrik.DTOs
         public string InvoiceNumber { get; set; } = string.Empty;
         public Guid VendorId { get; set; }
         public string VendorName { get; set; } = string.Empty;
-        public Guid StaffId { get; set; }
-        public string StaffName { get; set; } = string.Empty;
+        public Guid EmployeeId { get; set; }
+        public string EmployeeName { get; set; } = string.Empty;
         public DateTime Date { get; set; }
         public decimal TotalAmount { get; set; }
         public PaymentStatus PaymentStatus { get; set; }
@@ -44,3 +44,6 @@ namespace Yantrik.DTOs
         public decimal UnitPrice { get; set; }
     }
 }
+
+
+

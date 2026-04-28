@@ -16,7 +16,7 @@ export default function ViewPurchaseModal({ isOpen, onClose, purchaseId }: ViewP
   const getStatusColor = (status?: string) => {
     if (status === 'Paid') return 'bg-emerald-100 text-emerald-700';
     if (status === 'Overdue') return 'bg-red-100 text-red-700';
-    if (status === 'Credit') return 'bg-orange-100 text-orange-700';
+    if (status === 'Partial') return 'bg-orange-100 text-orange-700';
     return 'bg-zinc-100 text-zinc-600';
   };
 
@@ -80,7 +80,7 @@ export default function ViewPurchaseModal({ isOpen, onClose, purchaseId }: ViewP
                 <FileText className="h-4 w-4 text-zinc-400" />
                 <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Created By</p>
               </div>
-              <p className="text-sm font-bold text-zinc-900">{purchase.staffName}</p>
+              <p className="text-sm font-bold text-zinc-900">{purchase.employeeName}</p>
             </div>
           </div>
 

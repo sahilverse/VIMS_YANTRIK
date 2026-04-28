@@ -8,7 +8,7 @@ namespace Yantrik.Repositories
     public class UnitOfWork : IUnitOfWork
     {
         private readonly AppDbContext _context;
-        public IStaffRepository Staff { get; private set; }
+        public IEmployeeRepository Employees { get; private set; }
         public ICustomerRepository Customers { get; private set; }
         public IUserRepository Users { get; private set; }
         public IRefreshTokenRepository RefreshTokens { get; private set; }
@@ -16,11 +16,22 @@ namespace Yantrik.Repositories
         public ICategoryRepository Categories { get; private set; }
         public IPartRepository Parts { get; private set; }
         public IInvoiceRepository Invoices { get; private set; }
+        public IVehicleRepository Vehicles { get; private set; }
+        public IStockMovementRepository StockMovements { get; private set; }
+        public IPaymentRepository Payments { get; private set; }
+        public ILoyaltyTransactionRepository LoyaltyTransactions { get; private set; }
+        public IAppointmentRepository Appointments { get; private set; }
+        public IServiceRecordRepository ServiceRecords { get; private set; }
+        public IReviewRepository Reviews { get; private set; }
+        public IPartRequestRepository PartRequests { get; private set; }
+        public INotificationRepository Notifications { get; private set; }
+        public IEmailLogRepository EmailLogs { get; private set; }
+        public IAIPredictionRepository AIPredictions { get; private set; }
 
         public UnitOfWork(AppDbContext context)
         {
             _context = context;
-            Staff = new StaffRepository(_context);
+            Employees = new EmployeeRepository(_context);
             Customers = new CustomerRepository(_context);
             Users = new UserRepository(_context);
             RefreshTokens = new RefreshTokenRepository(_context);
@@ -28,6 +39,17 @@ namespace Yantrik.Repositories
             Categories = new CategoryRepository(_context);
             Parts = new PartRepository(_context);
             Invoices = new InvoiceRepository(_context);
+            Vehicles = new VehicleRepository(_context);
+            StockMovements = new StockMovementRepository(_context);
+            Payments = new PaymentRepository(_context);
+            LoyaltyTransactions = new LoyaltyTransactionRepository(_context);
+            Appointments = new AppointmentRepository(_context);
+            ServiceRecords = new ServiceRecordRepository(_context);
+            Reviews = new ReviewRepository(_context);
+            PartRequests = new PartRequestRepository(_context);
+            Notifications = new NotificationRepository(_context);
+            EmailLogs = new EmailLogRepository(_context);
+            AIPredictions = new AIPredictionRepository(_context);
         }
 
         public async Task<int> CompleteAsync()
@@ -41,3 +63,6 @@ namespace Yantrik.Repositories
         }
     }
 }
+
+
+

@@ -1,4 +1,7 @@
 namespace Yantrik.Entities
 {
-    public enum PaymentStatus { Paid, Credit, Overdue }
+    public enum PaymentStatus { Pending, Paid, Partial, Overdue }
 }
+
+
+

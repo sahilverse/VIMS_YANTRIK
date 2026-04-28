@@ -81,7 +81,7 @@ export default function StaffDashboard() {
                 <tbody className="divide-y divide-zinc-50 text-sm">
                   {[
                     { id: "#INV-8821", name: "Sahil Shrestha", amount: "Rs. 1,200", status: "Paid" },
-                    { id: "#INV-8822", name: "Aarav Sharma", amount: "Rs. 4,500", status: "Credit" },
+                    { id: "#INV-8822", name: "Aarav Sharma", amount: "Rs. 4,500", status: "Partial" },
                     { id: "#INV-8823", name: "Priya Thapa", amount: "Rs. 850", status: "Paid" },
                     { id: "#INV-8824", name: "Binod Rai", amount: "Rs. 12,400", status: "Paid" },
                   ].map((row, i) => (

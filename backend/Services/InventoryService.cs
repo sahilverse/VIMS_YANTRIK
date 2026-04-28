@@ -79,11 +79,13 @@ namespace Yantrik.Services
                 Id = p.Id,
                 SKU = p.SKU,
                 Name = p.Name,
+                Brand = p.Brand,
                 Description = p.Description,
                 UnitPrice = p.UnitPrice,
                 CostPrice = p.CostPrice,
                 StockQuantity = p.StockQuantity,
                 MinThreshold = p.MinThreshold,
+                IsActive = p.IsActive,
                 CategoryId = p.CategoryId,
                 CategoryName = p.Category?.Name ?? "Uncategorized"
             });
@@ -102,11 +104,13 @@ namespace Yantrik.Services
                 Id = part.Id,
                 SKU = part.SKU,
                 Name = part.Name,
+                Brand = part.Brand,
                 Description = part.Description,
                 UnitPrice = part.UnitPrice,
                 CostPrice = part.CostPrice,
                 StockQuantity = part.StockQuantity,
                 MinThreshold = part.MinThreshold,
+                IsActive = part.IsActive,
                 CategoryId = part.CategoryId
             };
             return ApiResponse<PartDto>.SuccessResponse(dto);
@@ -118,6 +122,7 @@ namespace Yantrik.Services
             {
                 SKU = request.SKU,
                 Name = request.Name,
+                Brand = request.Brand,
                 Description = request.Description,
                 UnitPrice = request.UnitPrice,
                 CostPrice = request.CostPrice,
@@ -139,6 +144,7 @@ namespace Yantrik.Services
 
             part.SKU = request.SKU;
             part.Name = request.Name;
+            part.Brand = request.Brand;
             part.Description = request.Description;
             part.UnitPrice = request.UnitPrice;
             part.CostPrice = request.CostPrice;
@@ -180,3 +186,6 @@ namespace Yantrik.Services
         #endregion
     }
 }
+
+
+

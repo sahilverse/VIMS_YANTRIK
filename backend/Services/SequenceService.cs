@@ -42,7 +42,7 @@ namespace Yantrik.Services
             return type switch
             {
                 SequenceType.Customer => "CUST-",
-                SequenceType.Staff => "EMP-",
+                SequenceType.Employee => "EMP-",
                 SequenceType.SalesInvoice => "SINV-",
                 SequenceType.PurchaseInvoice => "PINV-",
                 _ => ""
@@ -54,7 +54,7 @@ namespace Yantrik.Services
             return type switch
             {
                 SequenceType.Customer => 5000,
-                SequenceType.Staff => 1000,
+                SequenceType.Employee => 1000,
                 SequenceType.SalesInvoice => 20000,
                 SequenceType.PurchaseInvoice => 30000,
                 _ => 1
@@ -67,7 +67,7 @@ namespace Yantrik.Services
             {
                 var codes = type switch
                 {
-                    SequenceType.Staff => await _context.StaffProfiles.Select(s => (string?)s.EmployeeCode).ToListAsync(),
+                    SequenceType.Employee => await _context.Employees.Select(s => (string?)s.EmployeeCode).ToListAsync(),
                     SequenceType.Customer => await _context.Customers.Select(c => (string?)c.CustomerCode).ToListAsync(),
                     SequenceType.SalesInvoice => await _context.Invoices.Where(i => i.Type == InvoiceType.Sale).Select(i => (string?)i.InvoiceNumber).ToListAsync(),
                     SequenceType.PurchaseInvoice => await _context.Invoices.Where(i => i.Type == InvoiceType.Purchase).Select(i => (string?)i.InvoiceNumber).ToListAsync(),
@@ -94,3 +94,6 @@ namespace Yantrik.Services
         }
     }
 }
+
+
+

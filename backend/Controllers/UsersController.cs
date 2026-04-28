@@ -59,10 +59,10 @@ namespace Yantrik.Controllers
         }
 
         [Authorize(Roles = "Admin")]
-        [HttpPost("staff")]
-        public async Task<IActionResult> RegisterStaff([FromBody] StaffRegisterRequest request)
+        [HttpPost("employee")]
+        public async Task<IActionResult> RegisterEmployee([FromBody] EmployeeRegisterRequest request)
         {
-            var response = await _userService.RegisterStaffAsync(request);
+            var response = await _userService.RegisterEmployeeAsync(request);
             if (!response.Success)
                 return BadRequest(response);
 
@@ -80,11 +80,10 @@ namespace Yantrik.Controllers
             return Ok(response);
         }
 
-        [Authorize(Roles = "Admin")]
-        [HttpGet("staff")]
-        public async Task<IActionResult> GetStaff([FromQuery] PaginationParams @params)
+        [HttpGet("employees")]
+        public async Task<IActionResult> GetEmployees([FromQuery] PaginationParams @params)
         {
-            var response = await _userService.GetPagedStaffAsync(@params);
+            var response = await _userService.GetPagedEmployeesAsync(@params);
             if (!response.Success)
                 return BadRequest(response);
 
@@ -92,10 +91,10 @@ namespace Yantrik.Controllers
         }
 
         [Authorize(Roles = "Admin")]
-        [HttpPut("staff/{id}")]
-        public async Task<IActionResult> UpdateStaff(System.Guid id, [FromBody] UpdateStaffRequest request)
+        [HttpPut("employee/{id}")]
+        public async Task<IActionResult> UpdateEmployee(System.Guid id, [FromBody] UpdateEmployeeRequest request)
         {
-            var response = await _userService.UpdateStaffAsync(id, request);
+            var response = await _userService.UpdateEmployeeAsync(id, request);
             if (!response.Success)
                 return BadRequest(response);
 
@@ -103,10 +102,10 @@ namespace Yantrik.Controllers
         }
 
         [Authorize(Roles = "Admin")]
-        [HttpPatch("staff/{id}/toggle-status")]
-        public async Task<IActionResult> ToggleStaffStatus(System.Guid id)
+        [HttpPatch("employee/{id}/toggle-status")]
+        public async Task<IActionResult> ToggleEmployeeStatus(System.Guid id)
         {
-            var response = await _userService.ToggleStaffStatusAsync(id);
+            var response = await _userService.ToggleEmployeeStatusAsync(id);
             if (!response.Success)
                 return BadRequest(response);
 
@@ -114,3 +113,6 @@ namespace Yantrik.Controllers
         }
     }
 }
+
+
+

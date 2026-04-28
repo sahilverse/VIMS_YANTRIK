@@ -22,15 +22,15 @@ namespace Yantrik.Repositories
         public async Task<User?> GetByIdWithProfileAsync(Guid id)
         {
             return await _dbSet
-                .Include(u => u.StaffProfile)
+                .Include(u => u.Employee)
                 .FirstOrDefaultAsync(u => u.Id == id);
         }
 
-        public async Task<(IEnumerable<User> Items, int TotalCount)> GetPagedStaffAsync(int pageNumber, int pageSize, string? search)
+        public async Task<(IEnumerable<User> Items, int TotalCount)> GetPagedEmployeesAsync(int pageNumber, int pageSize, string? search)
         {
             var query = _dbSet
-                .Include(u => u.StaffProfile)
-                .Where(u => u.StaffProfile != null)
+                .Include(u => u.Employee)
+                .Where(u => u.Employee != null)
                 .AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(search))
@@ -38,15 +38,15 @@ namespace Yantrik.Repositories
                 search = search.ToLower();
                 query = query.Where(u => 
                     u.Email!.ToLower().Contains(search) || 
-                    u.StaffProfile!.FullName.ToLower().Contains(search) ||
-                    u.StaffProfile!.EmployeeCode.ToLower().Contains(search) ||
-                    (u.StaffProfile!.Phone != null && u.StaffProfile!.Phone.ToLower().Contains(search)));
+                    u.Employee!.FullName.ToLower().Contains(search) ||
+                    u.Employee!.EmployeeCode.ToLower().Contains(search) ||
+                    (u.Employee!.Phone != null && u.Employee!.Phone.ToLower().Contains(search)));
             }
 
             var totalCount = await query.CountAsync();
             
             var items = await query
-                .OrderByDescending(u => u.StaffProfile!.EmployeeCode)
+                .OrderByDescending(u => u.Employee!.EmployeeCode)
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
@@ -55,3 +55,6 @@ namespace Yantrik.Repositories
         }
     }
 }
+
+
+

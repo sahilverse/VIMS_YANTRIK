@@ -1,4 +1,15 @@
 namespace Yantrik.Entities
 {
-    public enum NotificationType { StockAlert, OverduePayment, AIPrediction }
+    public enum NotificationType 
+    { 
+        StockAlert, 
+        OverduePayment, 
+        AIPrediction, 
+        System,
+        NewCustomer,
+        PaymentReceived
+    }
 }
+
+
+

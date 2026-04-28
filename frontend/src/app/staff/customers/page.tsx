@@ -61,7 +61,7 @@ export default function CustomersPage() {
           <div>
             <h2 className="text-lg font-extrabold tracking-tight">All Customers</h2>
             <p className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em] mt-1">
-              {isLoading ? 'Scanning records...' : `${data?.totalCount || 0} Registered Entities`}
+              {isLoading ? 'Scanning records...' : `${data?.totalItems || 0} Registered Entities`}
             </p>
           </div>
 
@@ -180,10 +180,10 @@ export default function CustomersPage() {
         </div>
 
         {/* Pagination */}
-        {data && data.totalCount > 10 && (
+        {data && data.totalItems > 10 && (
           <div className="px-8 py-6 border-t border-zinc-50 flex items-center justify-between bg-zinc-50/20">
             <p className="text-xs font-bold text-zinc-400 uppercase tracking-widest">
-              Showing {Math.min(data.items.length, 10)} of {data.totalCount} customers
+              Showing {Math.min(data.items.length, 10)} of {data.totalItems} customers
             </p>
             <div className="flex items-center gap-2">
               <Button
@@ -196,7 +196,7 @@ export default function CustomersPage() {
               </Button>
               <Button
                 variant="outline"
-                disabled={page * 10 >= data.totalCount}
+                disabled={page * 10 >= data.totalItems}
                 onClick={() => setPage(p => p + 1)}
                 className="h-10 w-10 p-0 rounded-xl border-zinc-200 bg-white hover:bg-zinc-50 cursor-pointer shadow-sm"
               >

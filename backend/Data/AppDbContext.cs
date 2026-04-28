@@ -12,20 +12,24 @@ namespace Yantrik.Data
 
         public DbSet<RefreshToken> RefreshTokens { get; set; }
         public DbSet<Sequence> Sequences { get; set; }
-        public DbSet<StaffProfile> StaffProfiles { get; set; }
+        public DbSet<Employee> Employees { get; set; }
         public DbSet<Customer> Customers { get; set; }
         public DbSet<Vehicle> Vehicles { get; set; }
         public DbSet<Vendor> Vendors { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<Part> Parts { get; set; }
+        public DbSet<StockMovement> StockMovements { get; set; }
         public DbSet<Invoice> Invoices { get; set; }
         public DbSet<InvoiceItem> InvoiceItems { get; set; }
+        public DbSet<Payment> Payments { get; set; }
+        public DbSet<LoyaltyTransaction> LoyaltyTransactions { get; set; }
         public DbSet<Appointment> Appointments { get; set; }
+        public DbSet<ServiceRecord> ServiceRecords { get; set; }
         public DbSet<Review> Reviews { get; set; }
         public DbSet<PartRequest> PartRequests { get; set; }
         public DbSet<Notification> Notifications { get; set; }
+        public DbSet<EmailLog> EmailLogs { get; set; }
         public DbSet<AIPrediction> AIPredictions { get; set; }
-        public DbSet<ReportExport> ReportExports { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -39,7 +43,7 @@ namespace Yantrik.Data
                 entity.HasIndex(c => c.FullName);
             });
 
-            modelBuilder.Entity<StaffProfile>(entity =>
+            modelBuilder.Entity<Employee>(entity =>
             {
                 entity.HasIndex(s => s.EmployeeCode).IsUnique();
             });
@@ -59,13 +63,20 @@ namespace Yantrik.Data
                 .HasConversion<string>();
 
             // Store Enums as Strings
-
             modelBuilder.Entity<Invoice>()
                 .Property(i => i.Type)
                 .HasConversion<string>();
 
             modelBuilder.Entity<Invoice>()
                 .Property(i => i.PaymentStatus)
+                .HasConversion<string>();
+
+            modelBuilder.Entity<StockMovement>()
+                .Property(s => s.Type)
+                .HasConversion<string>();
+
+            modelBuilder.Entity<StockMovement>()
+                .Property(s => s.ReferenceType)
                 .HasConversion<string>();
 
             modelBuilder.Entity<Appointment>()
@@ -80,15 +91,13 @@ namespace Yantrik.Data
                 .Property(n => n.Type)
                 .HasConversion<string>();
 
-            modelBuilder.Entity<ReportExport>()
-                .Property(r => r.ReportType)
-                .HasConversion<string>();
 
-            // User - StaffProfile (One to One)
+
+            // User - Employee (One to One)
             modelBuilder.Entity<User>()
-                .HasOne(u => u.StaffProfile)
+                .HasOne(u => u.Employee)
                 .WithOne(s => s.User)
-                .HasForeignKey<StaffProfile>(s => s.UserId);
+                .HasForeignKey<Employee>(s => s.UserId);
 
             // User - Customer (One to One)
             modelBuilder.Entity<User>()
@@ -115,6 +124,18 @@ namespace Yantrik.Data
                 .WithMany(p => p.InvoiceItems)
                 .HasForeignKey(ii => ii.PartId);
 
+            // StockMovement - Part
+            modelBuilder.Entity<StockMovement>()
+                .HasOne(sm => sm.Part)
+                .WithMany(p => p.StockMovements)
+                .HasForeignKey(sm => sm.PartId);
+
+            // ServiceRecord - Appointment
+            modelBuilder.Entity<ServiceRecord>()
+                .HasOne(sr => sr.Appointment)
+                .WithMany()
+                .HasForeignKey(sr => sr.AppointmentId);
+
             // Decimal Precision
             foreach (var property in modelBuilder.Model.GetEntityTypes()
                 .SelectMany(t => t.GetProperties())
@@ -126,3 +147,6 @@ namespace Yantrik.Data
         }
     }
 }
+
+
+

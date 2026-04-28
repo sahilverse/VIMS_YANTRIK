@@ -17,3 +17,6 @@ namespace Yantrik.Interfaces
         Task<bool> ExistsAsync(Expression<Func<T, bool>> expression);
     }
 }
+
+
+

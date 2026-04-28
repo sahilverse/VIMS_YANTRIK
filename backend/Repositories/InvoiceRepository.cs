@@ -22,7 +22,7 @@ namespace Yantrik.Repositories
                     .ThenInclude(it => it.Part)
                 .Include(i => i.Vendor)
                 .Include(i => i.Customer)
-                .Include(i => i.Staff)
+                .Include(i => i.Employee)
                 .FirstOrDefaultAsync(i => i.Id == id);
         }
 
@@ -32,7 +32,7 @@ namespace Yantrik.Repositories
                 .Include(i => i.Items)
                 .Include(i => i.Vendor)
                 .Include(i => i.Customer)
-                .Include(i => i.Staff)
+                .Include(i => i.Employee)
                 .AsQueryable();
 
             if (type.HasValue)
@@ -61,3 +61,6 @@ namespace Yantrik.Repositories
         }
     }
 }
+
+
+

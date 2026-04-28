@@ -9,3 +9,6 @@ namespace Yantrik.Entities
         public int LastNumber { get; set; }
     }
 }
+
+
+

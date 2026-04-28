@@ -39,7 +39,7 @@ namespace Yantrik.Data
                         Email = adminEmail,
                         EmailConfirmed = true,
                         IsActive = true,
-                        StaffProfile = new StaffProfile
+                        Employee = new Employee
                         {
                             FullName = config["AdminUser:FullName"]!,
                             EmployeeCode = "EMP-1001",
@@ -57,3 +57,6 @@ namespace Yantrik.Data
         }
     }
 }
+
+
+

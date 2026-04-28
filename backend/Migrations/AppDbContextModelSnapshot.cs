@@ -243,6 +243,9 @@ namespace Yantrik.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<DateTime?>("LastPurchaseDate")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<int>("LoyaltyPoints")
                         .HasColumnType("integer");
 
@@ -275,6 +278,79 @@ namespace Yantrik.Migrations
                     b.ToTable("Customers");
                 });
 
+            modelBuilder.Entity("Yantrik.Entities.EmailLog", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Body")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("SentBy")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Subject")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("ToEmail")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("EmailLogs");
+                });
+
+            modelBuilder.Entity("Yantrik.Entities.Employee", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("EmployeeCode")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("FullName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Phone")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EmployeeCode")
+                        .IsUnique();
+
+                    b.HasIndex("UserId")
+                        .IsUnique();
+
+                    b.ToTable("Employees");
+                });
+
             modelBuilder.Entity("Yantrik.Entities.Invoice", b =>
                 {
                     b.Property<Guid>("Id")
@@ -294,16 +370,22 @@ namespace Yantrik.Migrations
                         .HasPrecision(18, 2)
                         .HasColumnType("numeric(18,2)");
 
+                    b.Property<DateTime?>("DueDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("EmployeeId")
+                        .HasColumnType("uuid");
+
                     b.Property<string>("InvoiceNumber")
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<bool>("IsPaid")
+                        .HasColumnType("boolean");
+
                     b.Property<string>("PaymentStatus")
                         .IsRequired()
                         .HasColumnType("text");
-
-                    b.Property<Guid>("StaffId")
-                        .HasColumnType("uuid");
 
                     b.Property<decimal>("SubTotal")
                         .HasPrecision(18, 2)
@@ -331,7 +413,7 @@ namespace Yantrik.Migrations
 
                     b.HasIndex("CustomerId");
 
-                    b.HasIndex("StaffId");
+                    b.HasIndex("EmployeeId");
 
                     b.HasIndex("VendorId");
 
@@ -370,6 +452,40 @@ namespace Yantrik.Migrations
                     b.HasIndex("PartId");
 
                     b.ToTable("InvoiceItems");
+                });
+
+            modelBuilder.Entity("Yantrik.Entities.LoyaltyTransaction", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("CustomerId")
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal>("DiscountApplied")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)");
+
+                    b.Property<Guid>("InvoiceId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("PointsEarned")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CustomerId");
+
+                    b.HasIndex("InvoiceId");
+
+                    b.ToTable("LoyaltyTransactions");
                 });
 
             modelBuilder.Entity("Yantrik.Entities.Notification", b =>
@@ -411,6 +527,9 @@ namespace Yantrik.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<string>("Brand")
+                        .HasColumnType("text");
+
                     b.Property<Guid>("CategoryId")
                         .HasColumnType("uuid");
 
@@ -423,6 +542,9 @@ namespace Yantrik.Migrations
 
                     b.Property<string>("Description")
                         .HasColumnType("text");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
 
                     b.Property<int>("MinThreshold")
                         .HasColumnType("integer");
@@ -485,6 +607,42 @@ namespace Yantrik.Migrations
                     b.ToTable("PartRequests");
                 });
 
+            modelBuilder.Entity("Yantrik.Entities.Payment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal>("AmountPaid")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("InvoiceId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("PaidAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("PaymentMethod")
+                        .HasColumnType("text");
+
+                    b.Property<decimal>("RemainingBalance")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("InvoiceId");
+
+                    b.ToTable("Payments");
+                });
+
             modelBuilder.Entity("Yantrik.Entities.RefreshToken", b =>
                 {
                     b.Property<Guid>("Id")
@@ -509,41 +667,6 @@ namespace Yantrik.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("RefreshTokens");
-                });
-
-            modelBuilder.Entity("Yantrik.Entities.ReportExport", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("FilePath")
-                        .HasColumnType("text");
-
-                    b.Property<Guid>("GeneratedBy")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("ParametersJson")
-                        .HasColumnType("text");
-
-                    b.Property<string>("ReportType")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("ReportExports");
                 });
 
             modelBuilder.Entity("Yantrik.Entities.Review", b =>
@@ -631,7 +754,45 @@ namespace Yantrik.Migrations
                     b.ToTable("Sequences");
                 });
 
-            modelBuilder.Entity("Yantrik.Entities.StaffProfile", b =>
+            modelBuilder.Entity("Yantrik.Entities.ServiceRecord", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("AppointmentId")
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal>("Cost")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("EmployeeId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ServiceType")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AppointmentId");
+
+                    b.HasIndex("EmployeeId");
+
+                    b.ToTable("ServiceRecords");
+                });
+
+            modelBuilder.Entity("Yantrik.Entities.StockMovement", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -640,32 +801,38 @@ namespace Yantrik.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("EmployeeCode")
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("PartId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid?>("ReferenceId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ReferenceType")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("FullName")
+                    b.Property<string>("Type")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("Phone")
-                        .HasColumnType("text");
+                    b.Property<decimal>("UnitCost")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("EmployeeCode")
-                        .IsUnique();
+                    b.HasIndex("PartId");
 
-                    b.HasIndex("UserId")
-                        .IsUnique();
-
-                    b.ToTable("StaffProfiles");
+                    b.ToTable("StockMovements");
                 });
 
             modelBuilder.Entity("Yantrik.Entities.User", b =>
@@ -693,6 +860,9 @@ namespace Yantrik.Migrations
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
+
+                    b.Property<DateTime?>("LastLoginAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("boolean");
@@ -808,6 +978,9 @@ namespace Yantrik.Migrations
                     b.Property<string>("Email")
                         .HasColumnType("text");
 
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
                     b.Property<string>("Phone")
                         .HasColumnType("text");
 
@@ -917,6 +1090,17 @@ namespace Yantrik.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Yantrik.Entities.Employee", b =>
+                {
+                    b.HasOne("Yantrik.Entities.User", "User")
+                        .WithOne("Employee")
+                        .HasForeignKey("Yantrik.Entities.Employee", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Yantrik.Entities.Invoice", b =>
                 {
                     b.HasOne("Yantrik.Entities.Customer", "Customer")
@@ -924,9 +1108,9 @@ namespace Yantrik.Migrations
                         .HasForeignKey("CustomerId")
                         .OnDelete(DeleteBehavior.SetNull);
 
-                    b.HasOne("Yantrik.Entities.StaffProfile", "Staff")
+                    b.HasOne("Yantrik.Entities.Employee", "Employee")
                         .WithMany()
-                        .HasForeignKey("StaffId")
+                        .HasForeignKey("EmployeeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -937,7 +1121,7 @@ namespace Yantrik.Migrations
 
                     b.Navigation("Customer");
 
-                    b.Navigation("Staff");
+                    b.Navigation("Employee");
 
                     b.Navigation("Vendor");
                 });
@@ -959,6 +1143,25 @@ namespace Yantrik.Migrations
                     b.Navigation("Invoice");
 
                     b.Navigation("Part");
+                });
+
+            modelBuilder.Entity("Yantrik.Entities.LoyaltyTransaction", b =>
+                {
+                    b.HasOne("Yantrik.Entities.Customer", "Customer")
+                        .WithMany()
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Yantrik.Entities.Invoice", "Invoice")
+                        .WithMany("LoyaltyTransactions")
+                        .HasForeignKey("InvoiceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Customer");
+
+                    b.Navigation("Invoice");
                 });
 
             modelBuilder.Entity("Yantrik.Entities.Notification", b =>
@@ -994,21 +1197,21 @@ namespace Yantrik.Migrations
                     b.Navigation("Customer");
                 });
 
+            modelBuilder.Entity("Yantrik.Entities.Payment", b =>
+                {
+                    b.HasOne("Yantrik.Entities.Invoice", "Invoice")
+                        .WithMany("Payments")
+                        .HasForeignKey("InvoiceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Invoice");
+                });
+
             modelBuilder.Entity("Yantrik.Entities.RefreshToken", b =>
                 {
                     b.HasOne("Yantrik.Entities.User", "User")
                         .WithMany("RefreshTokens")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("Yantrik.Entities.ReportExport", b =>
-                {
-                    b.HasOne("Yantrik.Entities.User", "User")
-                        .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1027,15 +1230,34 @@ namespace Yantrik.Migrations
                     b.Navigation("Customer");
                 });
 
-            modelBuilder.Entity("Yantrik.Entities.StaffProfile", b =>
+            modelBuilder.Entity("Yantrik.Entities.ServiceRecord", b =>
                 {
-                    b.HasOne("Yantrik.Entities.User", "User")
-                        .WithOne("StaffProfile")
-                        .HasForeignKey("Yantrik.Entities.StaffProfile", "UserId")
+                    b.HasOne("Yantrik.Entities.Appointment", "Appointment")
+                        .WithMany()
+                        .HasForeignKey("AppointmentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("User");
+                    b.HasOne("Yantrik.Entities.Employee", "Employee")
+                        .WithMany()
+                        .HasForeignKey("EmployeeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Appointment");
+
+                    b.Navigation("Employee");
+                });
+
+            modelBuilder.Entity("Yantrik.Entities.StockMovement", b =>
+                {
+                    b.HasOne("Yantrik.Entities.Part", "Part")
+                        .WithMany("StockMovements")
+                        .HasForeignKey("PartId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Part");
                 });
 
             modelBuilder.Entity("Yantrik.Entities.Vehicle", b =>
@@ -1068,20 +1290,26 @@ namespace Yantrik.Migrations
             modelBuilder.Entity("Yantrik.Entities.Invoice", b =>
                 {
                     b.Navigation("Items");
+
+                    b.Navigation("LoyaltyTransactions");
+
+                    b.Navigation("Payments");
                 });
 
             modelBuilder.Entity("Yantrik.Entities.Part", b =>
                 {
                     b.Navigation("InvoiceItems");
+
+                    b.Navigation("StockMovements");
                 });
 
             modelBuilder.Entity("Yantrik.Entities.User", b =>
                 {
                     b.Navigation("CustomerProfile");
 
-                    b.Navigation("RefreshTokens");
+                    b.Navigation("Employee");
 
-                    b.Navigation("StaffProfile");
+                    b.Navigation("RefreshTokens");
                 });
 
             modelBuilder.Entity("Yantrik.Entities.Vehicle", b =>

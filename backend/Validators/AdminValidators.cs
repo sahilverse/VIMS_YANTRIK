@@ -55,7 +55,7 @@ namespace Yantrik.Validators
         }
     }
 
-    public class UpdateStaffRequestValidator : AbstractValidator<UpdateStaffRequest>
+    public class UpdateStaffRequestValidator : AbstractValidator<UpdateEmployeeRequest>
     {
         public UpdateStaffRequestValidator()
         {
@@ -65,3 +65,6 @@ namespace Yantrik.Validators
         }
     }
 }
+
+
+

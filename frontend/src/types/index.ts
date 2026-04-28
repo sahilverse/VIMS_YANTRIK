@@ -51,9 +51,11 @@ export interface Customer extends BaseEntity {
   customerCode: string;
   fullName: string;
   phone: string;
+  email?: string;
   address?: string;
   loyaltyPoints: number;
   totalSpend: number;
+  lastPurchaseDate?: string;
   vehicles: Vehicle[];
 }
 
@@ -73,6 +75,7 @@ export interface Vendor {
   email?: string;
   phone?: string;
   address?: string;
+  isActive: boolean;
 }
 
 export interface Category {
@@ -85,11 +88,13 @@ export interface Part {
   id: string;
   sku: string;
   name: string;
+  brand?: string;
   description?: string;
   unitPrice: number;
   costPrice: number;
   stockQuantity: number;
   minThreshold: number;
+  isActive: boolean;
   categoryId: string;
   categoryName: string;
 }
@@ -102,6 +107,7 @@ export interface CreateCategoryRequest {
 export interface CreatePartRequest {
   sku: string;
   name: string;
+  brand?: string;
   description?: string;
   unitPrice: number;
   costPrice: number;
@@ -114,7 +120,7 @@ export interface InventoryPaginationParams extends PaginationParams {
   categoryId?: string;
 }
 
-export type PaymentStatus = 'Paid' | 'Credit' | 'Overdue';
+export type PaymentStatus = 'Pending' | 'Paid' | 'Partial' | 'Overdue';
 
 export interface PurchaseItemDto {
   partId: string;
@@ -130,8 +136,8 @@ export interface PurchaseInvoiceDto {
   invoiceNumber: string;
   vendorId: string;
   vendorName: string;
-  staffId: string;
-  staffName: string;
+  employeeId: string;
+  employeeName: string;
   date: string;
   totalAmount: number;
   paymentStatus: PaymentStatus;
@@ -185,7 +191,7 @@ export interface DashboardLowStockPartDto {
 }
 
 export interface AdminDashboardStatsDto {
-  totalStaffCount: number;
+  totalEmployeeCount: number;
   totalVendorCount: number;
   todayRevenue: number;
   todaySalesCount: number;

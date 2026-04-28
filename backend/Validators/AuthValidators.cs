@@ -22,7 +22,7 @@ namespace Yantrik.Validators
         }
     }
 
-    public class StaffRegisterRequestValidator : AbstractValidator<StaffRegisterRequest>
+    public class StaffRegisterRequestValidator : AbstractValidator<EmployeeRegisterRequest>
     {
         public StaffRegisterRequestValidator()
         {
@@ -91,3 +91,6 @@ namespace Yantrik.Validators
         }
     }
 }
+
+
+

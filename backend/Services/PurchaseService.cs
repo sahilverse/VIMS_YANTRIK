@@ -31,8 +31,8 @@ namespace Yantrik.Services
                 InvoiceNumber = i.InvoiceNumber,
                 VendorId = i.VendorId ?? Guid.Empty,
                 VendorName = i.Vendor?.CompanyName ?? "Unknown",
-                StaffId = i.StaffId,
-                StaffName = i.Staff?.FullName ?? "Unknown",
+                EmployeeId = i.EmployeeId,
+                EmployeeName = i.Employee?.FullName ?? "Unknown",
                 Date = i.Date,
                 TotalAmount = i.TotalAmount,
                 PaymentStatus = i.PaymentStatus,
@@ -55,8 +55,8 @@ namespace Yantrik.Services
                 InvoiceNumber = invoice.InvoiceNumber,
                 VendorId = invoice.VendorId ?? Guid.Empty,
                 VendorName = invoice.Vendor?.CompanyName ?? "Unknown",
-                StaffId = invoice.StaffId,
-                StaffName = invoice.Staff?.FullName ?? "Unknown",
+                EmployeeId = invoice.EmployeeId,
+                EmployeeName = invoice.Employee?.FullName ?? "Unknown",
                 Date = invoice.Date,
                 TotalAmount = invoice.TotalAmount,
                 PaymentStatus = invoice.PaymentStatus,
@@ -76,10 +76,10 @@ namespace Yantrik.Services
         public async Task<ApiResponse<PurchaseInvoiceDto>> CreatePurchaseAsync(Guid userId, CreatePurchaseRequest request)
         {
             var user = await _unitOfWork.Users.Find(u => u.Id == userId).FirstOrDefaultAsync();
-            var staffProfile = await _unitOfWork.Staff.Find(s => s.UserId == userId).FirstOrDefaultAsync();
+            var employee = await _unitOfWork.Employees.Find(s => s.UserId == userId).FirstOrDefaultAsync();
             
-            if (staffProfile == null)
-                return ApiResponse<PurchaseInvoiceDto>.FailureResponse("Only staff members can create purchases");
+            if (employee == null)
+                return ApiResponse<PurchaseInvoiceDto>.FailureResponse("Only Employees can create purchases");
 
             var invoiceNumber = await _sequenceService.GetNextCodeAsync(SequenceType.PurchaseInvoice);
 
@@ -88,7 +88,7 @@ namespace Yantrik.Services
                 InvoiceNumber = invoiceNumber,
                 Type = InvoiceType.Purchase,
                 VendorId = request.VendorId,
-                StaffId = staffProfile.Id,
+                EmployeeId = employee.Id,
                 Date = DateTime.SpecifyKind(request.Date, DateTimeKind.Utc),
                 PaymentStatus = request.PaymentStatus,
                 Items = new List<InvoiceItem>()
@@ -114,10 +114,24 @@ namespace Yantrik.Services
 
                 invoice.Items.Add(invoiceItem);
                 totalAmount += (itemRequest.Quantity * itemRequest.UnitPrice);
+
+                // Create Stock Movement 
+                var stockMovement = new StockMovement
+                {
+                    PartId = itemRequest.PartId,
+                    Type = MovementType.Purchase,
+                    Quantity = itemRequest.Quantity,
+                    UnitCost = itemRequest.UnitPrice,
+                    ReferenceType = ReferenceType.Invoice,
+                    ReferenceId = invoice.Id,
+                    CreatedBy = employee.Id
+                };
+                await _unitOfWork.StockMovements.AddAsync(stockMovement);
             }
 
             invoice.TotalAmount = totalAmount;
             invoice.SubTotal = totalAmount;
+            invoice.IsPaid = invoice.PaymentStatus == PaymentStatus.Paid;
 
             await _unitOfWork.Invoices.AddAsync(invoice);
             await _unitOfWork.CompleteAsync();
@@ -126,3 +140,6 @@ namespace Yantrik.Services
         }
     }
 }
+
+
+

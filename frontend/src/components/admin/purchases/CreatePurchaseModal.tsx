@@ -97,10 +97,10 @@ export default function CreatePurchaseModal({ isOpen, onClose }: CreatePurchaseM
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-950/20 backdrop-blur-sm overflow-y-auto">
       <div
-        className="bg-white rounded-3xl w-full max-w-4xl overflow-hidden shadow-2xl animate-in fade-in zoom-in-95 duration-200 my-8"
+        className="bg-white rounded-3xl w-full max-w-4xl shadow-2xl animate-in fade-in zoom-in-95 duration-200 my-8"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="p-6 border-b border-zinc-100 flex items-center justify-between bg-zinc-50/50 sticky top-0 z-10">
+        <div className="p-6 border-b border-zinc-100 flex items-center justify-between bg-zinc-50/50 sticky top-0 z-10 rounded-t-3xl">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-zinc-100 rounded-xl">
               <Receipt className="h-5 w-5 text-zinc-700" />
@@ -144,7 +144,8 @@ export default function CreatePurchaseModal({ isOpen, onClose }: CreatePurchaseM
                 className="w-full h-11 px-3 bg-white border border-zinc-200 focus:border-zinc-300 rounded-xl text-sm font-medium transition-all outline-none"
               >
                 <option value="Paid">Paid</option>
-                <option value="Credit">Credit</option>
+                <option value="Pending">Pending</option>
+                <option value="Partial">Partial</option>
                 <option value="Overdue">Overdue</option>
               </select>
               {errors.paymentStatus && <p className="text-xs font-bold text-red-500">{errors.paymentStatus.message}</p>}

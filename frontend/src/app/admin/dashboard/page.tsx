@@ -89,7 +89,7 @@ export default function AdminDashboard() {
             </div>
           </div>
           <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-widest block mb-1">Total Staff</label>
-          <div className="text-3xl font-extrabold tracking-tight">{Math.max(0, (stats?.totalStaffCount || 0) - 1)}</div>
+          <div className="text-3xl font-extrabold tracking-tight">{Math.max(0, (stats?.totalEmployeeCount || 0) - 1)}</div>
           <div className="mt-6 text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Across all shifts</div>
         </div>
 

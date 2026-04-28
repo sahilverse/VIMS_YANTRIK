@@ -29,7 +29,7 @@ namespace Yantrik.DTOs
         public string? Address { get; set; }
     }
 
-    public class StaffRegisterRequest
+    public class EmployeeRegisterRequest
     {
         public string Email { get; set; } = string.Empty;
         public string FullName { get; set; } = string.Empty;
@@ -39,7 +39,7 @@ namespace Yantrik.DTOs
         public UserRole Role { get; set; } = UserRole.Staff; 
     }
 
-    public class UpdateStaffRequest
+    public class UpdateEmployeeRequest
     {
         public string FullName { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
@@ -63,3 +63,6 @@ namespace Yantrik.DTOs
         public int? Year { get; set; }
     }
 }
+
+
+

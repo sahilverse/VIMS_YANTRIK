@@ -99,7 +99,7 @@ namespace Yantrik.Services
             var today = DateTime.UtcNow.Date;
             var tomorrow = today.AddDays(1);
 
-            var staffCount = await _unitOfWork.Staff.Find(x => true).CountAsync();
+            var employeeCount = await _unitOfWork.Employees.Find(x => true).CountAsync();
             var vendorCount = await _unitOfWork.Vendors.Find(x => true).CountAsync();
             
             var todayInvoices = await _unitOfWork.Invoices
@@ -137,7 +137,7 @@ namespace Yantrik.Services
 
             var stats = new AdminDashboardStatsDto
             {
-                TotalStaffCount = staffCount,
+                TotalEmployeeCount = employeeCount,
                 TotalVendorCount = vendorCount,
                 TodayRevenue = todaySales.Sum(s => s.TotalAmount),
                 TodaySalesCount = todaySales.Count,
@@ -164,3 +164,6 @@ namespace Yantrik.Services
         }
     }
 }
+
+
+

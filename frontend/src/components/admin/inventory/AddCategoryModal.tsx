@@ -11,9 +11,10 @@ import { X, Package } from 'lucide-react';
 interface AddCategoryModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onSuccess?: (categoryId: string) => void;
 }
 
-export default function AddCategoryModal({ isOpen, onClose }: AddCategoryModalProps) {
+export default function AddCategoryModal({ isOpen, onClose, onSuccess }: AddCategoryModalProps) {
   const { register, handleSubmit, formState: { errors }, reset } = useForm<CreateCategoryFormValues>({
     resolver: zodResolver(createCategorySchema),
   });
@@ -24,8 +25,11 @@ export default function AddCategoryModal({ isOpen, onClose }: AddCategoryModalPr
 
   const onSubmit = (data: CreateCategoryFormValues) => {
     createCategory.mutate(data, {
-      onSuccess: () => {
+      onSuccess: (response) => {
         reset();
+        if (onSuccess && response.data?.id) {
+          onSuccess(response.data.id);
+        }
         onClose();
       }
     });

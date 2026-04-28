@@ -22,7 +22,7 @@ namespace Yantrik.Controllers
             _unitOfWork = unitOfWork;
         }
 
-        [Authorize(Roles = "Admin,Staff")]
+        [Authorize(Roles = "Admin, Staff")]
         [HttpGet]
         public async Task<IActionResult> GetCustomers([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10, [FromQuery] string? search = null)
         {
@@ -90,3 +90,4 @@ namespace Yantrik.Controllers
         }
     }
 }
+

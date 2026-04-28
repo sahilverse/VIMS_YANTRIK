@@ -5,7 +5,7 @@ namespace Yantrik.DTOs
 {
     public class AdminDashboardStatsDto
     {
-        public int TotalStaffCount { get; set; }
+        public int TotalEmployeeCount { get; set; }
         public int TotalVendorCount { get; set; }
         public decimal TodayRevenue { get; set; }
         public int TodaySalesCount { get; set; }
@@ -33,3 +33,6 @@ namespace Yantrik.DTOs
         public int MinThreshold { get; set; }
     }
 }
+
+
+
