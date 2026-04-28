@@ -199,5 +199,56 @@ namespace Yantrik.Services
             string status = user.IsActive ? "activated" : "deactivated";
             return ApiResponse<bool>.SuccessResponse(true, $"User {status} successfully");
         }
+
+        public async Task<ApiResponse<UserProfileDto>> GetCurrentUserProfileAsync(System.Guid userId)
+        {
+            var user = await _unitOfWork.Users.GetByIdWithProfileAsync(userId);
+            if (user == null) return ApiResponse<UserProfileDto>.FailureResponse("User not found");
+
+            var roles = await _userManager.GetRolesAsync(user);
+            var role = roles.FirstOrDefault() ?? "No Role";
+
+            var dto = new UserProfileDto
+            {
+                UserId = user.Id,
+                Email = user.Email!,
+                FullName = user.StaffProfile?.FullName ?? user.CustomerProfile?.FullName ?? "User",
+                Phone = user.StaffProfile?.Phone ?? user.CustomerProfile?.Phone,
+                Address = user.CustomerProfile?.Address,
+                Code = user.StaffProfile?.EmployeeCode ?? user.CustomerProfile?.CustomerCode ?? "N/A",
+                Role = role
+            };
+
+            return ApiResponse<UserProfileDto>.SuccessResponse(dto);
+        }
+
+        public async Task<ApiResponse<bool>> UpdateProfileAsync(System.Guid userId, UpdateProfileRequest request)
+        {
+            var user = await _unitOfWork.Users.GetByIdWithProfileAsync(userId);
+            if (user == null) return ApiResponse<bool>.FailureResponse("User not found");
+
+            if (user.StaffProfile != null)
+            {
+                user.StaffProfile.FullName = request.FullName;
+                user.StaffProfile.Phone = request.Phone;
+            }
+            else if (user.CustomerProfile != null)
+            {
+                user.CustomerProfile.FullName = request.FullName;
+                user.CustomerProfile.Phone = request.Phone ?? string.Empty;
+                user.CustomerProfile.Address = request.Address;
+            }
+            else
+            {
+                return ApiResponse<bool>.FailureResponse("No associated profile found to update");
+            }
+
+            _unitOfWork.Users.Update(user);
+            var result = await _unitOfWork.CompleteAsync();
+
+            return result > 0 
+                ? ApiResponse<bool>.SuccessResponse(true, "Profile updated successfully")
+                : ApiResponse<bool>.FailureResponse("No changes were made to the profile");
+        }
     }
 }

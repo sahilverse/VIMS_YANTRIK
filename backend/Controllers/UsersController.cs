@@ -22,14 +22,40 @@ namespace Yantrik.Controllers
         [HttpGet("me")]
         public async Task<IActionResult> GetMe()
         {
-            var userId = System.Guid.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value 
-                ?? throw new System.UnauthorizedAccessException("User ID not found in token"));
-
+            var userId = GetUserId();
             var response = await _userService.GetProfileAsync(userId);
             if (!response.Success)
                 return NotFound(response);
 
             return Ok(response);
+        }
+
+        [HttpGet("profile")]
+        public async Task<IActionResult> GetProfile()
+        {
+            var userId = GetUserId();
+            var response = await _userService.GetCurrentUserProfileAsync(userId);
+            if (!response.Success)
+                return BadRequest(response);
+
+            return Ok(response);
+        }
+
+        [HttpPut("profile")]
+        public async Task<IActionResult> UpdateProfile([FromBody] UpdateProfileRequest request)
+        {
+            var userId = GetUserId();
+            var response = await _userService.UpdateProfileAsync(userId, request);
+            if (!response.Success)
+                return BadRequest(response);
+
+            return Ok(response);
+        }
+
+        private System.Guid GetUserId()
+        {
+            return System.Guid.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value 
+                ?? throw new System.UnauthorizedAccessException("User ID not found in token"));
         }
 
         [Authorize(Roles = "Admin")]

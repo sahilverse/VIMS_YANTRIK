@@ -12,5 +12,7 @@ namespace Yantrik.Interfaces
         Task<ApiResponse<UserDto>> RegisterCustomerWithVehicleAsync(CustomerWithVehicleRegisterRequest request);
         Task<ApiResponse<bool>> UpdateStaffAsync(System.Guid id, UpdateStaffRequest request);
         Task<ApiResponse<bool>> ToggleStaffStatusAsync(System.Guid id);
+        Task<ApiResponse<UserProfileDto>> GetCurrentUserProfileAsync(System.Guid userId);
+        Task<ApiResponse<bool>> UpdateProfileAsync(System.Guid userId, UpdateProfileRequest request);
     }
 }
