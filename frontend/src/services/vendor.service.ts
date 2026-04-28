@@ -1,6 +1,6 @@
 import api from '@/lib/api';
 import { ApiResponse, PagedResponse, PaginationParams, Vendor } from '@/types';
-import { CreateVendorFormValues } from '@/lib/validations/admin';
+import { CreateVendorFormValues } from '@/lib/validations';
 
 export const VendorService = {
   getVendors: async (params: PaginationParams) => {

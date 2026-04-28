@@ -1,142 +1,137 @@
 'use client';
 
-import { AuthGuard } from '@/components/auth/AuthGuard';
-import { useAuth } from '@/context/AuthContext';
-import { Button } from '@/components/ui/button';
-import {
-  Package,
-  Users,
-  FileText,
-  LogOut,
-  Settings,
-  Plus,
-  AlertTriangle,
-  ClipboardCheck,
-  LayoutDashboard,
-  Search,
-  Bell,
-  ArrowRight
+import React from 'react';
+import { 
+  Users, 
+  Package, 
+  Receipt, 
+  TrendingUp, 
+  Plus, 
+  UserPlus, 
+  Search, 
+  ArrowUpRight,
+  AlertCircle,
+  Clock
 } from 'lucide-react';
+import Link from 'next/link';
 
 export default function StaffDashboard() {
-  const { user, logout } = useAuth();
-
   return (
-    <AuthGuard roles={['Staff', 'Admin']}>
-      <div className="flex min-h-screen bg-white text-zinc-900 font-sans selection:bg-zinc-950 selection:text-white">
-        {/* Modern Minimal Sidebar */}
-        <aside className="w-64 border-r border-zinc-100 flex flex-col shrink-0 bg-white">
-          <div className="p-8 flex items-center gap-3 mb-4">
-            <div className="p-2 bg-zinc-950 text-white rounded-xl shadow-lg shadow-black/5">
-              <Package className="h-5 w-5" strokeWidth={2.5} />
-            </div>
-            <span className="text-xl font-bold tracking-tight">Staff Portal</span>
-          </div>
-
-          <nav className="flex-1 px-4 space-y-1">
-            <div className="px-4 py-3 bg-zinc-950 text-white text-sm font-bold rounded-xl flex items-center gap-3 shadow-xl shadow-black/10">
-              <LayoutDashboard className="h-4 w-4" /> Overview
-            </div>
-            <button className="w-full px-4 py-3 text-zinc-500 hover:text-zinc-900 hover:bg-zinc-50 text-sm font-bold rounded-xl flex items-center gap-3 transition-all text-left cursor-pointer group">
-              <ClipboardCheck className="h-4 w-4 text-zinc-400 group-hover:text-zinc-900 transition-colors" /> Services
-            </button>
-            <button className="w-full px-4 py-3 text-zinc-500 hover:text-zinc-900 hover:bg-zinc-50 text-sm font-bold rounded-xl flex items-center gap-3 transition-all text-left cursor-pointer group">
-              <Package className="h-4 w-4 text-zinc-400 group-hover:text-zinc-900 transition-colors" /> Parts
-            </button>
-            <button className="w-full px-4 py-3 text-zinc-500 hover:text-zinc-900 hover:bg-zinc-50 text-sm font-bold rounded-xl flex items-center gap-3 transition-all text-left cursor-pointer group">
-              <Users className="h-4 w-4 text-zinc-400 group-hover:text-zinc-900 transition-colors" /> Customers
-            </button>
-            <button className="w-full px-4 py-3 text-zinc-500 hover:text-zinc-900 hover:bg-zinc-50 text-sm font-bold rounded-xl flex items-center gap-3 transition-all text-left cursor-pointer group">
-              <FileText className="h-4 w-4 text-zinc-400 group-hover:text-zinc-900 transition-colors" /> Invoices
-            </button>
-          </nav>
-
-          <div className="p-4 mt-auto border-t border-zinc-50 space-y-1">
-            <button className="w-full px-4 py-3 text-zinc-500 hover:text-zinc-900 hover:bg-zinc-50 text-sm font-bold rounded-xl flex items-center gap-3 transition-all text-left cursor-pointer group">
-              <Settings className="h-4 w-4 text-zinc-400 group-hover:text-zinc-900 transition-colors" /> Settings
-            </button>
-            <button
-              onClick={logout}
-              className="w-full px-4 py-3 text-red-500 hover:bg-red-50 text-sm font-bold rounded-xl flex items-center gap-3 transition-all text-left cursor-pointer group"
-            >
-              <LogOut className="h-4 w-4 text-red-400 group-hover:text-red-500 transition-colors" /> Log Out
-            </button>
-          </div>
-        </aside>
-
-        {/* Main Content */}
-        <main className="flex-1 overflow-y-auto bg-zinc-50/30">
-          <header className="h-20 border-b border-zinc-100 flex items-center justify-between px-10 sticky top-0 bg-white/80 backdrop-blur-md z-10">
-            <div className="flex items-center gap-4 flex-1 max-w-xl">
-              <div className="relative w-full group">
-                <Search className="absolute left-4 top-3.5 h-4 w-4 text-zinc-400 group-focus-within:text-zinc-900 transition-colors" />
-                <input
-                  type="text"
-                  placeholder="Search jobs, customers, or parts..."
-                  className="w-full h-11 pl-11 pr-4 bg-zinc-50 border border-transparent focus:bg-white focus:border-zinc-200 rounded-xl text-sm font-medium transition-all outline-none"
-                />
-              </div>
-            </div>
-
-            <div className="flex items-center gap-4 ml-8">
-              <button className="p-2.5 text-zinc-400 hover:text-zinc-900 hover:bg-zinc-50 rounded-xl transition-all mr-2 cursor-pointer">
-                <Bell className="h-5 w-5" />
-              </button>
-              <Button variant="outline" className="h-11 border-zinc-200 rounded-xl text-xs font-bold px-6 hover:bg-zinc-50 transition-all cursor-pointer">
-                <Package className="h-4 w-4 mr-2 text-zinc-400" /> Stock In
-              </Button>
-              <Button className="h-11 bg-zinc-950 text-white hover:bg-zinc-800 rounded-xl text-xs font-bold px-6 transition-all shadow-xl shadow-black/10 cursor-pointer active:scale-[0.98]">
-                <Plus className="h-4 w-4 mr-2" /> New Job
-              </Button>
-            </div>
-          </header>
-
-          <div className="p-10">
-            <div className="grid gap-8 md:grid-cols-4 mb-10">
-              <div className="p-8 bg-white border border-zinc-200/50 rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer group">
-                <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-widest block mb-4 group-hover:text-zinc-900 transition-colors">Active Jobs</label>
-                <div className="text-4xl font-extrabold tracking-tight">0</div>
-              </div>
-
-              <div className="p-8 bg-white border border-zinc-200/50 rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 relative overflow-hidden group cursor-pointer">
-                <div className="absolute top-0 left-0 w-1.5 h-full bg-amber-400" />
-                <div className="flex justify-between items-start mb-4">
-                  <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-widest group-hover:text-zinc-900 transition-colors">Low Stock</label>
-                  <AlertTriangle className="h-4 w-4 text-amber-400" />
-                </div>
-                <div className="text-4xl font-extrabold tracking-tight text-amber-600">0</div>
-                <button className="mt-4 text-[10px] font-bold text-amber-600 hover:underline transition-all flex items-center gap-1 cursor-pointer">
-                  View parts <ArrowRight className="h-3 w-3" />
-                </button>
-              </div>
-
-              <div className="p-8 bg-white border border-zinc-200/50 rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer group">
-                <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-widest block mb-4 group-hover:text-zinc-900 transition-colors">Today's Revenue</label>
-                <div className="text-4xl font-extrabold tracking-tight">$0.00</div>
-              </div>
-
-              <div className="p-8 bg-white border border-zinc-200/50 rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer group">
-                <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-widest block mb-4 group-hover:text-zinc-900 transition-colors">Pending</label>
-                <div className="text-4xl font-extrabold tracking-tight">0</div>
-              </div>
-            </div>
-
-            <div className="bg-white border border-zinc-200/50 rounded-3xl shadow-sm overflow-hidden">
-              <div className="p-6 px-8 border-b border-zinc-100 flex justify-between items-center bg-zinc-50/50">
-                <h3 className="text-sm font-bold uppercase tracking-widest">Recent Activity</h3>
-                <Button variant="ghost" className="text-[10px] font-bold uppercase tracking-widest hover:bg-zinc-100 px-4 h-8 rounded-lg transition-all">View All</Button>
-              </div>
-              <div className="p-24 flex flex-col items-center justify-center text-center">
-                <div className="w-20 h-20 bg-zinc-50 rounded-2xl flex items-center justify-center mb-6">
-                  <ClipboardCheck className="h-10 w-10 text-zinc-200" strokeWidth={1.5} />
-                </div>
-                <p className="text-lg font-bold mb-2 text-zinc-900">No activity yet.</p>
-                <p className="text-sm font-medium text-zinc-400 max-w-xs">New service jobs and sales will be recorded here.</p>
-              </div>
-            </div>
-          </div>
-        </main>
+    <div className="space-y-10 animate-in fade-in duration-500">
+      {/* Welcome Section */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div>
+          <h1 className="text-3xl font-black tracking-tight text-zinc-900">Operations Overview</h1>
+          <p className="text-zinc-500 font-medium mt-1">Ready to serve your next customer? Here's what's happening today.</p>
+        </div>
+        
+        <div className="flex items-center gap-3">
+          <Link 
+            href="/staff/customers?action=register"
+            className="flex items-center gap-2 px-5 py-2.5 bg-white border border-zinc-200 hover:border-zinc-300 text-zinc-900 rounded-2xl text-sm font-bold transition-all shadow-sm active:scale-95"
+          >
+            <UserPlus className="h-4 w-4" /> Register Customer
+          </Link>
+          <Link 
+            href="/staff/sales?action=new"
+            className="flex items-center gap-2 px-6 py-2.5 bg-zinc-950 text-white hover:bg-zinc-800 rounded-2xl text-sm font-bold transition-all shadow-xl shadow-black/10 active:scale-95"
+          >
+            <Plus className="h-4 w-4" /> Create Sale
+          </Link>
+        </div>
       </div>
-    </AuthGuard>
+
+      {/* Stats Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {[
+          { label: "Today's Sales", value: "Rs. 45,250", icon: TrendingUp, color: "text-emerald-600", bg: "bg-emerald-50" },
+          { label: "Parts Sold", value: "24 Units", icon: Package, color: "text-blue-600", bg: "bg-blue-50" },
+          { label: "New Customers", value: "12", icon: Users, color: "text-indigo-600", bg: "bg-indigo-50" },
+          { label: "Pending Tasks", value: "5", icon: Clock, color: "text-amber-600", bg: "bg-amber-50" },
+        ].map((stat, i) => (
+          <div key={i} className="bg-white p-6 rounded-3xl border border-zinc-100 shadow-sm hover:shadow-md transition-all group">
+            <div className={`p-3 rounded-2xl ${stat.bg} ${stat.color} w-max mb-4 group-hover:scale-110 transition-transform`}>
+              <stat.icon className="h-5 w-5" />
+            </div>
+            <p className="text-xs font-bold text-zinc-400 uppercase tracking-widest">{stat.label}</p>
+            <h3 className="text-2xl font-black text-zinc-900 mt-1">{stat.value}</h3>
+          </div>
+        ))}
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Recent Activity */}
+        <div className="lg:col-span-2 space-y-4">
+          <div className="flex items-center justify-between px-2">
+            <h2 className="text-lg font-extrabold text-zinc-900">Recent Sales</h2>
+            <Link href="/staff/sales" className="text-xs font-bold text-zinc-400 hover:text-zinc-900 transition-colors uppercase tracking-widest">View All</Link>
+          </div>
+          
+          <div className="bg-white rounded-3xl border border-zinc-100 shadow-sm overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="bg-zinc-50/50">
+                    <th className="px-6 py-4 text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Invoice</th>
+                    <th className="px-6 py-4 text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Customer</th>
+                    <th className="px-6 py-4 text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Amount</th>
+                    <th className="px-6 py-4 text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Status</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-zinc-50 text-sm">
+                  {[
+                    { id: "#INV-8821", name: "Sahil Shrestha", amount: "Rs. 1,200", status: "Paid" },
+                    { id: "#INV-8822", name: "Aarav Sharma", amount: "Rs. 4,500", status: "Credit" },
+                    { id: "#INV-8823", name: "Priya Thapa", amount: "Rs. 850", status: "Paid" },
+                    { id: "#INV-8824", name: "Binod Rai", amount: "Rs. 12,400", status: "Paid" },
+                  ].map((row, i) => (
+                    <tr key={i} className="hover:bg-zinc-50/50 transition-colors cursor-pointer">
+                      <td className="px-6 py-4 font-bold text-zinc-900">{row.id}</td>
+                      <td className="px-6 py-4 font-medium text-zinc-500">{row.name}</td>
+                      <td className="px-6 py-4 font-black text-zinc-900">{row.amount}</td>
+                      <td className="px-6 py-4">
+                        <span className={`px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest ${
+                          row.status === 'Paid' ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'
+                        }`}>
+                          {row.status}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        {/* Side Panel: Low Stock Alerts */}
+        <div className="space-y-4">
+          <div className="px-2">
+            <h2 className="text-lg font-extrabold text-zinc-900">Critical Alerts</h2>
+          </div>
+          
+          <div className="space-y-3">
+            {[
+              { part: "Mobile Oil 4T", sku: "OIL-4T", qty: 2 },
+              { part: "Brake Pad (Front)", sku: "BRK-F", qty: 5 },
+            ].map((alert, i) => (
+              <div key={i} className="p-4 bg-white rounded-2xl border border-zinc-100 shadow-sm flex items-start gap-4">
+                <div className="p-2 bg-red-50 text-red-500 rounded-xl">
+                  <AlertCircle className="h-5 w-5" />
+                </div>
+                <div>
+                  <h4 className="text-sm font-bold text-zinc-900">{alert.part}</h4>
+                  <p className="text-xs font-bold text-zinc-400 uppercase tracking-widest mt-0.5">{alert.sku} • Stock: {alert.qty}</p>
+                </div>
+              </div>
+            ))}
+            
+            <button className="w-full p-4 border-2 border-dashed border-zinc-100 hover:border-zinc-200 hover:bg-zinc-50 text-zinc-400 hover:text-zinc-600 rounded-2xl text-xs font-bold transition-all transition-all">
+              Request Stock from Admin
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }

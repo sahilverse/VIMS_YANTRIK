@@ -1,9 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { InventoryService } from '@/services/inventory.service';
 import { queryKeys } from '@/lib/query-keys';
-import { InventoryPaginationParams, Category,  ApiResponse } from '@/types';
+import { InventoryPaginationParams, Category, Part, ApiResponse, PagedResponse } from '@/types';
 import { toast } from 'sonner';
-import { CreateCategoryFormValues, CreatePartFormValues } from '@/lib/validations/admin';
+import { CreateCategoryFormValues, CreatePartFormValues } from '@/lib/validations';
 
 // Categories
 
@@ -122,7 +122,6 @@ export const useUpdatePartMutation = () => {
 
       queryClient.setQueriesData({ queryKey: qKey }, (old: any) => {
         if (!old || !old.data) return old;
-        // Handle both PagedResponse and flat arrays if applicable
         if (old.data.items) {
             return {
                 ...old,

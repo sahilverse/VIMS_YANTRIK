@@ -54,6 +54,7 @@ export interface Customer extends BaseEntity {
   address?: string;
   loyaltyPoints: number;
   totalSpend: number;
+  vehicles: Vehicle[];
 }
 
 export interface Vehicle extends BaseEntity {
@@ -207,4 +208,23 @@ export interface UpdateProfileRequest {
   fullName: string;
   phone?: string;
   address?: string;
+}
+
+export interface VehicleRegistrationRequest {
+  plateNumber: string;
+  make?: string;
+  model?: string;
+  year?: number;
+  vin?: string;
+}
+
+export interface RegisterCustomerRequest {
+  fullName: string;
+  phone: string;
+  email?: string;
+  address?: string;
+  plateNumber: string;
+  make?: string;
+  model?: string;
+  year?: number;
 }

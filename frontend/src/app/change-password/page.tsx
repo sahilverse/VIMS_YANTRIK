@@ -19,6 +19,14 @@ export default function ChangePasswordPage() {
   const [serverError, setServerError] = useState<string | null>(null);
   const changePasswordMutation = useChangePasswordMutation();
 
+  const {
+    register,
+    handleSubmit,
+    formState: { errors }
+  } = useForm<ChangePasswordFormValues>({
+    resolver: zodResolver(changePasswordSchema)
+  });
+
   useEffect(() => {
     if (!isLoading && !mustChangePassword) {
       router.push('/');
@@ -33,14 +41,6 @@ export default function ChangePasswordPage() {
       </div>
     );
   }
-
-  const {
-    register,
-    handleSubmit,
-    formState: { errors }
-  } = useForm<ChangePasswordFormValues>({
-    resolver: zodResolver(changePasswordSchema)
-  });
 
   const onSubmit = (data: ChangePasswordFormValues) => {
     setServerError(null);
