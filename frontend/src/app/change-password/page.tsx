@@ -7,7 +7,7 @@ import { changePasswordSchema, ChangePasswordFormValues } from '@/lib/validation
 import { useChangePasswordMutation } from '@/hooks/api/useAuthApi';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Loader2, ArrowRight, Lock, ShieldCheck, CheckCircle2 } from 'lucide-react';
+import { Loader2, ArrowRight, Lock, ShieldCheck } from 'lucide-react';
 import Link from 'next/link';
 
 export default function ChangePasswordPage() {

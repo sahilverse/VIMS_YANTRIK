@@ -1,8 +1,7 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { usePurchaseListQuery } from '@/hooks/api/usePurchaseApi';
-import { Receipt, Search, Loader2, ArrowRight } from 'lucide-react';
+import { Receipt, Loader2, ArrowRight } from 'lucide-react';
 import ViewPurchaseModal from './ViewPurchaseModal';
-import { PurchaseInvoiceDto } from '@/types';
 
 export default function PurchaseTable() {
   const [pageNumber, setPageNumber] = useState(1);

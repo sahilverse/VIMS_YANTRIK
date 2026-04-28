@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { PackagePlus, PackageOpen, LayoutGrid, Package } from 'lucide-react';
 import PartTable from '@/components/admin/inventory/PartTable';
@@ -23,7 +23,7 @@ export default function InventoryPage() {
             Manage parts, stock levels, and categories
           </p>
         </div>
-        
+
         <div className="flex items-center gap-3">
           {activeTab === 'parts' ? (
             <Button
@@ -49,21 +49,19 @@ export default function InventoryPage() {
       <div className="flex items-center gap-2 mb-8 bg-zinc-100 p-1.5 rounded-2xl w-max">
         <button
           onClick={() => setActiveTab('parts')}
-          className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold transition-all ${
-            activeTab === 'parts' 
-              ? 'bg-white text-zinc-900 shadow-sm' 
+          className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold transition-all ${activeTab === 'parts'
+              ? 'bg-white text-zinc-900 shadow-sm'
               : 'text-zinc-500 hover:text-zinc-900 hover:bg-zinc-200/50'
-          }`}
+            }`}
         >
           <Package className="h-4 w-4" /> Parts Catalog
         </button>
         <button
           onClick={() => setActiveTab('categories')}
-          className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold transition-all ${
-            activeTab === 'categories' 
-              ? 'bg-white text-zinc-900 shadow-sm' 
+          className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold transition-all ${activeTab === 'categories'
+              ? 'bg-white text-zinc-900 shadow-sm'
               : 'text-zinc-500 hover:text-zinc-900 hover:bg-zinc-200/50'
-          }`}
+            }`}
         >
           <LayoutGrid className="h-4 w-4" /> Categories
         </button>

@@ -3,12 +3,11 @@
 import React, { useState } from 'react';
 import { useDailyReportQuery, useMonthlyReportQuery, useYearlyReportQuery } from '@/hooks/api/useReportApi';
 import ReportCharts from '@/components/admin/reports/ReportCharts';
-import { BarChart4, TrendingUp, TrendingDown, DollarSign, Activity, Package, Receipt } from 'lucide-react';
+import { TrendingUp, TrendingDown, DollarSign, Activity, Package, Receipt } from 'lucide-react';
 
 export default function ReportsPage() {
   const [reportType, setReportType] = useState<'daily' | 'monthly' | 'yearly'>('monthly');
 
-  // Currently defaulting to current dates. In a full system, you would have date pickers here.
   const today = new Date();
   
   const dailyQuery = useDailyReportQuery(undefined, reportType === 'daily');

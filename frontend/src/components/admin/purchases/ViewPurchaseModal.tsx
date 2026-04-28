@@ -1,5 +1,3 @@
-import React from 'react';
-import { PurchaseInvoiceDto } from '@/types';
 import { X, Receipt, Building2, Calendar, FileText, Loader2 } from 'lucide-react';
 import { usePurchaseDetailQuery } from '@/hooks/api/usePurchaseApi';
 

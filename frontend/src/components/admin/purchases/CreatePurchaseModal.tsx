@@ -16,7 +16,7 @@ interface CreatePurchaseModalProps {
 }
 
 export default function CreatePurchaseModal({ isOpen, onClose }: CreatePurchaseModalProps) {
-  const { register, handleSubmit, control, watch, formState: { errors }, reset } = useForm<CreatePurchaseFormValues>({
+  const { register, handleSubmit, control, formState: { errors }, reset } = useForm<CreatePurchaseFormValues>({
     resolver: zodResolver(createPurchaseSchema) as any,
     defaultValues: {
       items: [{ partId: '', quantity: 1, unitPrice: 0 }],

@@ -1,5 +1,13 @@
 import api from '@/lib/api';
-import { ApiResponse, Category, Part, PagedResponse, InventoryPaginationParams, CreateCategoryRequest, CreatePartRequest } from '@/types';
+import {
+  ApiResponse,
+  Category,
+  Part,
+  PagedResponse,
+  InventoryPaginationParams,
+  CreateCategoryRequest,
+  CreatePartRequest
+} from '@/types';
 
 export const InventoryService = {
   // Categories

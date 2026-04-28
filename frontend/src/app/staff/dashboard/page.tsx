@@ -1,13 +1,12 @@
 'use client';
 
-import React from 'react';
 import { AuthGuard } from '@/components/auth/AuthGuard';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
-import { 
-  Package, 
-  Users, 
-  FileText, 
+import {
+  Package,
+  Users,
+  FileText,
   LogOut,
   Settings,
   Plus,
@@ -56,7 +55,7 @@ export default function StaffDashboard() {
             <button className="w-full px-4 py-3 text-zinc-500 hover:text-zinc-900 hover:bg-zinc-50 text-sm font-bold rounded-xl flex items-center gap-3 transition-all text-left cursor-pointer group">
               <Settings className="h-4 w-4 text-zinc-400 group-hover:text-zinc-900 transition-colors" /> Settings
             </button>
-            <button 
+            <button
               onClick={logout}
               className="w-full px-4 py-3 text-red-500 hover:bg-red-50 text-sm font-bold rounded-xl flex items-center gap-3 transition-all text-left cursor-pointer group"
             >
@@ -71,14 +70,14 @@ export default function StaffDashboard() {
             <div className="flex items-center gap-4 flex-1 max-w-xl">
               <div className="relative w-full group">
                 <Search className="absolute left-4 top-3.5 h-4 w-4 text-zinc-400 group-focus-within:text-zinc-900 transition-colors" />
-                <input 
-                  type="text" 
-                  placeholder="Search jobs, customers, or parts..." 
+                <input
+                  type="text"
+                  placeholder="Search jobs, customers, or parts..."
                   className="w-full h-11 pl-11 pr-4 bg-zinc-50 border border-transparent focus:bg-white focus:border-zinc-200 rounded-xl text-sm font-medium transition-all outline-none"
                 />
               </div>
             </div>
-            
+
             <div className="flex items-center gap-4 ml-8">
               <button className="p-2.5 text-zinc-400 hover:text-zinc-900 hover:bg-zinc-50 rounded-xl transition-all mr-2 cursor-pointer">
                 <Bell className="h-5 w-5" />
@@ -98,7 +97,7 @@ export default function StaffDashboard() {
                 <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-widest block mb-4 group-hover:text-zinc-900 transition-colors">Active Jobs</label>
                 <div className="text-4xl font-extrabold tracking-tight">0</div>
               </div>
-              
+
               <div className="p-8 bg-white border border-zinc-200/50 rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 relative overflow-hidden group cursor-pointer">
                 <div className="absolute top-0 left-0 w-1.5 h-full bg-amber-400" />
                 <div className="flex justify-between items-start mb-4">

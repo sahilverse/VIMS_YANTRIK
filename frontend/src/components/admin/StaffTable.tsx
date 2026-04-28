@@ -1,6 +1,5 @@
 'use client';
 
-import React from 'react';
 import { UserDto } from '@/types';
 import { Edit3, ToggleLeft, ToggleRight, MoreHorizontal } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
@@ -94,11 +93,10 @@ export default function StaffTable({ staff, isLoading, onEdit, onToggleStatus, t
                 <span className="text-sm text-zinc-500">{member.email}</span>
               </td>
               <td className="px-6 py-5">
-                <span className={`text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full ${
-                  member.role === 'Admin'
+                <span className={`text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full ${member.role === 'Admin'
                     ? 'bg-violet-50 text-violet-600'
                     : 'bg-sky-50 text-sky-600'
-                }`}>
+                  }`}>
                   {member.role}
                 </span>
               </td>

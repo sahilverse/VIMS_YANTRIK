@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
@@ -135,7 +135,7 @@ export default function RootPage() {
                 {serverError || 'Login Failed. Please check your credentials.'}
               </div>
             )}
-            
+
             <div className="space-y-2">
               <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider ml-1" htmlFor="email">Email Address</label>
               <Input

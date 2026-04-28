@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { PurchaseService } from '@/services/purchase.service';
 import { queryKeys } from '@/lib/query-keys';
-import { PaginationParams, CreatePurchaseRequest } from '@/types';
+import { PaginationParams } from '@/types';
 import { toast } from 'sonner';
 
 export const usePurchaseListQuery = (params: PaginationParams, enabled = true) => {
@@ -27,7 +27,7 @@ export const useCreatePurchaseMutation = () => {
     mutationFn: PurchaseService.createPurchase,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.purchases.all });
-      queryClient.invalidateQueries({ queryKey: queryKeys.inventory.all }); // Invalidating inventory because stock will update
+      queryClient.invalidateQueries({ queryKey: queryKeys.inventory.all }); 
       toast.success('Purchase invoice created successfully');
     },
     onError: (error: any) => {

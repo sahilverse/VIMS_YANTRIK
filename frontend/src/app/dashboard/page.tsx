@@ -1,6 +1,5 @@
 'use client';
 
-import React from 'react';
 import { AuthGuard } from '@/components/auth/AuthGuard';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';

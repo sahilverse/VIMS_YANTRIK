@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Receipt, Plus } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import PurchaseTable from '@/components/admin/purchases/PurchaseTable';
 import CreatePurchaseModal from '@/components/admin/purchases/CreatePurchaseModal';
 
@@ -18,7 +18,7 @@ export default function PurchasesPage() {
             Manage vendor purchases and stock intake
           </p>
         </div>
-        
+
         <Button
           onClick={() => setIsCreateModalOpen(true)}
           size="sm"

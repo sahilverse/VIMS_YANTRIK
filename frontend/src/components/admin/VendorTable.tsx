@@ -1,6 +1,5 @@
 'use client';
 
-import React from 'react';
 import { Vendor } from '@/types';
 import { Edit3, Trash2, MoreHorizontal } from 'lucide-react';
 
