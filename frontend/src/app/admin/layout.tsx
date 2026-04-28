@@ -14,10 +14,11 @@ import {
   Receipt,
   BarChart4,
   Settings,
-  LogOut,
   Search,
-  Bell
+  Bell,
+  LogOut
 } from 'lucide-react';
+import { ConfirmModal } from '@/components/ui/ConfirmModal';
 
 const navItems = [
   { label: 'Overview', href: '/admin/dashboard', icon: LayoutDashboard },
@@ -31,6 +32,7 @@ const navItems = [
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const { user, logout } = useAuth();
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = React.useState(false);
 
   return (
     <AuthGuard roles={['Admin']}>
@@ -53,11 +55,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`w-full px-4 py-3 text-sm font-bold rounded-xl flex items-center gap-3 transition-all ${
-                    isActive
+                  className={`w-full px-4 py-3 text-sm font-bold rounded-xl flex items-center gap-3 transition-all ${isActive
                       ? 'bg-zinc-950 text-white shadow-xl shadow-black/10'
                       : 'text-zinc-500 hover:text-zinc-900 hover:bg-zinc-50 group'
-                  }`}
+                    }`}
                 >
                   <Icon className={`h-4 w-4 ${isActive ? '' : 'text-zinc-400 group-hover:text-zinc-900 transition-colors'}`} />
                   {item.label}
@@ -74,7 +75,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               <Settings className="h-4 w-4 text-zinc-400 group-hover:text-zinc-900 transition-colors" /> Settings
             </Link>
             <button
-              onClick={logout}
+              onClick={() => setIsLogoutModalOpen(true)}
               className="w-full px-4 py-3 text-red-500 hover:bg-red-50 text-sm font-bold rounded-xl flex items-center gap-3 transition-all text-left cursor-pointer group"
             >
               <LogOut className="h-4 w-4 text-red-400 group-hover:text-red-500 transition-colors" /> Log Out
@@ -115,6 +116,16 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             {children}
           </div>
         </main>
+
+        <ConfirmModal
+          isOpen={isLogoutModalOpen}
+          title="Sign Out"
+          description="Are you sure you want to log out of your admin session? You will need to sign in again to access the dashboard."
+          confirmText="Sign Out"
+          isDestructive={true}
+          onConfirm={logout}
+          onClose={() => setIsLogoutModalOpen(false)}
+        />
       </div>
     </AuthGuard>
   );
