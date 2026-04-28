@@ -49,13 +49,8 @@ namespace Yantrik.Controllers
                 }).ToList()
             });
 
-            return Ok(new
-            {
-                items = dtos,
-                totalCount,
-                pageNumber,
-                pageSize
-            });
+            var response = new Yantrik.Common.PagedResponse<CustomerDto>(dtos, totalCount, pageNumber, pageSize);
+            return Ok(response);
         }
 
         [Authorize(Roles = "Admin,Staff")]

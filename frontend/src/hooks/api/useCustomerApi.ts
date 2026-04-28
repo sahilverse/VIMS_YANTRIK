@@ -30,33 +30,29 @@ export const useRegisterCustomerMutation = () => {
       const previousCustomers = queryClient.getQueryData(queryKeys.customers.all);
 
       queryClient.setQueriesData({ queryKey: queryKeys.customers.all }, (old: any) => {
-        if (!old || !old.data) return old;
+        if (!old) return old;
         return {
           ...old,
-          data: {
-            ...old.data,
-            // Match backend key: totalCount
-            totalCount: (old.data.totalCount || 0) + 1,
-            items: [
-              {
-                id: 'temp-id-' + Date.now(),
-                ...newCustomer,
-                customerCode: 'CUST-TEMP',
-                totalSpend: 0,
-                loyaltyPoints: 0,
-                vehicles: [
-                  {
-                    id: 'v-temp',
-                    plateNumber: (newCustomer as any).plateNumber,
-                    make: (newCustomer as any).make,
-                    model: (newCustomer as any).model
-                  }
-                ],
-                createdAt: new Date().toISOString()
-              },
-              ...(old.data.items || [])
-            ]
-          }
+          totalItems: (old.totalItems || 0) + 1,
+          items: [
+            {
+              id: 'temp-id-' + Date.now(),
+              ...newCustomer,
+              customerCode: 'CUST-TEMP',
+              totalSpend: 0,
+              loyaltyPoints: 0,
+              vehicles: [
+                {
+                  id: 'v-temp',
+                  plateNumber: (newCustomer as any).plateNumber,
+                  make: (newCustomer as any).make,
+                  model: (newCustomer as any).model
+                }
+              ],
+              createdAt: new Date().toISOString()
+            },
+            ...(old.items || [])
+          ]
         };
       });
 
