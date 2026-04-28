@@ -30,7 +30,7 @@ namespace Yantrik.Repositories
             var totalCount = await query.CountAsync();
             
             var items = await query
-                .OrderBy(v => v.CompanyName)
+                .OrderByDescending(v => v.CreatedAt)
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
