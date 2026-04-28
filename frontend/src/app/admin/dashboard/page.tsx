@@ -10,37 +10,39 @@ import {
   Activity,
   ArrowRight,
   FileText,
+  Briefcase,
+  AlertCircle,
+  ShoppingCart,
+  Loader2
 } from 'lucide-react';
 import AddStaffModal from '@/components/admin/AddStaffModal';
+import ViewPurchaseModal from '@/components/admin/purchases/ViewPurchaseModal';
+import EditPartModal from '@/components/admin/inventory/EditPartModal';
 
-import { useStaffListQuery } from '@/hooks/api/useUserApi';
-import { useVendorListQuery } from '@/hooks/api/useVendorApi';
-import { useDailyReportQuery } from '@/hooks/api/useReportApi';
-import { usePurchaseListQuery } from '@/hooks/api/usePurchaseApi';
-import { useLowStockPartsQuery } from '@/hooks/api/useInventoryApi';
-import { Briefcase, AlertCircle, ShoppingCart } from 'lucide-react';
+import { useAdminDashboardStatsQuery } from '@/hooks/api/useReportApi';
+import { usePartDetailQuery } from '@/hooks/api/useInventoryApi';
 
 export default function AdminDashboard() {
   const { user } = useAuth();
-  const [isAddModalOpen, setIsAddModalOpen] = React.useState(false);
+  const [isAddStaffOpen, setIsAddStaffOpen] = React.useState(false);
+  const [selectedPurchaseId, setSelectedPurchaseId] = React.useState<string | null>(null);
+  const [selectedPartId, setSelectedPartId] = React.useState<string | null>(null);
 
-  const { data: staffData } = useStaffListQuery({ pageNumber: 1, pageSize: 1 });
-  const totalStaffCount = staffData?.data?.totalItems || 0;
+  const { data: statsResponse, isLoading } = useAdminDashboardStatsQuery();
+  const stats = statsResponse?.data;
 
-  const displayStaffCount = Math.max(0, totalStaffCount - 1);
+  // Fetch full part data when a part is selected for editing
+  const { data: partDetailResponse } = usePartDetailQuery(selectedPartId!, !!selectedPartId);
+  const selectedPart = partDetailResponse?.data || null;
 
-  const { data: vendorData } = useVendorListQuery({ pageNumber: 1, pageSize: 1 });
-  const displayVendorCount = vendorData?.data?.totalItems || 0;
-
-  const today = React.useMemo(() => new Date().toISOString().split('T')[0], []);
-  const { data: dailyReport } = useDailyReportQuery(today);
-  const revenue = dailyReport?.data?.totalRevenue || 0;
-
-  const { data: lowStock } = useLowStockPartsQuery();
-  const lowStockCount = lowStock?.data?.length || 0;
-
-  const { data: recentPurchases } = usePurchaseListQuery({ pageNumber: 1, pageSize: 5 });
-  const purchases = recentPurchases?.data?.items || [];
+  if (isLoading) {
+    return (
+      <div className="h-[80vh] flex flex-col items-center justify-center space-y-4">
+        <Loader2 className="h-10 w-10 text-zinc-950 animate-spin" />
+        <p className="text-sm font-bold text-zinc-500 uppercase tracking-widest">Loading Dashboard...</p>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -53,7 +55,7 @@ export default function AdminDashboard() {
           </p>
         </div>
         <Button
-          onClick={() => setIsAddModalOpen(true)}
+          onClick={() => setIsAddStaffOpen(true)}
           size="sm"
           className="h-11 bg-zinc-950 text-white hover:bg-zinc-800 rounded-xl text-xs font-bold px-6 transition-all shadow-xl shadow-black/10 cursor-pointer active:scale-[0.98]"
         >
@@ -70,7 +72,7 @@ export default function AdminDashboard() {
             </div>
           </div>
           <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-widest block mb-1">Total Vendors</label>
-          <div className="text-3xl font-extrabold tracking-tight">{displayVendorCount}</div>
+          <div className="text-3xl font-extrabold tracking-tight">{stats?.totalVendorCount || 0}</div>
           <button className="mt-6 text-[10px] font-bold text-zinc-400 hover:text-zinc-900 transition-colors uppercase tracking-widest flex items-center gap-1 cursor-pointer">
             Manage vendors <ArrowRight className="h-3 w-3" />
           </button>
@@ -87,7 +89,7 @@ export default function AdminDashboard() {
             </div>
           </div>
           <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-widest block mb-1">Total Staff</label>
-          <div className="text-3xl font-extrabold tracking-tight">{displayStaffCount}</div>
+          <div className="text-3xl font-extrabold tracking-tight">{Math.max(0, (stats?.totalStaffCount || 0) - 1)}</div>
           <div className="mt-6 text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Across all shifts</div>
         </div>
 
@@ -98,8 +100,8 @@ export default function AdminDashboard() {
             </div>
           </div>
           <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-widest block mb-1">Today's Revenue</label>
-          <div className="text-3xl font-extrabold tracking-tight text-emerald-600">Rs. {revenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
-          <div className="mt-6 text-[10px] font-bold text-zinc-400 uppercase tracking-widest">From {dailyReport?.data?.totalSalesCount || 0} sales today</div>
+          <div className="text-3xl font-extrabold tracking-tight text-emerald-600">Rs. {(stats?.todayRevenue || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+          <div className="mt-6 text-[10px] font-bold text-zinc-400 uppercase tracking-widest">From {stats?.todaySalesCount || 0} sales today</div>
         </div>
       </div>
 
@@ -112,7 +114,7 @@ export default function AdminDashboard() {
             </h3>
           </div>
           <div className="flex-1 p-0">
-            {purchases.length === 0 ? (
+            {!stats?.recentPurchases || stats.recentPurchases.length === 0 ? (
               <div className="p-24 flex flex-col items-center justify-center text-center">
                 <div className="w-16 h-16 bg-zinc-50 rounded-2xl flex items-center justify-center mb-6">
                   <Activity className="h-8 w-8 text-zinc-200" strokeWidth={1.5} />
@@ -121,14 +123,18 @@ export default function AdminDashboard() {
               </div>
             ) : (
               <div className="divide-y divide-zinc-100">
-                {purchases.map(purchase => (
-                  <div key={purchase.id} className="p-6 flex items-center justify-between hover:bg-zinc-50/50 transition-colors">
+                {stats.recentPurchases.map(purchase => (
+                  <div 
+                    key={purchase.id} 
+                    onClick={() => setSelectedPurchaseId(purchase.id)}
+                    className="p-6 flex items-center justify-between hover:bg-zinc-50/80 transition-all cursor-pointer group"
+                  >
                     <div className="flex items-center gap-4">
-                      <div className="h-10 w-10 bg-zinc-100 text-zinc-600 rounded-xl flex items-center justify-center font-bold text-xs">
+                      <div className="h-10 w-10 bg-zinc-100 text-zinc-600 rounded-xl flex items-center justify-center font-bold text-xs group-hover:bg-zinc-950 group-hover:text-white transition-colors">
                         {purchase.vendorName.substring(0, 2).toUpperCase()}
                       </div>
                       <div>
-                        <p className="text-sm font-bold text-zinc-900">{purchase.vendorName}</p>
+                        <p className="text-sm font-bold text-zinc-900 group-hover:text-zinc-950 transition-colors">{purchase.vendorName}</p>
                         <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mt-0.5">{purchase.invoiceNumber} • {new Date(purchase.date).toLocaleDateString()}</p>
                       </div>
                     </div>
@@ -150,14 +156,14 @@ export default function AdminDashboard() {
             <h3 className="text-sm font-bold uppercase tracking-widest flex items-center gap-2">
               <AlertCircle className="h-4 w-4 text-zinc-400" /> Low Stock Alerts
             </h3>
-            {lowStockCount > 0 && (
+            {(stats?.lowStockCount || 0) > 0 && (
               <span className="px-2.5 py-1 bg-red-100 text-red-700 rounded-full text-[10px] font-black uppercase tracking-widest">
-                {lowStockCount} Parts
+                {stats?.lowStockCount} Total
               </span>
             )}
           </div>
           <div className="flex-1 p-0">
-            {lowStockCount === 0 ? (
+            {!stats?.lowStockParts || stats.lowStockParts.length === 0 ? (
               <div className="p-24 flex flex-col items-center justify-center text-center">
                 <div className="w-16 h-16 bg-emerald-50 rounded-2xl flex items-center justify-center mb-6">
                   <FileText className="h-8 w-8 text-emerald-400" strokeWidth={1.5} />
@@ -166,15 +172,19 @@ export default function AdminDashboard() {
               </div>
             ) : (
               <div className="divide-y divide-zinc-100">
-                {lowStock?.data?.map(part => (
-                  <div key={part.id} className="p-6 flex items-center justify-between hover:bg-zinc-50/50 transition-colors">
+                {stats.lowStockParts.map(part => (
+                  <div 
+                    key={part.id} 
+                    onClick={() => setSelectedPartId(part.id)}
+                    className="p-6 flex items-center justify-between hover:bg-red-50/50 transition-all cursor-pointer group"
+                  >
                     <div>
-                      <p className="text-sm font-bold text-zinc-900">{part.name}</p>
+                      <p className="text-sm font-bold text-zinc-900 group-hover:text-red-900 transition-colors">{part.name}</p>
                       <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mt-0.5">SKU: {part.sku}</p>
                     </div>
                     <div className="text-right">
                       <p className="text-sm font-extrabold text-red-600">{part.stockQuantity} in stock</p>
-                      <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mt-0.5">Reorder soon</p>
+                      <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mt-0.5">Reorder threshold: {part.minThreshold}</p>
                     </div>
                   </div>
                 ))}
@@ -185,8 +195,20 @@ export default function AdminDashboard() {
       </div>
 
       <AddStaffModal
-        isOpen={isAddModalOpen}
-        onClose={() => setIsAddModalOpen(false)}
+        isOpen={isAddStaffOpen}
+        onClose={() => setIsAddStaffOpen(false)}
+      />
+
+      <ViewPurchaseModal
+        isOpen={!!selectedPurchaseId}
+        onClose={() => setSelectedPurchaseId(null)}
+        purchaseId={selectedPurchaseId}
+      />
+
+      <EditPartModal
+        isOpen={!!selectedPartId}
+        onClose={() => setSelectedPartId(null)}
+        part={selectedPart}
       />
     </>
   );

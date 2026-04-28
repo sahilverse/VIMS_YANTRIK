@@ -25,3 +25,11 @@ export const useYearlyReportQuery = (year?: number, enabled = true) => {
     enabled,
   });
 };
+
+export const useAdminDashboardStatsQuery = (enabled = true) => {
+  return useQuery({
+    queryKey: queryKeys.reports.dashboard(),
+    queryFn: () => ReportService.getDashboardStats(),
+    enabled,
+  });
+};

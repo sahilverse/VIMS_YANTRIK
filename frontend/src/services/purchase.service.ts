@@ -3,17 +3,17 @@ import { ApiResponse, PaginationParams, PagedResponse, PurchaseInvoiceDto, Creat
 
 export const PurchaseService = {
   getPurchases: async (params: PaginationParams): Promise<ApiResponse<PagedResponse<PurchaseInvoiceDto>>> => {
-    const response = await api.get('/Purchase', { params });
+    const response = await api.get('/purchase', { params });
     return response.data;
   },
 
   getPurchaseById: async (id: string): Promise<ApiResponse<PurchaseInvoiceDto>> => {
-    const response = await api.get(`/Purchase/${id}`);
+    const response = await api.get(`/purchase/${id}`);
     return response.data;
   },
 
   createPurchase: async (data: CreatePurchaseRequest): Promise<ApiResponse<PurchaseInvoiceDto>> => {
-    const response = await api.post('/Purchase', data);
+    const response = await api.post('/purchase', data);
     return response.data;
   }
 };

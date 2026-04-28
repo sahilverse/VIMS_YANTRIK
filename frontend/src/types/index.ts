@@ -165,3 +165,30 @@ export interface FinancialReportDto {
   totalPurchasesCount: number;
   chartData: ReportDataPoint[];
 }
+
+export interface DashboardPurchaseDto {
+  id: string;
+  invoiceNumber: string;
+  vendorName: string;
+  totalAmount: number;
+  paymentStatus: string;
+  date: string;
+}
+
+export interface DashboardLowStockPartDto {
+  id: string;
+  name: string;
+  sku: string;
+  stockQuantity: number;
+  minThreshold: number;
+}
+
+export interface AdminDashboardStatsDto {
+  totalStaffCount: number;
+  totalVendorCount: number;
+  todayRevenue: number;
+  todaySalesCount: number;
+  lowStockCount: number;
+  recentPurchases: DashboardPurchaseDto[];
+  lowStockParts: DashboardLowStockPartDto[];
+}

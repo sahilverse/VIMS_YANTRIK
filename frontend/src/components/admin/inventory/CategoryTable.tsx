@@ -4,9 +4,11 @@ import { Category } from '@/types';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
 import EditCategoryModal from './EditCategoryModal';
 import { Edit2, Trash2, Search, Loader2 } from 'lucide-react';
+import { useDebounce } from '@/hooks/useDebounce';
 
 export default function CategoryTable() {
   const [searchTerm, setSearchTerm] = useState('');
+  const debouncedSearch = useDebounce(searchTerm, 300);
   const [categoryToEdit, setCategoryToEdit] = useState<Category | null>(null);
   const [categoryToDelete, setCategoryToDelete] = useState<string | null>(null);
 
@@ -16,8 +18,8 @@ export default function CategoryTable() {
   const categories = response?.data || [];
 
   const filteredCategories = categories.filter(c =>
-    c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (c.description && c.description.toLowerCase().includes(searchTerm.toLowerCase()))
+    c.name.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+    (c.description && c.description.toLowerCase().includes(debouncedSearch.toLowerCase()))
   );
 
   const handleDelete = () => {
@@ -89,17 +91,17 @@ export default function CategoryTable() {
                     </div>
                   </td>
                   <td className="px-6 py-4 text-right">
-                    <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="flex items-center justify-end gap-2">
                       <button
                         onClick={() => setCategoryToEdit(category)}
-                        className="p-2 text-zinc-400 hover:text-zinc-900 hover:bg-zinc-100 rounded-lg transition-all"
+                        className="p-2 text-zinc-400 hover:text-zinc-900 hover:bg-zinc-100 rounded-lg transition-all cursor-pointer"
                         title="Edit Category"
                       >
                         <Edit2 className="h-4 w-4" />
                       </button>
                       <button
                         onClick={() => setCategoryToDelete(category.id)}
-                        className="p-2 text-zinc-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
+                        className="p-2 text-zinc-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all cursor-pointer"
                         title="Delete Category"
                       >
                         <Trash2 className="h-4 w-4" />

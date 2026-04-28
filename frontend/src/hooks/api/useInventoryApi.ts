@@ -100,6 +100,7 @@ export const useCreatePartMutation = () => {
     mutationFn: InventoryService.createPart,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.inventory.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.reports.dashboard() });
       toast.success('Part created successfully');
     },
     onError: (error: any) => {
@@ -115,6 +116,7 @@ export const useUpdatePartMutation = () => {
     mutationFn: ({ id, data }: { id: string; data: CreatePartFormValues }) => InventoryService.updatePart(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.inventory.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.reports.dashboard() });
       toast.success('Part updated successfully');
     },
     onError: (error: any) => {
@@ -130,6 +132,7 @@ export const useDeletePartMutation = () => {
     mutationFn: InventoryService.deletePart,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.inventory.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.reports.dashboard() });
       toast.success('Part deleted successfully');
     },
     onError: (error: any) => {
@@ -143,5 +146,13 @@ export const useLowStockPartsQuery = (enabled = true) => {
     queryKey: [...queryKeys.inventory.all, 'low-stock'],
     queryFn: InventoryService.getLowStockParts,
     enabled,
+  });
+};
+
+export const usePartDetailQuery = (id: string, enabled = true) => {
+  return useQuery({
+    queryKey: [...queryKeys.inventory.all, 'detail', id],
+    queryFn: () => InventoryService.getPartById(id),
+    enabled: enabled && !!id,
   });
 };

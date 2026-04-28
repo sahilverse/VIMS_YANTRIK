@@ -29,6 +29,7 @@ export const queryKeys = {
     daily: (date?: string) => [...queryKeys.reports.all, 'daily', date] as const,
     monthly: (year?: number, month?: number) => [...queryKeys.reports.all, 'monthly', year, month] as const,
     yearly: (year?: number) => [...queryKeys.reports.all, 'yearly', year] as const,
+    dashboard: () => ['admin-dashboard-stats'] as const,
   },
   services: {
     all: ['services'] as const,

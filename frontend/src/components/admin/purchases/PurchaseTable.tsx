@@ -121,14 +121,14 @@ export default function PurchaseTable() {
             <button
               disabled={pageNumber === 1}
               onClick={() => setPageNumber(p => Math.max(1, p - 1))}
-              className="px-4 py-2 text-xs font-bold rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed bg-white border border-zinc-200 hover:bg-zinc-50"
+              className="px-4 py-2 text-xs font-bold rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed bg-white border border-zinc-200 hover:bg-zinc-50 cursor-pointer"
             >
               Previous
             </button>
             <button
               disabled={pageNumber === totalPages}
               onClick={() => setPageNumber(p => Math.min(totalPages, p + 1))}
-              className="px-4 py-2 text-xs font-bold rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed bg-white border border-zinc-200 hover:bg-zinc-50"
+              className="px-4 py-2 text-xs font-bold rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed bg-white border border-zinc-200 hover:bg-zinc-50 cursor-pointer"
             >
               Next
             </button>

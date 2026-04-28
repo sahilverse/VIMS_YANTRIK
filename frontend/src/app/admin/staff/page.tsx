@@ -9,15 +9,17 @@ import { Search, UserPlus, ChevronLeft, ChevronRight } from 'lucide-react';
 import StaffTable from '@/components/admin/StaffTable';
 import AddStaffModal from '@/components/admin/AddStaffModal';
 import EditStaffModal from '@/components/admin/EditStaffModal';
+import { useDebounce } from '@/hooks/useDebounce';
 
 export default function StaffPage() {
   const [search, setSearch] = useState('');
+  const debouncedSearch = useDebounce(search, 500);
   const [pageNumber, setPageNumber] = useState(1);
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [editingStaff, setEditingStaff] = useState<UserDto | null>(null);
 
   const pageSize = 10;
-  const { data, isLoading } = useStaffListQuery({ pageNumber, pageSize, search });
+  const { data, isLoading } = useStaffListQuery({ pageNumber, pageSize, search: debouncedSearch });
   const toggleMutation = useToggleStaffStatusMutation();
   const { user: currentUser } = useAuth();
 

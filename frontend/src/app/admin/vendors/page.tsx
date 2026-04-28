@@ -9,16 +9,18 @@ import VendorTable from '@/components/admin/VendorTable';
 import AddVendorModal from '@/components/admin/AddVendorModal';
 import EditVendorModal from '@/components/admin/EditVendorModal';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
+import { useDebounce } from '@/hooks/useDebounce';
 
 export default function VendorsPage() {
   const [search, setSearch] = useState('');
+  const debouncedSearch = useDebounce(search, 500);
   const [pageNumber, setPageNumber] = useState(1);
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [editingVendor, setEditingVendor] = useState<Vendor | null>(null);
   const [vendorToDelete, setVendorToDelete] = useState<string | null>(null);
 
   const pageSize = 10;
-  const { data, isLoading } = useVendorListQuery({ pageNumber, pageSize, search });
+  const { data, isLoading } = useVendorListQuery({ pageNumber, pageSize, search: debouncedSearch });
   const deleteMutation = useDeleteVendorMutation();
 
   const paged = data?.data;

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { usePartListQuery, useDeletePartMutation } from '@/hooks/api/useInventoryApi';
+import { useDebounce } from '@/hooks/useDebounce';
 import { Part } from '@/types';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
 import EditPartModal from './EditPartModal';
@@ -7,6 +8,7 @@ import { Edit2, Trash2, Search, Loader2, AlertCircle, Package } from 'lucide-rea
 
 export default function PartTable() {
   const [searchTerm, setSearchTerm] = useState('');
+  const debouncedSearch = useDebounce(searchTerm, 500);
   const [pageNumber, setPageNumber] = useState(1);
   const pageSize = 10;
 
@@ -16,7 +18,7 @@ export default function PartTable() {
   const { data: response, isLoading } = usePartListQuery({
     pageNumber,
     pageSize,
-    search: searchTerm,
+    search: debouncedSearch,
   });
 
   const deleteMutation = useDeletePartMutation();
@@ -130,17 +132,17 @@ export default function PartTable() {
                       </div>
                     </td>
                     <td className="px-6 py-4 text-right">
-                      <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <div className="flex items-center justify-end gap-2">
                         <button
                           onClick={() => setPartToEdit(part)}
-                          className="p-2 text-zinc-400 hover:text-zinc-900 hover:bg-zinc-100 rounded-lg transition-all"
+                          className="p-2 text-zinc-400 hover:text-zinc-900 hover:bg-zinc-100 rounded-lg transition-all cursor-pointer"
                           title="Edit Part"
                         >
                           <Edit2 className="h-4 w-4" />
                         </button>
                         <button
                           onClick={() => setPartToDelete(part.id)}
-                          className="p-2 text-zinc-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
+                          className="p-2 text-zinc-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all cursor-pointer"
                           title="Delete Part"
                         >
                           <Trash2 className="h-4 w-4" />
@@ -165,14 +167,14 @@ export default function PartTable() {
             <button
               disabled={pageNumber === 1}
               onClick={() => setPageNumber(p => Math.max(1, p - 1))}
-              className="px-4 py-2 text-xs font-bold rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed bg-white border border-zinc-200 hover:bg-zinc-50"
+              className="px-4 py-2 text-xs font-bold rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed bg-white border border-zinc-200 hover:bg-zinc-50 cursor-pointer"
             >
               Previous
             </button>
             <button
               disabled={pageNumber === totalPages}
               onClick={() => setPageNumber(p => Math.min(totalPages, p + 1))}
-              className="px-4 py-2 text-xs font-bold rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed bg-white border border-zinc-200 hover:bg-zinc-50"
+              className="px-4 py-2 text-xs font-bold rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed bg-white border border-zinc-200 hover:bg-zinc-50 cursor-pointer"
             >
               Next
             </button>
