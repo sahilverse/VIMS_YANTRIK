@@ -8,7 +8,8 @@ interface ViewSaleModalProps {
 }
 
 export default function ViewSaleModal({ isOpen, onClose, saleId }: ViewSaleModalProps) {
-  const { data: sale, isLoading } = useSaleDetailQuery(saleId!);
+  const { data: response, isLoading } = useSaleDetailQuery(saleId!);
+  const sale = response?.data;
 
   if (!isOpen) return null;
 

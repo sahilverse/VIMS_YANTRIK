@@ -15,7 +15,7 @@ export default function SalesTable() {
   const [editingStatusId, setEditingStatusId] = useState<string | null>(null);
   const pageSize = 10;
 
-  const { data: paged, isLoading } = useSalesListQuery({
+  const { data: response, isLoading } = useSalesListQuery({
     pageNumber,
     pageSize,
     search,
@@ -26,6 +26,7 @@ export default function SalesTable() {
 
   const updateStatusMutation = useUpdateSaleStatusMutation();
 
+  const paged = response?.data;
   const sales = paged?.items || [];
   const totalPages = paged?.totalPages || 1;
 

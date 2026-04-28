@@ -1,13 +1,13 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import api from '@/lib/api';
-import { PagedResponse, SaleInvoiceDto, CreateSaleRequest, PaymentStatus } from '@/types';
+import { ApiResponse, PagedResponse, SaleInvoiceDto, CreateSaleRequest, PaymentStatus } from '@/types';
 import { toast } from 'sonner';
 
 export const useSalesListQuery = (params: any) => {
   return useQuery({
     queryKey: ['sales', 'list', params],
     queryFn: async () => {
-      const response = await api.get<PagedResponse<SaleInvoiceDto>>('/sales', { params });
+      const response = await api.get<ApiResponse<PagedResponse<SaleInvoiceDto>>>('/sales', { params });
       return response.data;
     },
   });
@@ -17,7 +17,7 @@ export const useSaleDetailQuery = (id: string) => {
   return useQuery({
     queryKey: ['sales', 'detail', id],
     queryFn: async () => {
-      const response = await api.get<SaleInvoiceDto>(`/sales/${id}`);
+      const response = await api.get<ApiResponse<SaleInvoiceDto>>(`/sales/${id}`);
       return response.data;
     },
     enabled: !!id,

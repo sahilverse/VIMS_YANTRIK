@@ -22,7 +22,7 @@ import { ConfirmModal } from '@/components/ui/ConfirmModal';
 const navItems = [
   { label: 'Overview', href: '/staff/dashboard', icon: LayoutDashboard },
   { label: 'Customers', href: '/staff/customers', icon: Users },
-  { label: 'New Sale', href: '/staff/sales', icon: Receipt },
+  { label: 'Sales', href: '/staff/sales', icon: Receipt },
   { label: 'Inventory', href: '/staff/inventory', icon: Package },
 ];
 
@@ -65,6 +65,12 @@ export default function StaffLayout({ children }: { children: React.ReactNode })
           </nav>
 
           <div className="p-4 mt-auto border-t border-zinc-50 space-y-1">
+            <Link
+              href="/staff/settings"
+              className="w-full px-4 py-3 text-zinc-500 hover:text-zinc-900 hover:bg-zinc-50 text-sm font-bold rounded-xl flex items-center gap-3 transition-all group"
+            >
+              <Settings className="h-4 w-4 text-zinc-400 group-hover:text-zinc-900 transition-colors" /> Settings
+            </Link>
             <button
               onClick={() => setIsLogoutModalOpen(true)}
               className="w-full px-4 py-3 text-red-500 hover:bg-red-50 text-sm font-bold rounded-xl flex items-center gap-3 transition-all text-left cursor-pointer group"

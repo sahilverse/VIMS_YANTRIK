@@ -10,7 +10,7 @@ using Yantrik.Interfaces.Services;
 
 namespace Yantrik.Controllers
 {
-    [Authorize(Roles = "Admin, Staff")]
+    [Authorize(Roles = "Admin,Staff")]
     [ApiController]
     [Route("api/[controller]")]
     public class SalesController : ControllerBase

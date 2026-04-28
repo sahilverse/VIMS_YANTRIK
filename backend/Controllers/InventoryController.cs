@@ -8,7 +8,7 @@ using Yantrik.Interfaces;
 
 namespace Yantrik.Controllers
 {
-    [Authorize(Roles = "Admin")]
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class InventoryController : ControllerBase
@@ -21,6 +21,7 @@ namespace Yantrik.Controllers
         }
 
         #region Categories
+        [Authorize(Roles = "Admin,Staff,Customer")]
         [HttpGet("categories")]
         public async Task<IActionResult> GetCategories()
         {
@@ -28,6 +29,7 @@ namespace Yantrik.Controllers
             return Ok(response);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost("categories")]
         public async Task<IActionResult> CreateCategory([FromBody] CreateCategoryRequest request)
         {
@@ -35,6 +37,7 @@ namespace Yantrik.Controllers
             return Ok(response);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPut("categories/{id}")]
         public async Task<IActionResult> UpdateCategory(Guid id, [FromBody] CreateCategoryRequest request)
         {
@@ -43,6 +46,7 @@ namespace Yantrik.Controllers
             return Ok(response);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpDelete("categories/{id}")]
         public async Task<IActionResult> DeleteCategory(Guid id)
         {
@@ -53,6 +57,7 @@ namespace Yantrik.Controllers
         #endregion
 
         #region Parts
+        [Authorize(Roles = "Admin,Staff,Customer")]
         [HttpGet("parts")]
         public async Task<IActionResult> GetParts([FromQuery] InventoryPaginationParams @params)
         {
@@ -68,6 +73,7 @@ namespace Yantrik.Controllers
             return Ok(response);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost("parts")]
         public async Task<IActionResult> CreatePart([FromBody] CreatePartRequest request)
         {
@@ -75,6 +81,7 @@ namespace Yantrik.Controllers
             return Ok(response);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPut("parts/{id}")]
         public async Task<IActionResult> UpdatePart(Guid id, [FromBody] CreatePartRequest request)
         {
@@ -83,6 +90,7 @@ namespace Yantrik.Controllers
             return Ok(response);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpDelete("parts/{id}")]
         public async Task<IActionResult> DeletePart(Guid id)
         {
