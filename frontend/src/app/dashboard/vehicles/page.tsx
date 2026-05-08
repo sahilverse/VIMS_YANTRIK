@@ -25,13 +25,18 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useDebounce } from '@/hooks/useDebounce';
-import AddVehicleModal from '@/components/dashboard/AddVehicleModal';
+import VehicleModal from '@/components/dashboard/VehicleModal';
+import { ConfirmModal } from '@/components/ui/ConfirmModal';
 import { CustomerSidebar } from '@/components/dashboard/CustomerSidebar';
+import { Vehicle } from '@/types';
 
 export default function MyVehiclesPage() {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
+  
   const debouncedSearch = useDebounce(search, 500);
   const pageSize = 6;
 
@@ -43,9 +48,29 @@ export default function MyVehiclesPage() {
 
   const deleteMutation = useDeleteVehicleMutation();
 
-  const handleDelete = (id: string) => {
-    if (window.confirm('Are you sure you want to remove this vehicle?')) {
-      deleteMutation.mutate(id);
+  const handleAdd = () => {
+    setSelectedVehicle(null);
+    setIsModalOpen(true);
+  };
+
+  const handleEdit = (vehicle: Vehicle) => {
+    setSelectedVehicle(vehicle);
+    setIsModalOpen(true);
+  };
+
+  const handleDeleteClick = (vehicle: Vehicle) => {
+    setSelectedVehicle(vehicle);
+    setIsDeleteModalOpen(true);
+  };
+
+  const confirmDelete = () => {
+    if (selectedVehicle) {
+      deleteMutation.mutate(selectedVehicle.id, {
+        onSuccess: () => {
+          setIsDeleteModalOpen(false);
+          setSelectedVehicle(null);
+        }
+      });
     }
   };
 
@@ -61,7 +86,7 @@ export default function MyVehiclesPage() {
                 <p className="text-zinc-500 font-medium mt-1">Manage your registered vehicles and track maintenance.</p>
               </div>
               <Button
-                onClick={() => setIsAddModalOpen(true)}
+                onClick={handleAdd}
                 className="h-12 bg-zinc-950 text-white hover:bg-zinc-800 rounded-2xl text-sm font-bold px-8 transition-all shadow-xl shadow-black/10 cursor-pointer active:scale-[0.98]"
               >
                 <Plus className="h-5 w-5 mr-2" /> Add Vehicle
@@ -149,12 +174,15 @@ export default function MyVehiclesPage() {
                                   <DropdownMenuItem className="rounded-xl font-bold text-xs uppercase tracking-widest py-3 cursor-pointer focus:bg-zinc-50">
                                     <History className="mr-3 h-4 w-4 text-zinc-400" /> Service History
                                   </DropdownMenuItem>
-                                  <DropdownMenuItem className="rounded-xl font-bold text-xs uppercase tracking-widest py-3 cursor-pointer focus:bg-zinc-50">
+                                  <DropdownMenuItem 
+                                    className="rounded-xl font-bold text-xs uppercase tracking-widest py-3 cursor-pointer focus:bg-zinc-50"
+                                    onClick={() => handleEdit(vehicle)}
+                                  >
                                     <Edit2 className="mr-3 h-4 w-4 text-zinc-400" /> Edit Vehicle
                                   </DropdownMenuItem>
                                   <DropdownMenuItem
                                     className="rounded-xl font-bold text-xs uppercase tracking-widest py-3 cursor-pointer text-red-500 focus:text-red-500 focus:bg-red-50"
-                                    onClick={() => handleDelete(vehicle.id)}
+                                    onClick={() => handleDeleteClick(vehicle)}
                                   >
                                     <Trash2 className="mr-3 h-4 w-4" /> Remove
                                   </DropdownMenuItem>
@@ -209,9 +237,20 @@ export default function MyVehiclesPage() {
             )}
           </div>
         </main>
-        <AddVehicleModal
-          isOpen={isAddModalOpen}
-          onClose={() => setIsAddModalOpen(false)}
+        <VehicleModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          vehicle={selectedVehicle}
+        />
+
+        <ConfirmModal
+          isOpen={isDeleteModalOpen}
+          title="Remove Vehicle"
+          description={`Are you sure you want to remove the vehicle "${selectedVehicle?.plateNumber}"? This action cannot be undone.`}
+          confirmText="Remove Vehicle"
+          isDestructive={true}
+          onConfirm={confirmDelete}
+          onClose={() => setIsDeleteModalOpen(false)}
         />
       </div>
     </AuthGuard>

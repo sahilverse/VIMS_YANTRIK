@@ -6,13 +6,13 @@ import { Button } from '@/components/ui/button';
 import { Bell, ChevronRight, Plus, Calendar, CreditCard, Car, Loader2 } from 'lucide-react';
 import { CustomerSidebar } from '@/components/dashboard/CustomerSidebar';
 import { useMyVehiclesQuery } from '@/hooks/api/useVehicleApi';
-import AddVehicleModal from '@/components/dashboard/AddVehicleModal';
+import VehicleModal from '@/components/dashboard/VehicleModal';
 import { useState } from 'react';
 import Link from 'next/link';
 
 export default function CustomerDashboard() {
   const { user } = useAuth();
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const { data: vehiclesData, isLoading: isVehiclesLoading } = useMyVehiclesQuery({ pageNumber: 1, pageSize: 3 });
 
   return (
@@ -35,7 +35,7 @@ export default function CustomerDashboard() {
                   <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">Customer</p>
                 </div>
                 <Button
-                  onClick={() => setIsAddModalOpen(true)}
+                  onClick={() => setIsModalOpen(true)}
                   className="h-11 bg-zinc-950 text-white hover:bg-zinc-800 rounded-xl text-xs font-bold px-6 transition-all shadow-xl shadow-black/10 cursor-pointer active:scale-[0.98]"
                 >
                   <Plus className="h-4 w-4 mr-2" /> Add Vehicle
@@ -121,9 +121,9 @@ export default function CustomerDashboard() {
           </div>
         </main>
 
-        <AddVehicleModal
-          isOpen={isAddModalOpen}
-          onClose={() => setIsAddModalOpen(false)}
+        <VehicleModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
         />
       </div>
     </AuthGuard>

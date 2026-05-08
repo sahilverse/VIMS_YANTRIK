@@ -219,8 +219,8 @@ export interface UpdateProfileRequest {
 
 export interface VehicleRegistrationRequest {
   plateNumber: string;
-  brand?: string;
-  model?: string;
+  brand: string;
+  model: string;
   year?: number;
   vin?: string;
 }

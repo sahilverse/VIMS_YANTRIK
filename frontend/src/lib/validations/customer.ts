@@ -14,7 +14,7 @@ export const vehicleInfoSchema = z.object({
   vin: z.string().optional(),
   brand: z.string().min(1, 'Brand is required'),
   model: z.string().min(1, 'Model is required'),
-  year: z.coerce.number().int().min(1900).max(new Date().getFullYear() + 1).optional(),
+  year: z.number().int().min(1900).max(new Date().getFullYear() + 1).optional(),
 });
 
 // Complete Registration 

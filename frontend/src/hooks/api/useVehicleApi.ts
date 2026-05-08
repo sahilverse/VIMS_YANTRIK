@@ -16,12 +16,23 @@ export const useAddVehicleMutation = () => {
 
   return useMutation({
     mutationFn: (request: VehicleRegistrationRequest) => VehicleService.addVehicle(request),
+    onMutate: async (newVehicle) => {
+      await queryClient.cancelQueries({ queryKey: queryKeys.vehicles.all });
+      const previousVehicles = queryClient.getQueryData(queryKeys.vehicles.all);
+      return { previousVehicles };
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.vehicles.all });
       toast.success('Vehicle added successfully');
     },
-    onError: (error: any) => {
+    onError: (error: any, __, context) => {
+      if (context?.previousVehicles) {
+        queryClient.setQueryData(queryKeys.vehicles.all, context.previousVehicles);
+      }
       toast.error(error.message || 'Failed to add vehicle');
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.vehicles.all });
     },
   });
 };
@@ -30,14 +41,40 @@ export const useUpdateVehicleMutation = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, request }: { id: string; request: Partial<Vehicle> }) => 
+    mutationFn: ({ id, request }: { id: string; request: Partial<Vehicle> }) =>
       VehicleService.updateVehicle(id, request),
+    onMutate: async ({ id, request }) => {
+      await queryClient.cancelQueries({ queryKey: queryKeys.vehicles.all });
+
+      // Get all vehicle queries to update them optimistically
+      const queries = queryClient.getQueriesData({ queryKey: queryKeys.vehicles.all });
+
+      queries.forEach(([queryKey, oldData]: [any, any]) => {
+        if (oldData?.items) {
+          queryClient.setQueryData(queryKey, {
+            ...oldData,
+            items: oldData.items.map((v: Vehicle) =>
+              v.id === id ? { ...v, ...request } : v
+            )
+          });
+        }
+      });
+
+      return { queries };
+    },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.vehicles.all });
       toast.success('Vehicle updated successfully');
     },
-    onError: (error: any) => {
+    onError: (error: any, __, context) => {
+      if (context?.queries) {
+        context.queries.forEach(([queryKey, oldData]) => {
+          queryClient.setQueryData(queryKey, oldData);
+        });
+      }
       toast.error(error.message || 'Failed to update vehicle');
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.vehicles.all });
     },
   });
 };
@@ -47,12 +84,36 @@ export const useDeleteVehicleMutation = () => {
 
   return useMutation({
     mutationFn: (id: string) => VehicleService.deleteVehicle(id),
+    onMutate: async (id) => {
+      await queryClient.cancelQueries({ queryKey: queryKeys.vehicles.all });
+
+      const queries = queryClient.getQueriesData({ queryKey: queryKeys.vehicles.all });
+
+      queries.forEach(([queryKey, oldData]: [any, any]) => {
+        if (oldData?.items) {
+          queryClient.setQueryData(queryKey, {
+            ...oldData,
+            items: oldData.items.filter((v: Vehicle) => v.id !== id),
+            totalItems: oldData.totalItems - 1
+          });
+        }
+      });
+
+      return { queries };
+    },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.vehicles.all });
       toast.success('Vehicle removed successfully');
     },
-    onError: (error: any) => {
+    onError: (error: any, __, context) => {
+      if (context?.queries) {
+        context.queries.forEach(([queryKey, oldData]) => {
+          queryClient.setQueryData(queryKey, oldData);
+        });
+      }
       toast.error(error.message || 'Failed to remove vehicle');
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.vehicles.all });
     },
   });
 };
