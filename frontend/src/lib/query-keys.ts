@@ -40,4 +40,12 @@ export const queryKeys = {
     all: ['vehicles'] as const,
     my: (params: any) => [...queryKeys.vehicles.all, 'my', params] as const,
   },
+  appointments: {
+    all: ['appointments'] as const,
+    my: () => [...queryKeys.appointments.all, 'my'] as const,
+  },
+  partRequests: {
+    all: ['partRequests'] as const,
+    my: () => [...queryKeys.partRequests.all, 'my'] as const,
+  },
 };

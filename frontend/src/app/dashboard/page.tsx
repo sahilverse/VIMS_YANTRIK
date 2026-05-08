@@ -4,16 +4,25 @@ import { AuthGuard } from '@/components/auth/AuthGuard';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Bell, ChevronRight, Plus, Calendar, CreditCard, Car, Loader2 } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import { CustomerSidebar } from '@/components/dashboard/CustomerSidebar';
 import { useMyVehiclesQuery } from '@/hooks/api/useVehicleApi';
+import { useMyAppointmentsQuery } from '@/hooks/api/useAppointmentApi';
 import VehicleModal from '@/components/dashboard/VehicleModal';
 import { useState } from 'react';
 import Link from 'next/link';
+import { format } from 'date-fns';
 
 export default function CustomerDashboard() {
   const { user } = useAuth();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { data: vehiclesData, isLoading: isVehiclesLoading } = useMyVehiclesQuery({ pageNumber: 1, pageSize: 3 });
+  const { data: appointments, isLoading: isAppointmentsLoading } = useMyAppointmentsQuery();
+
+  const upcomingAppointments = appointments?.filter((a: any) => 
+    a.status.toLowerCase() !== 'cancelled' && 
+    a.status.toLowerCase() !== 'completed'
+  ).slice(0, 2);
 
   return (
     <AuthGuard roles={['Customer']}>
@@ -76,46 +85,102 @@ export default function CustomerDashboard() {
               </div>
 
               {/* Main Data Section */}
-              <div className="md:col-span-3 bg-white border border-zinc-200/50 rounded-3xl shadow-sm overflow-hidden mt-2">
-                <div className="p-6 px-10 border-b border-zinc-100 flex justify-between items-center bg-zinc-50/50">
-                  <h3 className="text-sm font-bold uppercase tracking-widest">Your Vehicles</h3>
-                  <Link href="/dashboard/vehicles" className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest hover:text-zinc-950 transition-colors">View All</Link>
+              <div className="md:col-span-3 grid md:grid-cols-2 gap-8 mt-2">
+                {/* Vehicles List */}
+                <div className="bg-white border border-zinc-200/50 rounded-3xl shadow-sm overflow-hidden flex flex-col">
+                  <div className="p-6 px-10 border-b border-zinc-100 flex justify-between items-center bg-zinc-50/50">
+                    <h3 className="text-xs font-black uppercase tracking-[0.15em] text-zinc-400">Your Vehicles</h3>
+                    <Link href="/dashboard/vehicles" className="text-[10px] font-bold text-zinc-900 uppercase tracking-widest hover:underline transition-all">View All</Link>
+                  </div>
+
+                  {isVehiclesLoading ? (
+                    <div className="flex-1 p-20 flex justify-center items-center">
+                      <Loader2 className="h-6 w-6 animate-spin text-zinc-200" />
+                    </div>
+                  ) : vehiclesData?.items && vehiclesData.items.length > 0 ? (
+                    <div className="p-6 px-10 space-y-4">
+                      {vehiclesData.items.map((vehicle: any) => (
+                        <div key={vehicle.id} className="flex items-center justify-between p-4 bg-zinc-50/50 rounded-2xl border border-transparent hover:border-zinc-200 hover:bg-white transition-all group cursor-pointer">
+                          <div className="flex items-center gap-4">
+                            <div className="p-2.5 bg-white border border-zinc-100 rounded-xl shadow-sm group-hover:bg-zinc-950 group-hover:text-white group-hover:border-zinc-950 transition-all">
+                              <Car className="h-4 w-4" />
+                            </div>
+                            <div>
+                              <div className="font-black text-zinc-950 uppercase tracking-tight text-xs">
+                                {vehicle.plateNumber}
+                              </div>
+                              <div className="text-[10px] font-bold text-zinc-400 mt-0.5">
+                                {vehicle.brand} {vehicle.model}
+                              </div>
+                            </div>
+                          </div>
+                          <ChevronRight className="h-3 w-3 text-zinc-300 group-hover:text-zinc-900 transition-colors" />
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="flex-1 p-12 flex flex-col items-center justify-center text-center">
+                      <p className="text-xs font-bold text-zinc-400 uppercase tracking-widest">No vehicles added</p>
+                    </div>
+                  )}
                 </div>
 
-                {isVehiclesLoading ? (
-                  <div className="p-24 flex justify-center">
-                    <Loader2 className="h-8 w-8 animate-spin text-zinc-200" />
+                {/* Upcoming Appointments */}
+                <div className="bg-white border border-zinc-200/50 rounded-3xl shadow-sm overflow-hidden flex flex-col">
+                  <div className="p-6 px-10 border-b border-zinc-100 flex justify-between items-center bg-zinc-50/50">
+                    <h3 className="text-xs font-black uppercase tracking-[0.15em] text-zinc-400">Scheduled Visits</h3>
+                    <Link href="/dashboard/appointments" className="text-[10px] font-bold text-zinc-900 uppercase tracking-widest hover:underline transition-all">All Visits</Link>
                   </div>
-                ) : vehiclesData?.items && vehiclesData.items.length > 0 ? (
-                  <div className="p-6 px-10 space-y-4">
-                    {vehiclesData.items.map((vehicle: any) => (
-                      <div key={vehicle.id} className="flex items-center justify-between p-5 bg-zinc-50 rounded-2xl border border-zinc-100 hover:border-zinc-900 transition-all group cursor-pointer">
-                        <div className="flex items-center gap-5">
-                          <div className="p-3 bg-white rounded-xl shadow-sm group-hover:bg-zinc-950 group-hover:text-white transition-all">
-                            <Car className="h-5 w-5" />
+
+                  {isAppointmentsLoading ? (
+                    <div className="flex-1 p-20 flex justify-center items-center">
+                      <Loader2 className="h-6 w-6 animate-spin text-zinc-200" />
+                    </div>
+                  ) : upcomingAppointments && upcomingAppointments.length > 0 ? (
+                    <div className="p-6 px-10 space-y-4">
+                      {upcomingAppointments.map((appointment: any) => (
+                        <div key={appointment.id} className="flex items-center justify-between p-4 bg-zinc-50/50 rounded-2xl border border-transparent hover:border-zinc-200 hover:bg-white transition-all group cursor-pointer">
+                          <div className="flex items-center gap-4">
+                            <div className="flex flex-col items-center justify-center min-w-[44px] h-[44px] bg-white border border-zinc-100 rounded-xl shadow-sm group-hover:bg-zinc-950 group-hover:text-white group-hover:border-zinc-950 transition-all">
+                              <span className="text-[8px] font-black uppercase tracking-tighter opacity-50 leading-none mb-0.5">
+                                {format(new Date(appointment.appointmentDate), 'MMM')}
+                              </span>
+                              <span className="text-sm font-black tabular-nums leading-none">
+                                {format(new Date(appointment.appointmentDate), 'dd')}
+                              </span>
+                            </div>
+                            <div>
+                              <div className="font-black text-zinc-950 uppercase tracking-tight text-xs">
+                                {appointment.serviceType}
+                              </div>
+                              <div className="text-[10px] font-bold text-zinc-400 mt-0.5">
+                                {appointment.plateNumber} • {format(new Date(appointment.appointmentDate), 'p')}
+                              </div>
+                            </div>
                           </div>
-                          <div>
-                            <div className="font-black text-zinc-950 uppercase tracking-tight text-sm">
-                              {vehicle.plateNumber}
-                            </div>
-                            <div className="text-xs font-bold text-zinc-500 mt-0.5">
-                              {vehicle.brand} {vehicle.model} • {vehicle.year}
-                            </div>
+                          <div className={cn(
+                            "px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest",
+                            appointment.status.toLowerCase() === 'confirmed' ? "bg-emerald-50 text-emerald-600" : "bg-amber-50 text-amber-600"
+                          )}>
+                            {appointment.status}
                           </div>
                         </div>
-                        <ChevronRight className="h-4 w-4 text-zinc-300 group-hover:text-zinc-900 transition-colors" />
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="p-24 flex flex-col items-center justify-center text-center">
-                    <div className="w-20 h-20 bg-zinc-50 rounded-2xl flex items-center justify-center mb-6">
-                      <Car className="h-10 w-10 text-zinc-200" strokeWidth={1.5} />
+                      ))}
                     </div>
-                    <p className="text-lg font-bold mb-2 text-zinc-900">No vehicles added yet.</p>
-                    <p className="text-sm font-medium text-zinc-400 max-w-xs">Register your first vehicle to track service history and receive maintenance alerts.</p>
-                  </div>
-                )}
+                  ) : (
+                    <div className="flex-1 p-12 flex flex-col items-center justify-center text-center">
+                      <p className="text-xs font-bold text-zinc-400 uppercase tracking-widest mb-4">No upcoming visits</p>
+                      <Button 
+                        asChild 
+                        variant="outline" 
+                        size="sm" 
+                        className="h-8 rounded-lg text-[10px] font-black uppercase tracking-widest px-4 border-zinc-100"
+                      >
+                        <Link href="/dashboard/appointments">Book Now</Link>
+                      </Button>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>
