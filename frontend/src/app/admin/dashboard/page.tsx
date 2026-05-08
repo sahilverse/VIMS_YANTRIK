@@ -31,7 +31,6 @@ export default function AdminDashboard() {
   const { data: statsResponse, isLoading } = useAdminDashboardStatsQuery();
   const stats = statsResponse?.data;
 
-  // Fetch full part data when a part is selected for editing
   const { data: partDetailResponse } = usePartDetailQuery(selectedPartId!, !!selectedPartId);
   const selectedPart = partDetailResponse?.data || null;
 
