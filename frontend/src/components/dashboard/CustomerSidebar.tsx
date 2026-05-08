@@ -4,13 +4,15 @@ import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
-import { 
-  Car, 
-  Calendar, 
-  History, 
-  Settings, 
+import {
+  Car,
+  Calendar,
+  History,
+  Settings,
   LogOut,
-  LayoutDashboard
+  LayoutDashboard,
+  Package,
+  User
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -22,6 +24,7 @@ export function CustomerSidebar() {
     { name: 'Overview', href: '/dashboard', icon: LayoutDashboard },
     { name: 'My Vehicles', href: '/dashboard/vehicles', icon: Car },
     { name: 'Appointments', href: '/dashboard/appointments', icon: Calendar },
+    { name: 'Parts Store', href: '/dashboard/store', icon: Package },
     { name: 'History', href: '/dashboard/history', icon: History },
   ];
 
@@ -38,17 +41,17 @@ export function CustomerSidebar() {
         {navItems.map((item) => {
           const isActive = pathname === item.href;
           return (
-            <Link 
+            <Link
               key={item.name}
               href={item.href}
               className={cn(
                 "w-full px-4 py-3 text-sm font-bold rounded-xl flex items-center gap-3 transition-all",
-                isActive 
-                  ? "bg-zinc-950 text-white shadow-xl shadow-black/10" 
+                isActive
+                  ? "bg-zinc-950 text-white shadow-xl shadow-black/10"
                   : "text-zinc-500 hover:text-zinc-900 hover:bg-zinc-50"
               )}
             >
-              <item.icon className={cn("h-4 w-4", isActive ? "text-white" : "text-zinc-400 group-hover:text-zinc-900")} /> 
+              <item.icon className={cn("h-4 w-4", isActive ? "text-white" : "text-zinc-400 group-hover:text-zinc-900")} />
               {item.name}
             </Link>
           );
@@ -59,7 +62,7 @@ export function CustomerSidebar() {
         <button className="w-full px-4 py-3 text-zinc-500 hover:text-zinc-900 hover:bg-zinc-50 text-sm font-bold rounded-xl flex items-center gap-3 transition-all text-left cursor-pointer group">
           <Settings className="h-4 w-4 text-zinc-400 group-hover:text-zinc-900 transition-colors" /> Settings
         </button>
-        <button 
+        <button
           onClick={logout}
           className="w-full px-4 py-3 text-red-500 hover:bg-red-50 text-sm font-bold rounded-xl flex items-center gap-3 transition-all text-left cursor-pointer group"
         >

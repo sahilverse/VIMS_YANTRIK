@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { AuthGuard } from '@/components/auth/AuthGuard';
 import {
   useMyAppointmentsQuery,
@@ -34,7 +35,17 @@ import PartRequestModal from '@/components/dashboard/PartRequestModal';
 import { cn } from '@/lib/utils';
 
 export default function AppointmentsPage() {
+  const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState<'appointments' | 'parts'>('appointments');
+
+  useEffect(() => {
+    const tab = searchParams.get('tab');
+    if (tab === 'parts') {
+      setActiveTab('parts');
+    } else if (tab === 'appointments') {
+      setActiveTab('appointments');
+    }
+  }, [searchParams]);
   const [isBookModalOpen, setIsBookModalOpen] = useState(false);
   const [isPartModalOpen, setIsPartModalOpen] = useState(false);
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
@@ -199,7 +210,7 @@ export default function AppointmentsPage() {
                               <DropdownMenuContent align="end" className="w-56 p-2 rounded-2xl border-zinc-100 shadow-xl shadow-black/5">
                                 {(appointment.status.toLowerCase() === 'pending' || appointment.status.toLowerCase() === 'confirmed') && (
                                   <>
-                                    <DropdownMenuItem 
+                                    <DropdownMenuItem
                                       className="rounded-xl font-bold text-xs uppercase tracking-widest py-3 cursor-pointer focus:bg-zinc-50"
                                       onClick={() => handleEditClick(appointment)}
                                     >
