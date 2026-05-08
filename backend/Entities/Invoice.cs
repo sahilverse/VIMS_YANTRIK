@@ -26,7 +26,7 @@ namespace Yantrik.Entities
         public Vendor? Vendor { get; set; }
         public Employee Employee { get; set; } = null!;
         public ICollection<InvoiceItem> Items { get; set; } = new List<InvoiceItem>();
-        public ICollection<LoyaltyTransaction> LoyaltyTransactions { get; set; } = new List<LoyaltyTransaction>();
+
     }
 }
 

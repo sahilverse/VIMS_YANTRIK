@@ -18,7 +18,7 @@ namespace Yantrik.Repositories
         public IInvoiceRepository Invoices { get; private set; }
         public IVehicleRepository Vehicles { get; private set; }
         public IStockMovementRepository StockMovements { get; private set; }
-        public ILoyaltyTransactionRepository LoyaltyTransactions { get; private set; }
+
         public IAppointmentRepository Appointments { get; private set; }
         public IServiceRecordRepository ServiceRecords { get; private set; }
         public IReviewRepository Reviews { get; private set; }
@@ -39,7 +39,7 @@ namespace Yantrik.Repositories
             Invoices = new InvoiceRepository(_context);
             Vehicles = new VehicleRepository(_context);
             StockMovements = new StockMovementRepository(_context);
-            LoyaltyTransactions = new LoyaltyTransactionRepository(_context);
+
             Appointments = new AppointmentRepository(_context);
             ServiceRecords = new ServiceRecordRepository(_context);
             Reviews = new ReviewRepository(_context);

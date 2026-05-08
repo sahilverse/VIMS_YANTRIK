@@ -21,7 +21,7 @@ namespace Yantrik.Data
         public DbSet<StockMovement> StockMovements { get; set; }
         public DbSet<Invoice> Invoices { get; set; }
         public DbSet<InvoiceItem> InvoiceItems { get; set; }
-        public DbSet<LoyaltyTransaction> LoyaltyTransactions { get; set; }
+
         public DbSet<Appointment> Appointments { get; set; }
         public DbSet<ServiceRecord> ServiceRecords { get; set; }
         public DbSet<Review> Reviews { get; set; }

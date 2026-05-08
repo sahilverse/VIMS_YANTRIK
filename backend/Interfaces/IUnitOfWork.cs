@@ -15,7 +15,7 @@ namespace Yantrik.Interfaces
         IInvoiceRepository Invoices { get; }
         IVehicleRepository Vehicles { get; }
         IStockMovementRepository StockMovements { get; }
-        ILoyaltyTransactionRepository LoyaltyTransactions { get; }
+
         IAppointmentRepository Appointments { get; }
         IServiceRecordRepository ServiceRecords { get; }
         IReviewRepository Reviews { get; }
