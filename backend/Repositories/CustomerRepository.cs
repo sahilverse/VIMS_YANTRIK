@@ -26,7 +26,12 @@ namespace Yantrik.Repositories
                     c.FullName.ToLower().Contains(search) || 
                     c.Phone.Contains(search) || 
                     c.CustomerCode.ToLower().Contains(search) ||
-                    c.Vehicles.Any(v => v.PlateNumber.ToLower().Contains(search)));
+                    c.Vehicles.Any(v => 
+                        v.PlateNumber.ToLower().Contains(search) ||
+                        (v.Brand != null && v.Brand.ToLower().Contains(search)) ||
+                        (v.Model != null && v.Model.ToLower().Contains(search)) ||
+                        (v.VIN != null && v.VIN.ToLower().Contains(search))
+                    ));
             }
 
             var totalCount = await query.CountAsync();

@@ -23,6 +23,7 @@ namespace Yantrik.Repositories
         {
             return await _dbSet
                 .Include(u => u.Employee)
+                .Include(u => u.CustomerProfile)
                 .FirstOrDefaultAsync(u => u.Id == id);
         }
 

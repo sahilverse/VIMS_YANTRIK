@@ -36,4 +36,8 @@ export const queryKeys = {
     list: (params: any) => [...queryKeys.services.all, 'list', params] as const,
     history: (customerId: string) => [...queryKeys.services.all, 'history', customerId] as const,
   },
+  vehicles: {
+    all: ['vehicles'] as const,
+    my: (params: any) => [...queryKeys.vehicles.all, 'my', params] as const,
+  },
 };

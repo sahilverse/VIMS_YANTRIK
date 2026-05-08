@@ -8,7 +8,7 @@ namespace Yantrik.Interfaces
 {
     public interface IVehicleService
     {
-        Task<ApiResponse<IEnumerable<VehicleDto>>> GetCustomerVehiclesAsync(Guid userId);
+        Task<ApiResponse<PagedResponse<VehicleDto>>> GetCustomerVehiclesAsync(Guid userId, PaginationParams @params);
         Task<ApiResponse<VehicleDto>> AddVehicleAsync(Guid userId, VehicleRegistrationDto dto);
         Task<ApiResponse<VehicleDto>> UpdateVehicleAsync(Guid userId, Guid vehicleId, VehicleDto dto);
         Task<ApiResponse<bool>> DeleteVehicleAsync(Guid userId, Guid vehicleId);

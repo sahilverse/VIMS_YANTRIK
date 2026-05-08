@@ -143,7 +143,7 @@ export default function CustomersPage() {
                             <span className="text-[10px] font-black text-zinc-950 tracking-wider uppercase border-r border-zinc-200 pr-2 mr-1">
                               {v.plateNumber}
                             </span>
-                            <span className="text-[11px] font-bold text-zinc-500">{v.make} {v.model}</span>
+                            <span className="text-[11px] font-bold text-zinc-500">{v.brand} {v.model}</span>
                           </div>
                         ))}
                       </div>
