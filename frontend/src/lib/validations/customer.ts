@@ -12,7 +12,7 @@ export const customerInfoSchema = z.object({
 export const vehicleInfoSchema = z.object({
   plateNumber: z.string().min(1, 'Plate number is required').max(20),
   vin: z.string().optional(),
-  make: z.string().min(1, 'Make is required'),
+  brand: z.string().min(1, 'Brand is required'),
   model: z.string().min(1, 'Model is required'),
   year: z.coerce.number().int().min(1900).max(new Date().getFullYear() + 1).optional(),
 });

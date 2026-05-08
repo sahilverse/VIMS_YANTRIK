@@ -213,16 +213,16 @@ export default function RegisterCustomerModal({ isOpen, onClose }: RegisterCusto
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label className="text-xs font-bold uppercase tracking-wider text-zinc-500">Make</Label>
+                  <Label className="text-xs font-bold uppercase tracking-wider text-zinc-500">Brand</Label>
                   <Input 
-                    {...vehicleForm.register('make')}
+                    {...vehicleForm.register('brand')}
                     autoComplete="off"
                     placeholder="e.g. Yamaha"
                     className="h-12 bg-zinc-50 border-transparent focus:bg-white focus:border-zinc-200 rounded-xl transition-all"
                   />
-                  {vehicleForm.formState.errors.make && (
+                  {vehicleForm.formState.errors.brand && (
                     <p className="text-[10px] font-bold text-red-500 uppercase tracking-widest ml-1">
-                      {vehicleForm.formState.errors.make.message as string}
+                      {vehicleForm.formState.errors.brand.message as string}
                     </p>
                   )}
                 </div>

@@ -63,7 +63,7 @@ export interface Customer extends BaseEntity {
 export interface Vehicle extends BaseEntity {
   customerId: string;
   plateNumber: string;
-  make?: string;
+  brand?: string;
   model?: string;
   year?: number;
   vin?: string;
@@ -219,7 +219,7 @@ export interface UpdateProfileRequest {
 
 export interface VehicleRegistrationRequest {
   plateNumber: string;
-  make?: string;
+  brand?: string;
   model?: string;
   year?: number;
   vin?: string;
@@ -231,7 +231,7 @@ export interface RegisterCustomerRequest {
   email?: string;
   address?: string;
   plateNumber: string;
-  make?: string;
+  brand?: string;
   model?: string;
   year?: number;
 }

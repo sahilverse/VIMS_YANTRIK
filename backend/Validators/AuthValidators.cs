@@ -56,8 +56,8 @@ namespace Yantrik.Validators
             RuleFor(x => x.PlateNumber)
                 .NotEmpty().WithMessage("Vehicle Plate Number is required");
 
-            RuleFor(x => x.Make)
-                .NotEmpty().WithMessage("Vehicle Make is required");
+            RuleFor(x => x.Brand)
+                .NotEmpty().WithMessage("Vehicle Brand is required");
         }
     }
 

@@ -104,7 +104,7 @@ namespace Yantrik.Services
                         new Vehicle
                         {
                             PlateNumber = request.PlateNumber,
-                            Make = request.Make,
+                            Brand = request.Brand,
                             Model = request.Model,
                             Year = request.Year
                         }

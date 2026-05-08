@@ -42,7 +42,7 @@ namespace Yantrik.Controllers
                 {
                     Id = v.Id,
                     PlateNumber = v.PlateNumber,
-                    Make = v.Make,
+                    Brand = v.Brand,
                     Model = v.Model,
                     Year = v.Year,
                     VIN = v.VIN
@@ -74,7 +74,7 @@ namespace Yantrik.Controllers
                 {
                     Id = v.Id,
                     PlateNumber = v.PlateNumber,
-                    Make = v.Make,
+                    Brand = v.Brand,
                     Model = v.Model,
                     Year = v.Year,
                     VIN = v.VIN
