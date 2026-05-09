@@ -59,9 +59,17 @@ export function CustomerSidebar() {
       </nav>
 
       <div className="p-4 mt-auto border-t border-zinc-50 space-y-1">
-        <button className="w-full px-4 py-3 text-zinc-500 hover:text-zinc-900 hover:bg-zinc-50 text-sm font-bold rounded-xl flex items-center gap-3 transition-all text-left cursor-pointer group">
-          <Settings className="h-4 w-4 text-zinc-400 group-hover:text-zinc-900 transition-colors" /> Settings
-        </button>
+        <Link 
+          href="/dashboard/settings"
+          className={cn(
+            "w-full px-4 py-3 text-sm font-bold rounded-xl flex items-center gap-3 transition-all",
+            pathname === '/dashboard/settings'
+              ? "bg-zinc-950 text-white shadow-xl shadow-black/10"
+              : "text-zinc-500 hover:text-zinc-900 hover:bg-zinc-50 group"
+          )}
+        >
+          <Settings className={cn("h-4 w-4 transition-colors", pathname === '/dashboard/settings' ? "text-white" : "text-zinc-400 group-hover:text-zinc-900")} /> Settings
+        </Link>
         <button
           onClick={logout}
           className="w-full px-4 py-3 text-red-500 hover:bg-red-50 text-sm font-bold rounded-xl flex items-center gap-3 transition-all text-left cursor-pointer group"
