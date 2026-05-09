@@ -11,7 +11,8 @@ namespace Yantrik.Interfaces
         Task<AppointmentDto> BookAppointmentAsync(Guid userId, BookAppointmentRequest request);
         Task<AppointmentDto> UpdateAppointmentAsync(Guid userId, Guid appointmentId, BookAppointmentRequest request);
         Task<bool> CancelAppointmentAsync(Guid userId, Guid appointmentId);
-        Task<IEnumerable<PartRequestDto>> GetCustomerPartRequestsAsync(Guid userId);
-        Task<PartRequestDto> CreatePartRequestAsync(Guid userId, CreatePartRequestDto request);
+        Task<IEnumerable<AppointmentDto>> GetAllAppointmentsAsync(string? statusFilter = null);
+        Task<AppointmentDto> UpdateAppointmentStatusAsync(Guid appointmentId, string status);
+        Task<bool> DeleteAppointmentAsync(Guid appointmentId);
     }
 }

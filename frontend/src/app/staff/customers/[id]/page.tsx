@@ -2,16 +2,16 @@
 
 import React, { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { 
-  ChevronLeft, 
-  User, 
-  Phone, 
-  Mail, 
-  MapPin, 
-  Car, 
-  Receipt, 
-  History, 
-  TrendingUp, 
+import {
+  ChevronLeft,
+  User,
+  Phone,
+  Mail,
+  MapPin,
+  Car,
+  Receipt,
+  History,
+  TrendingUp,
   Award,
   ArrowRight,
   Loader2,
@@ -49,7 +49,7 @@ export default function CustomerProfilePage() {
         </div>
         <h2 className="text-xl font-black text-zinc-900">Customer Not Found</h2>
         <p className="text-sm text-zinc-500 max-w-xs">The customer record you are looking for does not exist or has been removed.</p>
-        <Button 
+        <Button
           onClick={() => router.back()}
           className="mt-4 bg-zinc-950 text-white rounded-xl"
         >
@@ -72,7 +72,7 @@ export default function CustomerProfilePage() {
     <div className="space-y-8 animate-in fade-in duration-700">
       {/* Header & Back Button */}
       <div className="flex items-center gap-4">
-        <button 
+        <button
           onClick={() => router.back()}
           className="p-2 hover:bg-white hover:shadow-md rounded-xl transition-all text-zinc-400 hover:text-zinc-900 cursor-pointer"
         >
@@ -130,7 +130,7 @@ export default function CustomerProfilePage() {
               </div>
             </div>
 
-            <Button 
+            <Button
               className="w-full mt-8 bg-zinc-950 text-white hover:bg-zinc-800 rounded-2xl h-12 font-bold shadow-lg shadow-black/10 transition-all active:scale-95"
               onClick={() => router.push(`/staff/sales?customerId=${customer.id}&action=new`)}
             >
@@ -149,7 +149,7 @@ export default function CustomerProfilePage() {
                 </div>
                 <p className="text-3xl font-black italic">Rs. {customer.totalSpend.toLocaleString()}</p>
               </div>
-              
+
               <div className="pt-6 border-t border-zinc-800">
                 <div className="flex items-center gap-2 mb-2 text-amber-400">
                   <Award className="h-4 w-4" />
@@ -167,16 +167,16 @@ export default function CustomerProfilePage() {
           <div className="bg-white p-2 rounded-3xl border border-zinc-100 shadow-sm flex gap-2">
             <button
               onClick={() => setActiveTab('sales')}
-              className={`flex-1 py-4 px-6 rounded-2xl text-sm font-black uppercase tracking-widest transition-all cursor-pointer flex items-center justify-center gap-3 ${activeTab === 'sales' 
-                ? 'bg-zinc-950 text-white shadow-lg shadow-black/10' 
+              className={`flex-1 py-4 px-6 rounded-2xl text-sm font-black uppercase tracking-widest transition-all cursor-pointer flex items-center justify-center gap-3 ${activeTab === 'sales'
+                ? 'bg-zinc-950 text-white shadow-lg shadow-black/10'
                 : 'text-zinc-400 hover:text-zinc-600 hover:bg-zinc-50'}`}
             >
               <Receipt className="h-4 w-4" /> Sales History
             </button>
             <button
               onClick={() => setActiveTab('vehicles')}
-              className={`flex-1 py-4 px-6 rounded-2xl text-sm font-black uppercase tracking-widest transition-all cursor-pointer flex items-center justify-center gap-3 ${activeTab === 'vehicles' 
-                ? 'bg-zinc-950 text-white shadow-lg shadow-black/10' 
+              className={`flex-1 py-4 px-6 rounded-2xl text-sm font-black uppercase tracking-widest transition-all cursor-pointer flex items-center justify-center gap-3 ${activeTab === 'vehicles'
+                ? 'bg-zinc-950 text-white shadow-lg shadow-black/10'
                 : 'text-zinc-400 hover:text-zinc-600 hover:bg-zinc-50'}`}
             >
               <Car className="h-4 w-4" /> Vehicles ({customer.vehicles.length})
@@ -197,8 +197,8 @@ export default function CustomerProfilePage() {
                   </div>
                 ) : (
                   customer.salesHistory.map((sale) => (
-                    <div 
-                      key={sale.id} 
+                    <div
+                      key={sale.id}
                       className="p-6 flex items-center justify-between hover:bg-zinc-50/50 transition-colors group cursor-pointer"
                       onClick={() => setSelectedSaleId(sale.id)}
                     >
@@ -251,7 +251,7 @@ export default function CustomerProfilePage() {
                         </div>
                         <div>
                           <div className="flex items-center gap-3">
-                            <p className="text-sm font-black text-zinc-900">{v.make} {v.model}</p>
+                            <p className="text-sm font-black text-zinc-900">{v.brand} {v.model}</p>
                             <Badge variant="outline" className="bg-zinc-50 font-black text-[9px] px-2 py-0 rounded-full border-zinc-200">
                               {v.plateNumber}
                             </Badge>
@@ -262,7 +262,11 @@ export default function CustomerProfilePage() {
                         </div>
                       </div>
 
-                      <Button variant="ghost" className="h-10 px-4 rounded-xl text-xs font-black uppercase tracking-widest text-zinc-400 hover:text-zinc-950 hover:bg-zinc-100 flex items-center gap-2">
+                      <Button 
+                        variant="ghost" 
+                        onClick={() => router.push(`/staff/appointments?search=${v.plateNumber}`)}
+                        className="h-10 px-4 rounded-xl text-xs font-black uppercase tracking-widest text-zinc-400 hover:text-zinc-950 hover:bg-zinc-100 flex items-center gap-2"
+                      >
                         View Service <ArrowRight className="h-3 w-3" />
                       </Button>
                     </div>
@@ -274,7 +278,7 @@ export default function CustomerProfilePage() {
         </div>
       </div>
 
-      <ViewSaleModal 
+      <ViewSaleModal
         isOpen={!!selectedSaleId}
         onClose={() => setSelectedSaleId(null)}
         saleId={selectedSaleId}

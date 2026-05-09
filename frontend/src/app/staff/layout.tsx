@@ -10,18 +10,24 @@ import {
   LayoutDashboard,
   Users,
   Receipt,
+  Calendar,
   Settings,
   Search,
+  Star,
   Bell,
   LogOut,
-  BarChart3
+  BarChart3,
+  ArchiveRestore
 } from 'lucide-react';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
 
 const navItems = [
   { label: 'Overview', href: '/staff/dashboard', icon: LayoutDashboard },
   { label: 'Customers', href: '/staff/customers', icon: Users },
+  { label: 'Appointments', href: '/staff/appointments', icon: Calendar },
   { label: 'Sales', href: '/staff/sales', icon: Receipt },
+  { label: 'Requests', href: '/staff/requests', icon: ArchiveRestore },
+  { label: 'Reviews', href: '/staff/reviews', icon: Star },
   { label: 'Reports', href: '/staff/reports', icon: BarChart3 },
 ];
 

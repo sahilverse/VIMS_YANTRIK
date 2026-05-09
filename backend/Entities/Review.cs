@@ -11,6 +11,7 @@ namespace Yantrik.Entities
         public string? Comment { get; set; }
 
         public Customer Customer { get; set; } = null!;
+        public Appointment? Appointment { get; set; }
     }
 }
 

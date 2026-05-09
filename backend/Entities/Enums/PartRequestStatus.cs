@@ -1,6 +1,6 @@
 namespace Yantrik.Entities
 {
-    public enum PartRequestStatus { Requested, Fulfilled }
+    public enum PartRequestStatus { Pending, Reviewed, Ordered, Fulfilled, Cancelled }
 }
 
 

@@ -83,6 +83,7 @@ builder.Services.AddScoped<IVehicleService, VehicleService>();
 builder.Services.AddScoped<IAppointmentService, AppointmentService>();
 builder.Services.AddScoped<IReviewService, ReviewService>();
 builder.Services.AddScoped<IHistoryService, HistoryService>();
+builder.Services.AddScoped<IPartRequestService, PartRequestService>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 // Register Validators

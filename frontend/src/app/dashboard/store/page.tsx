@@ -14,9 +14,13 @@ import {
   AlertCircle,
   Loader2,
   ChevronRight,
-  Info
+  Info,
+  Bell,
+  AlertTriangle
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useCreateRequestMutation, useMyRequestsQuery } from '@/hooks/api/useRequestApi';
+import { format } from 'date-fns';
 
 export default function StorePage() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -24,6 +28,20 @@ export default function StorePage() {
   const [pageNumber, setPageNumber] = useState(1);
   const [selectedPart, setSelectedPart] = useState<any>(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<'catalog' | 'requests'>('catalog');
+  const [requestedParts, setRequestedParts] = useState<Set<string>>(new Set());
+  const requestMutation = useCreateRequestMutation();
+
+  const handleRequestPart = (part: any) => {
+    requestMutation.mutate(
+      { partId: part.id },
+      {
+        onSuccess: () => {
+          setRequestedParts(prev => new Set(prev).add(part.id));
+        }
+      }
+    );
+  };
 
   const handleDetailClick = (part: any) => {
     setSelectedPart(part);
@@ -67,7 +85,35 @@ export default function StorePage() {
           </header>
 
           <div className="p-10 space-y-8 animate-in fade-in duration-500">
-            {/* Filter Bar */}
+            {/* Tabs */}
+            <div className="flex items-center gap-2 p-1 bg-zinc-100 rounded-2xl w-fit">
+              <button
+                onClick={() => setActiveTab('catalog')}
+                className={cn(
+                  "px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all cursor-pointer",
+                  activeTab === 'catalog'
+                    ? "bg-white text-zinc-900 shadow-sm"
+                    : "text-zinc-400 hover:text-zinc-600"
+                )}
+              >
+                Browse Catalog
+              </button>
+              <button
+                onClick={() => setActiveTab('requests')}
+                className={cn(
+                  "px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all cursor-pointer",
+                  activeTab === 'requests'
+                    ? "bg-white text-zinc-900 shadow-sm"
+                    : "text-zinc-400 hover:text-zinc-600"
+                )}
+              >
+                My Requests
+              </button>
+            </div>
+
+            {activeTab === 'catalog' ? (
+              <>
+                {/* Filter Bar */}
             <div className="flex items-center gap-3 overflow-x-auto pb-2 scrollbar-hide">
               <button
                 onClick={() => setSelectedCategory(undefined)}
@@ -169,13 +215,35 @@ export default function StorePage() {
                               </span>
                             </td>
                             <td className="px-8 py-6 text-right">
-                              <Button
-                                onClick={() => handleDetailClick(part)}
-                                variant="ghost"
-                                className="h-10 rounded-xl hover:bg-zinc-950 hover:text-white text-xs font-black uppercase tracking-widest gap-2 transition-all"
-                              >
-                                Details <ChevronRight className="h-4 w-4" />
-                              </Button>
+                              <div className="flex items-center justify-end gap-2">
+                                {part.stockQuantity === 0 && (
+                                  <Button
+                                    onClick={() => handleRequestPart(part)}
+                                    disabled={requestedParts.has(part.id) || requestMutation.isPending}
+                                    variant="ghost"
+                                    className={cn(
+                                      "h-10 rounded-xl text-xs font-black uppercase tracking-widest gap-2 transition-all",
+                                      requestedParts.has(part.id)
+                                        ? "text-emerald-600 bg-emerald-50 cursor-default"
+                                        : "text-amber-600 hover:bg-amber-50"
+                                    )}
+                                  >
+                                    {requestMutation.isPending ? (
+                                      <Loader2 className="h-4 w-4 animate-spin" />
+                                    ) : (
+                                      <Bell className="h-4 w-4" />
+                                    )}
+                                    {requestedParts.has(part.id) ? 'Requested' : 'Request'}
+                                  </Button>
+                                )}
+                                <Button
+                                  onClick={() => handleDetailClick(part)}
+                                  variant="ghost"
+                                  className="h-10 rounded-xl hover:bg-zinc-950 hover:text-white text-xs font-black uppercase tracking-widest gap-2 transition-all"
+                                >
+                                  Details <ChevronRight className="h-4 w-4" />
+                                </Button>
+                              </div>
                             </td>
                           </tr>
                         ))}
@@ -205,8 +273,12 @@ export default function StorePage() {
                 )}
               </div>
             )}
+          </>
+        ) : (
+          <PartRequestsList onNewRequest={() => setActiveTab('catalog')} />
+        )}
 
-          </div>
+      </div>
         </main>
 
         <PartDetailModal
@@ -216,5 +288,72 @@ export default function StorePage() {
         />
       </div>
     </AuthGuard>
+  );
+}
+
+function PartRequestsList({ onNewRequest }: { onNewRequest: () => void }) {
+  const { data: requestsData, isLoading, isError } = useMyRequestsQuery();
+  const requests = requestsData?.data;
+
+  if (isLoading) return (
+    <div className="h-96 flex flex-col items-center justify-center gap-4">
+      <Loader2 className="h-10 w-10 text-zinc-900 animate-spin" strokeWidth={1.5} />
+      <p className="text-sm font-bold text-zinc-500 uppercase tracking-widest">Loading Part Requests...</p>
+    </div>
+  );
+
+  if (isError) return (
+    <div className="h-96 flex flex-col items-center justify-center gap-4 text-center">
+      <div className="p-4 bg-red-50 text-red-500 rounded-2xl">
+        <AlertCircle className="h-10 w-10" />
+      </div>
+      <p className="text-lg font-bold text-zinc-900">Failed to load part requests</p>
+    </div>
+  );
+
+  if (requests?.length === 0) return (
+    <div className="py-24 flex flex-col items-center justify-center text-center bg-white border border-zinc-200/50 rounded-[2.5rem] shadow-sm">
+      <div className="w-20 h-20 bg-zinc-50 rounded-2xl flex items-center justify-center mb-6">
+        <AlertTriangle className="h-10 w-10 text-zinc-200" strokeWidth={1.5} />
+      </div>
+      <h3 className="text-xl font-bold text-zinc-900 mb-2">No part requests yet</h3>
+      <p className="text-sm font-medium text-zinc-400 max-w-xs mx-auto">Can't find a specific part? Request it and we'll notify you when it's available.</p>
+      <Button
+        onClick={onNewRequest}
+        variant="outline"
+        className="mt-8 h-12 rounded-xl border-zinc-200 font-bold px-8"
+      >
+        Browse Catalog
+      </Button>
+    </div>
+  );
+
+  return (
+    <div className="grid gap-4">
+      {requests?.map((request: any) => (
+        <div key={request.id} className="bg-white border border-zinc-200/50 rounded-2xl p-6 flex items-center justify-between shadow-sm hover:shadow-md transition-all">
+          <div className="space-y-1">
+            <h4 className="font-black text-zinc-900 uppercase tracking-tight">{request.partName}</h4>
+            <p className="text-xs font-bold text-zinc-400">SKU: {request.partSKU}</p>
+            <div className="flex items-center gap-3 mt-2">
+              <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">
+                Requested on {format(new Date(request.createdAt), 'PP')}
+              </span>
+            </div>
+          </div>
+          <div className={cn(
+            "px-4 py-1.5 rounded-full border text-[10px] font-black uppercase tracking-[0.15em]",
+            request.status.toLowerCase() === 'pending' ? "text-amber-500 bg-amber-50 border-amber-100" :
+            request.status.toLowerCase() === 'reviewed' ? "text-blue-500 bg-blue-50 border-blue-100" :
+            request.status.toLowerCase() === 'ordered' ? "text-purple-500 bg-purple-50 border-purple-100" :
+            request.status.toLowerCase() === 'fulfilled' ? "text-emerald-500 bg-emerald-50 border-emerald-100" :
+            request.status.toLowerCase() === 'cancelled' ? "text-red-500 bg-red-50 border-red-100" :
+                "text-zinc-500 bg-zinc-50 border-zinc-100"
+          )}>
+            {request.status}
+          </div>
+        </div>
+      ))}
+    </div>
   );
 }

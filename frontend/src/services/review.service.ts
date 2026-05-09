@@ -6,6 +6,9 @@ export interface ReviewDto {
   rating: number;
   comment?: string;
   createdAt: string;
+  customerName?: string;
+  serviceType?: string;
+  vehicleName?: string;
 }
 
 export interface CreateReviewDto {
@@ -23,5 +26,15 @@ export const ReviewService = {
   submitReview: async (request: CreateReviewDto): Promise<ReviewDto> => {
     const response = await api.post<ApiResponse<ReviewDto>>('/reviews', request);
     return response.data.data!;
+  },
+
+  getAllReviews: async (): Promise<ReviewDto[]> => {
+    const response = await api.get<ApiResponse<ReviewDto[]>>('/reviews');
+    return response.data.data || [];
+  },
+
+  deleteReview: async (id: string): Promise<boolean> => {
+    const response = await api.delete<ApiResponse<boolean>>(`/reviews/staff/${id}`);
+    return response.data.success;
   },
 };

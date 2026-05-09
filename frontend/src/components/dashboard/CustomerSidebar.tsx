@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
@@ -15,10 +15,12 @@ import {
   User
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { ConfirmModal } from '@/components/ui/ConfirmModal';
 
 export function CustomerSidebar() {
   const { logout } = useAuth();
   const pathname = usePathname();
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
 
   const navItems = [
     { name: 'Overview', href: '/dashboard', icon: LayoutDashboard },
@@ -71,12 +73,22 @@ export function CustomerSidebar() {
           <Settings className={cn("h-4 w-4 transition-colors", pathname === '/dashboard/settings' ? "text-white" : "text-zinc-400 group-hover:text-zinc-900")} /> Settings
         </Link>
         <button
-          onClick={logout}
+          onClick={() => setIsLogoutModalOpen(true)}
           className="w-full px-4 py-3 text-red-500 hover:bg-red-50 text-sm font-bold rounded-xl flex items-center gap-3 transition-all text-left cursor-pointer group"
         >
           <LogOut className="h-4 w-4 text-red-400 group-hover:text-red-500 transition-colors" /> Log Out
         </button>
       </div>
+
+      <ConfirmModal
+        isOpen={isLogoutModalOpen}
+        title="Sign Out"
+        description="Are you sure you want to log out?"
+        confirmText="Sign Out"
+        isDestructive={true}
+        onConfirm={logout}
+        onClose={() => setIsLogoutModalOpen(false)}
+      />
     </aside>
   );
 }

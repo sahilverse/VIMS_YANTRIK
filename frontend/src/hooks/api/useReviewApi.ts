@@ -23,3 +23,25 @@ export const useSubmitReviewMutation = () => {
     }
   });
 };
+
+export const useAllReviewsQuery = () => {
+  return useQuery({
+    queryKey: ['reviews', 'all'],
+    queryFn: () => ReviewService.getAllReviews(),
+  });
+};
+
+export const useDeleteReviewMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: string) => ReviewService.deleteReview(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['reviews', 'all'] });
+      toast.success('Review deleted successfully');
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data?.message || 'Failed to delete review');
+    }
+  });
+};

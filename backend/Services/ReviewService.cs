@@ -14,6 +14,8 @@ namespace Yantrik.Services
     {
         Task<IEnumerable<ReviewDto>> GetCustomerReviewsAsync(Guid userId);
         Task<ReviewDto> SubmitReviewAsync(Guid userId, CreateReviewDto request);
+        Task<IEnumerable<ReviewDto>> GetAllReviewsAsync();
+        Task<bool> DeleteReviewAsync(Guid reviewId);
     }
 
     public class ReviewService : IReviewService
@@ -33,6 +35,8 @@ namespace Yantrik.Services
             if (customer == null) return Enumerable.Empty<ReviewDto>();
 
             return await _context.Reviews
+                .Include(r => r.Appointment)
+                .ThenInclude(a => a.Vehicle)
                 .Where(r => r.CustomerId == customer.Id)
                 .OrderByDescending(r => r.CreatedAt)
                 .Select(r => new ReviewDto
@@ -41,7 +45,12 @@ namespace Yantrik.Services
                     AppointmentId = r.AppointmentId,
                     Rating = r.Rating,
                     Comment = r.Comment,
-                    CreatedAt = r.CreatedAt
+                    CreatedAt = r.CreatedAt,
+                    CustomerName = customer.FullName,
+                    ServiceType = r.Appointment != null ? r.Appointment.ServiceType : null,
+                    VehicleName = r.Appointment != null && r.Appointment.Vehicle != null 
+                        ? r.Appointment.Vehicle.Brand + " " + r.Appointment.Vehicle.Model 
+                        : null
                 })
                 .ToListAsync();
         }
@@ -80,8 +89,42 @@ namespace Yantrik.Services
                 AppointmentId = review.AppointmentId,
                 Rating = review.Rating,
                 Comment = review.Comment,
-                CreatedAt = review.CreatedAt
+                CreatedAt = review.CreatedAt,
+                CustomerName = customer.FullName
             };
+        }
+
+        public async Task<IEnumerable<ReviewDto>> GetAllReviewsAsync()
+        {
+            return await _context.Reviews
+                .Include(r => r.Customer)
+                .Include(r => r.Appointment)
+                .ThenInclude(a => a.Vehicle)
+                .OrderByDescending(r => r.CreatedAt)
+                .Select(r => new ReviewDto
+                {
+                    Id = r.Id,
+                    AppointmentId = r.AppointmentId,
+                    Rating = r.Rating,
+                    Comment = r.Comment,
+                    CreatedAt = r.CreatedAt,
+                    CustomerName = r.Customer.FullName,
+                    ServiceType = r.Appointment != null ? r.Appointment.ServiceType : null,
+                    VehicleName = r.Appointment != null && r.Appointment.Vehicle != null 
+                        ? r.Appointment.Vehicle.Brand + " " + r.Appointment.Vehicle.Model 
+                        : null
+                })
+                .ToListAsync();
+        }
+
+        public async Task<bool> DeleteReviewAsync(Guid reviewId)
+        {
+            var review = await _context.Reviews.FindAsync(reviewId);
+            if (review == null) return false;
+
+            _context.Reviews.Remove(review);
+            await _context.SaveChangesAsync();
+            return true;
         }
     }
 }

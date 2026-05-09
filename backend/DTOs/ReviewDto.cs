@@ -9,6 +9,9 @@ namespace Yantrik.DTOs
         public int Rating { get; set; }
         public string? Comment { get; set; }
         public DateTime CreatedAt { get; set; }
+        public string? CustomerName { get; set; }
+        public string? ServiceType { get; set; }
+        public string? VehicleName { get; set; }
     }
 
     public class CreateReviewDto

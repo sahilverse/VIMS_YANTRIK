@@ -17,18 +17,7 @@ export interface BookAppointmentRequest {
   appointmentDate: string;
 }
 
-export interface PartRequestDto {
-  id: string;
-  partName: string;
-  notes?: string;
-  status: string;
-  createdAt: string;
-}
 
-export interface CreatePartRequestDto {
-  partName: string;
-  notes?: string;
-}
 
 export const AppointmentService = {
   getMyAppointments: async (): Promise<AppointmentDto[]> => {
@@ -51,13 +40,19 @@ export const AppointmentService = {
     return response.data.success;
   },
 
-  getMyPartRequests: async (): Promise<PartRequestDto[]> => {
-    const response = await api.get<ApiResponse<PartRequestDto[]>>('/appointments/part-requests');
+  getAllAppointments: async (statusFilter?: string): Promise<AppointmentDto[]> => {
+    const params = statusFilter ? { statusFilter } : undefined;
+    const response = await api.get<ApiResponse<AppointmentDto[]>>('/appointments', { params });
     return response.data.data || [];
   },
 
-  createPartRequest: async (request: CreatePartRequestDto): Promise<PartRequestDto> => {
-    const response = await api.post<ApiResponse<PartRequestDto>>('/appointments/part-requests', request);
+  updateAppointmentStatus: async (id: string, status: string): Promise<AppointmentDto> => {
+    const response = await api.patch<ApiResponse<AppointmentDto>>(`/appointments/${id}/status`, { status });
     return response.data.data!;
+  },
+
+  deleteAppointment: async (id: string): Promise<boolean> => {
+    const response = await api.delete<ApiResponse<boolean>>(`/appointments/staff/${id}`);
+    return response.data.success;
   },
 };

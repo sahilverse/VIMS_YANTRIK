@@ -55,7 +55,7 @@ export default function CustomersPage() {
 
       {/* Main Card with Search and Table */}
       <div className="bg-white rounded-[2rem] border border-zinc-200/50 shadow-sm overflow-hidden">
-        
+
         {/* Sleek Search Header */}
         <div className="p-6 border-b border-zinc-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>

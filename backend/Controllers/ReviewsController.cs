@@ -10,7 +10,6 @@ using Yantrik.Services;
 
 namespace Yantrik.Controllers
 {
-    [Authorize(Roles = "Customer")]
     [ApiController]
     [Route("api/[controller]")]
     public class ReviewsController : ControllerBase
@@ -22,6 +21,7 @@ namespace Yantrik.Controllers
             _reviewService = reviewService;
         }
 
+        [Authorize(Roles = "Customer")]
         [HttpGet("my")]
         public async Task<ActionResult<ApiResponse<IEnumerable<ReviewDto>>>> GetMyReviews()
         {
@@ -30,6 +30,7 @@ namespace Yantrik.Controllers
             return Ok(ApiResponse<IEnumerable<ReviewDto>>.SuccessResponse(reviews, "Reviews retrieved successfully"));
         }
 
+        [Authorize(Roles = "Customer")]
         [HttpPost]
         public async Task<ActionResult<ApiResponse<ReviewDto>>> SubmitReview([FromBody] CreateReviewDto request)
         {
@@ -43,6 +44,25 @@ namespace Yantrik.Controllers
             {
                 return BadRequest(ApiResponse<ReviewDto>.FailureResponse(ex.Message));
             }
+        }
+
+        [Authorize(Roles = "Admin,Staff")]
+        [HttpGet]
+        public async Task<ActionResult<ApiResponse<IEnumerable<ReviewDto>>>> GetAllReviews()
+        {
+            var reviews = await _reviewService.GetAllReviewsAsync();
+            return Ok(ApiResponse<IEnumerable<ReviewDto>>.SuccessResponse(reviews, "All reviews retrieved"));
+        }
+
+        [Authorize(Roles = "Admin,Staff")]
+        [HttpDelete("staff/{id}")]
+        public async Task<ActionResult<ApiResponse<bool>>> DeleteReview(Guid id)
+        {
+            var success = await _reviewService.DeleteReviewAsync(id);
+            if (!success)
+                return NotFound(ApiResponse<bool>.FailureResponse("Review not found"));
+
+            return Ok(ApiResponse<bool>.SuccessResponse(true, "Review deleted successfully"));
         }
     }
 }

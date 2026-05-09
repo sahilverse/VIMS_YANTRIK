@@ -147,54 +147,69 @@ namespace Yantrik.Services
             return false;
         }
 
-        public async Task<IEnumerable<PartRequestDto>> GetCustomerPartRequestsAsync(Guid userId)
+        public async Task<IEnumerable<AppointmentDto>> GetAllAppointmentsAsync(string? statusFilter = null)
         {
-            var customer = await _context.Customers
-                .FirstOrDefaultAsync(c => c.UserId == userId);
+            var query = _context.Appointments
+                .Include(a => a.Vehicle)
+                .ThenInclude(v => v.Customer)
+                .AsQueryable();
 
-            if (customer == null) return Enumerable.Empty<PartRequestDto>();
+            if (!string.IsNullOrEmpty(statusFilter) && Enum.TryParse<AppointmentStatus>(statusFilter, true, out var status))
+            {
+                query = query.Where(a => a.Status == status);
+            }
 
-            return await _context.PartRequests
-                .Where(pr => pr.CustomerId == customer.Id)
-                .OrderByDescending(pr => pr.CreatedAt)
-                .Select(pr => new PartRequestDto
+            return await query
+                .OrderByDescending(a => a.AppointmentDate)
+                .Select(a => new AppointmentDto
                 {
-                    Id = pr.Id,
-                    PartName = pr.PartName,
-                    Notes = pr.Notes,
-                    Status = pr.Status.ToString(),
-                    CreatedAt = pr.CreatedAt
+                    Id = a.Id,
+                    VehicleId = a.VehicleId,
+                    PlateNumber = a.Vehicle.PlateNumber,
+                    VehicleName = $"{a.Vehicle.Brand} {a.Vehicle.Model}",
+                    ServiceType = a.ServiceType,
+                    AppointmentDate = a.AppointmentDate,
+                    Status = a.Status.ToString()
                 })
                 .ToListAsync();
         }
 
-        public async Task<PartRequestDto> CreatePartRequestAsync(Guid userId, CreatePartRequestDto request)
+        public async Task<AppointmentDto> UpdateAppointmentStatusAsync(Guid appointmentId, string statusStr)
         {
-            var customer = await _context.Customers
-                .FirstOrDefaultAsync(c => c.UserId == userId);
+            var appointment = await _context.Appointments
+                .Include(a => a.Vehicle)
+                .FirstOrDefaultAsync(a => a.Id == appointmentId);
 
-            if (customer == null)
-                throw new Exception("Customer profile not found");
+            if (appointment == null)
+                throw new Exception("Appointment not found");
 
-            var partRequest = new PartRequest
-            {
-                CustomerId = customer.Id,
-                PartName = request.PartName,
-                Notes = request.Notes,
-                Status = PartRequestStatus.Requested
-            };
+            if (!Enum.TryParse<AppointmentStatus>(statusStr, true, out var status))
+                throw new Exception("Invalid status");
 
-            _context.PartRequests.Add(partRequest);
+            appointment.Status = status;
             await _context.SaveChangesAsync();
 
-            return new PartRequestDto
+            return new AppointmentDto
             {
-                Id = partRequest.Id,
-                PartName = partRequest.PartName,
-                Notes = partRequest.Notes,
-                Status = partRequest.Status.ToString(),
-                CreatedAt = partRequest.CreatedAt
+                Id = appointment.Id,
+                VehicleId = appointment.VehicleId,
+                PlateNumber = appointment.Vehicle.PlateNumber,
+                VehicleName = $"{appointment.Vehicle.Brand} {appointment.Vehicle.Model}",
+                ServiceType = appointment.ServiceType,
+                AppointmentDate = appointment.AppointmentDate,
+                Status = appointment.Status.ToString()
             };
         }
+
+        public async Task<bool> DeleteAppointmentAsync(Guid appointmentId)
+        {
+            var appointment = await _context.Appointments.FindAsync(appointmentId);
+            if (appointment == null) return false;
+
+            _context.Appointments.Remove(appointment);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
     }
 }

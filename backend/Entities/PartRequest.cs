@@ -6,11 +6,12 @@ namespace Yantrik.Entities
     public class PartRequest : BaseEntity
     {
         public Guid CustomerId { get; set; }
-        public string PartName { get; set; } = string.Empty;
+        public Guid PartId { get; set; }
         public string? Notes { get; set; }
-        public PartRequestStatus Status { get; set; } = PartRequestStatus.Requested;
+        public PartRequestStatus Status { get; set; } = PartRequestStatus.Pending;
 
         public Customer Customer { get; set; } = null!;
+        public Part Part { get; set; } = null!;
     }
 }
 

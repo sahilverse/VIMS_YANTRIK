@@ -21,18 +21,9 @@ namespace Yantrik.DTOs
         public DateTime AppointmentDate { get; set; }
     }
 
-    public class PartRequestDto
+    public class UpdateAppointmentStatusDto
     {
-        public Guid Id { get; set; }
-        public string PartName { get; set; } = string.Empty;
-        public string? Notes { get; set; }
         public string Status { get; set; } = string.Empty;
-        public DateTime CreatedAt { get; set; }
     }
 
-    public class CreatePartRequestDto
-    {
-        public string PartName { get; set; } = string.Empty;
-        public string? Notes { get; set; }
-    }
 }
