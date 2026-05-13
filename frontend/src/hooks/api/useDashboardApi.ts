@@ -6,6 +6,8 @@ export interface StaffDashboardData {
   todaySales: number;
   partsSoldToday: number;
   pendingPaymentsCount: number;
+  totalCustomers: number;
+  activeAppointmentsCount: number;
   recentSales: {
     id: string;
     invoiceNumber: string;

@@ -15,6 +15,8 @@ namespace Yantrik.Interfaces
         void Update(T entity);
         void Remove(T entity);
         Task<bool> ExistsAsync(Expression<Func<T, bool>> expression);
+        Task<int> CountAsync();
+        Task<int> CountAsync(Expression<Func<T, bool>> expression);
     }
 }
 

@@ -7,6 +7,8 @@ namespace Yantrik.DTOs
         public decimal TodaySales { get; set; }
         public int PartsSoldToday { get; set; }
         public int PendingPaymentsCount { get; set; }
+        public int TotalCustomers { get; set; }
+        public int ActiveAppointmentsCount { get; set; }
         public List<RecentSaleDto> RecentSales { get; set; } = new();
         public List<LowStockAlertDto> LowStockAlerts { get; set; } = new();
     }

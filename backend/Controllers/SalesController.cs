@@ -46,7 +46,7 @@ namespace Yantrik.Controllers
                 sale.Items
             ));
 
-            return Ok(ApiResponse<string>.SuccessResponse(null, "Invoice email queued for delivery"));
+            return Ok(ApiResponse<string>.SuccessResponse(string.Empty, "Invoice email queued for delivery"));
         }
 
         [HttpGet("stats")]

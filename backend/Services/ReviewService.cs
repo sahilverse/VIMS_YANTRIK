@@ -36,7 +36,7 @@ namespace Yantrik.Services
 
             return await _context.Reviews
                 .Include(r => r.Appointment)
-                .ThenInclude(a => a.Vehicle)
+                .ThenInclude(a => a!.Vehicle)
                 .Where(r => r.CustomerId == customer.Id)
                 .OrderByDescending(r => r.CreatedAt)
                 .Select(r => new ReviewDto
@@ -99,7 +99,7 @@ namespace Yantrik.Services
             return await _context.Reviews
                 .Include(r => r.Customer)
                 .Include(r => r.Appointment)
-                .ThenInclude(a => a.Vehicle)
+                .ThenInclude(a => a!.Vehicle)
                 .OrderByDescending(r => r.CreatedAt)
                 .Select(r => new ReviewDto
                 {

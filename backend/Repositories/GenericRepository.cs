@@ -54,6 +54,16 @@ namespace Yantrik.Repositories
         {
             return await _dbSet.AnyAsync(expression);
         }
+        
+        public async Task<int> CountAsync()
+        {
+            return await _dbSet.CountAsync();
+        }
+
+        public async Task<int> CountAsync(Expression<Func<T, bool>> expression)
+        {
+            return await _dbSet.CountAsync(expression);
+        }
     }
 }
 

@@ -45,7 +45,23 @@ export default function StaffDashboard() {
       description: "Gross revenue today"
     },
     { 
-      label: "Parts Sold", 
+      label: "Active Appointments", 
+      value: `${dashboard?.activeAppointmentsCount ?? '0'} Tasks`, 
+      icon: Calendar, 
+      color: "text-indigo-600", 
+      bg: "bg-indigo-50",
+      description: "Upcoming services"
+    },
+    { 
+      label: "Total Customers", 
+      value: dashboard?.totalCustomers.toString() ?? '0', 
+      icon: Users, 
+      color: "text-purple-600", 
+      bg: "bg-purple-50",
+      description: "Registered base"
+    },
+    { 
+      label: "Parts Sold Today", 
       value: `${dashboard?.partsSoldToday ?? '0'} Units`, 
       icon: Package, 
       color: "text-blue-600", 
@@ -92,7 +108,7 @@ export default function StaffDashboard() {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
         {stats.map((stat, i) => (
           <div key={i} className="bg-white p-7 rounded-[2.5rem] border border-zinc-100 shadow-sm relative overflow-hidden">
             <div className="relative z-10">
