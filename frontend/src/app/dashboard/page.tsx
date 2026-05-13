@@ -26,27 +26,27 @@ export default function CustomerDashboard() {
   }
 
   const stats = [
-    { 
-      label: "Total Spent", 
-      value: `Rs. ${dashboard?.data?.totalSpent.toLocaleString() ?? '0'}`, 
-      icon: Wallet, 
-      color: "text-emerald-600", 
+    {
+      label: "Total Spent",
+      value: `Rs. ${dashboard?.data?.totalSpent.toLocaleString() ?? '0'}`,
+      icon: Wallet,
+      color: "text-emerald-600",
       bg: "bg-emerald-50",
       description: "Lifetime investment"
     },
-    { 
-      label: "My Vehicles", 
-      value: `${dashboard?.data?.vehicleCount ?? '0'} Registered`, 
-      icon: Car, 
-      color: "text-indigo-600", 
+    {
+      label: "My Vehicles",
+      value: `${dashboard?.data?.vehicleCount ?? '0'} Registered`,
+      icon: Car,
+      color: "text-indigo-600",
       bg: "bg-indigo-50",
       description: "Active fleet"
     },
-    { 
-      label: "Total Services", 
-      value: `${dashboard?.data?.appointmentCount ?? '0'} Visits`, 
-      icon: History, 
-      color: "text-blue-600", 
+    {
+      label: "Total Services",
+      value: `${dashboard?.data?.appointmentCount ?? '0'} Visits`,
+      icon: History,
+      color: "text-blue-600",
       bg: "bg-blue-50",
       description: "Service records"
     },
@@ -54,11 +54,11 @@ export default function CustomerDashboard() {
 
   return (
     <AuthGuard roles={['Customer']}>
-      <div className="flex min-h-screen bg-white text-zinc-900 font-sans selection:bg-zinc-950 selection:text-white">
+      <div className="flex h-screen overflow-hidden bg-white text-zinc-900 font-sans selection:bg-zinc-950 selection:text-white">
         <CustomerSidebar />
 
         {/* Main Content */}
-        <main className="flex-1 overflow-y-auto bg-zinc-50/30">
+        <main className="flex-1 h-full overflow-y-auto bg-zinc-50/30">
           <header className="h-20 border-b border-zinc-100 flex items-center justify-between px-10 sticky top-0 bg-white/80 backdrop-blur-md z-10">
             <h1 className="text-xl font-bold tracking-tight">Center Overview</h1>
             <div className="flex items-center gap-6">
