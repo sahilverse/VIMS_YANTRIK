@@ -85,9 +85,15 @@ export default function CreateSaleModal({ isOpen, onClose, initialCustomerId }: 
     return map;
   }, [partResponse]);
 
-  const totalAmount = useMemo(() => {
+  const subTotal = useMemo(() => {
     return watchItems.reduce((total, item) => total + (Number(item.quantity) * Number(item.unitPrice || 0)), 0);
   }, [watchItems]);
+
+  const discount = useMemo(() => {
+    return subTotal > 5000 ? subTotal * 0.10 : 0;
+  }, [subTotal]);
+
+  const totalAmount = subTotal - discount;
 
   if (!isOpen) return null;
 
@@ -245,11 +251,23 @@ export default function CreateSaleModal({ isOpen, onClose, initialCustomerId }: 
             </div>
           </div>
 
-          <div className="pt-6 flex items-center justify-between border-t border-zinc-100">
-            <div className="p-4 bg-zinc-950 text-white rounded-xl shadow-lg shadow-black/5 flex items-center gap-4">
-              <div>
-                <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Total Bill Amount</p>
-                <p className="text-xl font-black">Rs. {totalAmount.toFixed(2)}</p>
+          <div className="pt-6 flex flex-col md:flex-row items-center justify-between border-t border-zinc-100 gap-6">
+            <div className="flex-1 w-full md:w-auto p-4 bg-zinc-950 text-white rounded-2xl shadow-xl shadow-black/5 flex items-center justify-between gap-8">
+              <div className="flex gap-8">
+                <div>
+                  <p className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest mb-0.5">Subtotal</p>
+                  <p className="text-sm font-bold text-zinc-300">Rs. {subTotal.toFixed(2)}</p>
+                </div>
+                {discount > 0 && (
+                  <div>
+                    <p className="text-[9px] font-bold text-emerald-500 uppercase tracking-widest mb-0.5">Loyalty (10%)</p>
+                    <p className="text-sm font-bold text-emerald-400">- Rs. {discount.toFixed(2)}</p>
+                  </div>
+                )}
+              </div>
+              <div className="text-right">
+                <p className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em] mb-0.5">Final Total Bill</p>
+                <p className="text-2xl font-black italic">Rs. {totalAmount.toFixed(2)}</p>
               </div>
             </div>
 

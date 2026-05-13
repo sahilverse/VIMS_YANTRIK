@@ -76,7 +76,7 @@ namespace Yantrik.Services
             await SendEmailAsync(to, subject, body);
         }
 
-        public async Task SendInvoiceEmailAsync(string to, string customerName, string invoiceNumber, decimal amount, string date, List<SaleItemDto> items)
+        public async Task SendInvoiceEmailAsync(string to, string customerName, string invoiceNumber, decimal subTotal, decimal discount, decimal total, string date, List<SaleItemDto> items)
         {
             var itemsHtml = string.Join("", items.Select(item => $@"
                 <tr>
@@ -88,6 +88,12 @@ namespace Yantrik.Services
                     <td style='padding: 12px 0; border-bottom: 1px solid #eee; text-align: right; font-size: 14px; font-weight: 700; color: #111;'>Rs. {item.Total.ToString("N2")}</td>
                 </tr>
             "));
+
+            var discountRow = discount > 0 ? $@"
+                <tr>
+                    <td colspan='2' style='padding-top: 10px; font-size: 13px; font-weight: 600; color: #27ae60;'>Loyalty Discount (10%)</td>
+                    <td style='padding-top: 10px; text-align: right; font-size: 13px; font-weight: 600; color: #27ae60;'>- Rs. {discount.ToString("N2")}</td>
+                </tr>" : "";
 
             var subject = $"Invoice {invoiceNumber} from Yantrik VIMS";
             var body = $@"
@@ -128,8 +134,13 @@ namespace Yantrik.Services
                                 </tbody>
                                 <tfoot>
                                     <tr>
-                                        <td colspan='2' style='padding-top: 20px; font-size: 14px; font-weight: 700; color: #111;'>Total Amount</td>
-                                        <td style='padding-top: 20px; text-align: right; font-size: 20px; font-weight: 900; color: #000;'>Rs. {amount.ToString("N2")}</td>
+                                        <td colspan='2' style='padding-top: 20px; font-size: 13px; font-weight: 600; color: #777;'>Subtotal</td>
+                                        <td style='padding-top: 20px; text-align: right; font-size: 13px; font-weight: 600; color: #777;'>Rs. {subTotal.ToString("N2")}</td>
+                                    </tr>
+                                    {discountRow}
+                                    <tr>
+                                        <td colspan='2' style='padding-top: 10px; font-size: 14px; font-weight: 700; color: #111;'>Total Amount</td>
+                                        <td style='padding-top: 10px; text-align: right; font-size: 20px; font-weight: 900; color: #000;'>Rs. {total.ToString("N2")}</td>
                                     </tr>
                                 </tfoot>
                             </table>
@@ -137,7 +148,7 @@ namespace Yantrik.Services
                         
                         <div style='margin-top: 40px; text-align: center;'>
                             <p style='margin-bottom: 20px; font-size: 13px; color: #777;'>Need help with this invoice? Contact our support team.</p>
-                            <a href='#' style='display: inline-block; background-color: #000; color: #fff; padding: 16px 32px; text-decoration: none; border-radius: 12px; font-weight: 700; font-size: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);'>View Full Dashboard</a>
+                            <a href='http://localhost:3000' style='display: inline-block; background-color: #000; color: #fff; padding: 16px 32px; text-decoration: none; border-radius: 12px; font-weight: 700; font-size: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);'>View Full Dashboard</a>
                         </div>
                     </div>
                     <div style='background-color: #fafafa; padding: 20px; text-align: center; border-top: 1px solid #f0f0f0;'>

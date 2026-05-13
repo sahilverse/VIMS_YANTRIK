@@ -14,6 +14,8 @@ namespace Yantrik.DTOs
         public Guid EmployeeId { get; set; }
         public string EmployeeName { get; set; } = string.Empty;
         public DateTime Date { get; set; }
+        public decimal SubTotal { get; set; }
+        public decimal DiscountAmount { get; set; }
         public decimal TotalAmount { get; set; }
         public PaymentStatus PaymentStatus { get; set; }
         public int ItemCount { get; set; }

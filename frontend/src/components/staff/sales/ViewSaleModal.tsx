@@ -114,24 +114,41 @@ export default function ViewSaleModal({ isOpen, onClose, saleId }: ViewSaleModal
             </div>
           </div>
 
-          <div className="bg-zinc-950 text-white rounded-2xl p-6 flex items-center justify-between shadow-xl shadow-black/5">
-            <div className="flex flex-col">
-              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 mb-1">Total Bill Amount</span>
-              <span className="text-2xl font-black italic">Rs. {sale.totalAmount.toLocaleString()}</span>
+          <div className="bg-zinc-950 text-white rounded-2xl p-6 shadow-xl shadow-black/5">
+            <div className="flex flex-col gap-4">
+              <div className="flex justify-between items-center border-b border-white/10 pb-4">
+                <div className="flex flex-col">
+                  <span className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500">Subtotal</span>
+                  <span className="text-sm font-bold text-zinc-300">Rs. {sale.subTotal.toLocaleString()}</span>
+                </div>
+                {sale.discountAmount > 0 && (
+                  <div className="flex flex-col text-right">
+                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-500">Loyalty Discount (10%)</span>
+                    <span className="text-sm font-bold text-emerald-400">- Rs. {sale.discountAmount.toLocaleString()}</span>
+                  </div>
+                )}
+              </div>
+              
+              <div className="flex items-center justify-between">
+                <div className="flex flex-col">
+                  <span className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 mb-1">Final Bill Total</span>
+                  <span className="text-2xl font-black italic">Rs. {sale.totalAmount.toLocaleString()}</span>
+                </div>
+                
+                <button
+                  onClick={() => sendEmailMutation.mutate(sale.id)}
+                  disabled={sendEmailMutation.isPending}
+                  className="bg-white/10 hover:bg-white/20 text-white px-5 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-all active:scale-95 flex items-center gap-2 disabled:opacity-50 disabled:active:scale-100 cursor-pointer"
+                >
+                  {sendEmailMutation.isPending ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Mail className="h-4 w-4 text-zinc-400" />
+                  )}
+                  Send Invoice
+                </button>
+              </div>
             </div>
-            
-            <button
-              onClick={() => sendEmailMutation.mutate(sale.id)}
-              disabled={sendEmailMutation.isPending}
-              className="bg-white/10 hover:bg-white/20 text-white px-5 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-all active:scale-95 flex items-center gap-2 disabled:opacity-50 disabled:active:scale-100 cursor-pointer"
-            >
-              {sendEmailMutation.isPending ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <Mail className="h-4 w-4 text-zinc-400" />
-              )}
-              Send via Email
-            </button>
           </div>
 
           </div>

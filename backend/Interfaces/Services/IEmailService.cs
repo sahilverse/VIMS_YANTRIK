@@ -8,7 +8,7 @@ namespace Yantrik.Interfaces.Services
     {
         Task SendEmailAsync(string to, string subject, string body);
         Task SendWelcomeEmailAsync(string to, string fullName, string temporaryPassword);
-        Task SendInvoiceEmailAsync(string to, string customerName, string invoiceNumber, decimal amount, string date, List<SaleItemDto> items);
+        Task SendInvoiceEmailAsync(string to, string customerName, string invoiceNumber, decimal subTotal, decimal discount, decimal total, string date, List<SaleItemDto> items);
     }
 }
 

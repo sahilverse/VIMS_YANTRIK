@@ -43,6 +43,8 @@ namespace Yantrik.Services
                 EmployeeId = i.EmployeeId,
                 EmployeeName = i.Employee?.FullName ?? "Unknown",
                 Date = i.Date,
+                SubTotal = i.SubTotal,
+                DiscountAmount = i.DiscountAmount,
                 TotalAmount = i.TotalAmount,
                 PaymentStatus = i.PaymentStatus,
                 ItemCount = i.Items.Count
@@ -68,6 +70,8 @@ namespace Yantrik.Services
                 EmployeeId = invoice.EmployeeId,
                 EmployeeName = invoice.Employee?.FullName ?? "Unknown",
                 Date = invoice.Date,
+                SubTotal = invoice.SubTotal,
+                DiscountAmount = invoice.DiscountAmount,
                 TotalAmount = invoice.TotalAmount,
                 PaymentStatus = invoice.PaymentStatus,
                 Items = invoice.Items.Select(item => new SaleItemDto
@@ -126,7 +130,6 @@ namespace Yantrik.Services
                         return ApiResponse<SaleInvoiceDto>.FailureResponse($"Insufficient stock for {part.Name}. Available: {part.StockQuantity}");
                     }
 
-                    // Reduce Stock
                     part.StockQuantity -= itemRequest.Quantity;
                     _unitOfWork.Parts.Update(part);
 
@@ -140,7 +143,6 @@ namespace Yantrik.Services
                     invoice.Items.Add(invoiceItem);
                     totalAmount += (itemRequest.Quantity * itemRequest.UnitPrice);
 
-                    // Create Stock Movement
                     var stockMovement = new StockMovement
                     {
                         PartId = itemRequest.PartId,
@@ -154,12 +156,19 @@ namespace Yantrik.Services
                     await _unitOfWork.StockMovements.AddAsync(stockMovement);
                 }
 
-                invoice.TotalAmount = totalAmount;
                 invoice.SubTotal = totalAmount;
+                
+                decimal discountAmount = 0;
+                if (totalAmount > 5000)
+                {
+                    discountAmount = totalAmount * 0.10m;
+                }
+
+                invoice.DiscountAmount = discountAmount;
+                invoice.TotalAmount = totalAmount - discountAmount;
 
                 await _unitOfWork.Invoices.AddAsync(invoice);
                 
-                // Update Customer Total Spend and Last Purchase Date
                 customer.TotalSpend += totalAmount;
                 if (invoice.PaymentStatus == PaymentStatus.Paid || invoice.PaymentStatus == PaymentStatus.Partial)
                 {

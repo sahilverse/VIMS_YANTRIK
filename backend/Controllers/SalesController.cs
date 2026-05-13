@@ -39,6 +39,8 @@ namespace Yantrik.Controllers
                 sale.CustomerEmail,
                 sale.CustomerName,
                 sale.InvoiceNumber,
+                sale.SubTotal,
+                sale.DiscountAmount,
                 sale.TotalAmount,
                 sale.Date.ToString("MMM dd, yyyy"),
                 sale.Items

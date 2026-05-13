@@ -253,6 +253,8 @@ export interface SaleInvoiceDto {
   employeeId: string;
   employeeName: string;
   date: string;
+  subTotal: number;
+  discountAmount: number;
   totalAmount: number;
   paymentStatus: PaymentStatus;
   itemCount?: number;
