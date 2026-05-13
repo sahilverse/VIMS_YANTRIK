@@ -7,5 +7,6 @@ namespace Yantrik.Interfaces.Services
     public interface IDashboardService
     {
         Task<ApiResponse<StaffDashboardDto>> GetStaffDashboardDataAsync();
+        Task<ApiResponse<CustomerDashboardDto>> GetCustomerDashboardDataAsync(Guid userId);
     }
 }

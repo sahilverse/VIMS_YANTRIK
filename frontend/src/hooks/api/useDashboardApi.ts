@@ -33,3 +33,39 @@ export const useStaffDashboardQuery = () => {
     },
   });
 };
+
+export interface CustomerDashboardData {
+  totalSpent: number;
+  vehicleCount: number;
+  appointmentCount: number;
+  recentVehicles: {
+    id: string;
+    plateNumber: string;
+    brand: string;
+    model: string;
+  }[];
+  upcomingAppointments: {
+    id: string;
+    appointmentDate: string;
+    serviceType: string;
+    status: string;
+    plateNumber: string;
+  }[];
+  recentInvoices: {
+    id: string;
+    invoiceNumber: string;
+    totalAmount: number;
+    date: string;
+    paymentStatus: string;
+  }[];
+}
+
+export const useCustomerDashboardQuery = () => {
+  return useQuery({
+    queryKey: ['dashboard', 'customer'],
+    queryFn: async () => {
+      const response = await api.get<ApiResponse<CustomerDashboardData>>('/dashboard/customer');
+      return response.data;
+    },
+  });
+};

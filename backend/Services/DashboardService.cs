@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using Yantrik.Common;
 using Yantrik.DTOs;
 using Yantrik.Entities;
@@ -78,6 +79,57 @@ namespace Yantrik.Services
             };
 
             return ApiResponse<StaffDashboardDto>.SuccessResponse(dashboardData);
+        }
+
+        public async Task<ApiResponse<CustomerDashboardDto>> GetCustomerDashboardDataAsync(Guid userId)
+        {
+            var customer = await _unitOfWork.Customers.Find(c => c.UserId == userId)
+                .Include(c => c.Vehicles)
+                .Include(c => c.Appointments)
+                .Include(c => c.Invoices)
+                .FirstOrDefaultAsync();
+
+            if (customer == null)
+                return ApiResponse<CustomerDashboardDto>.FailureResponse("Customer profile not found");
+
+            var dashboardData = new CustomerDashboardDto
+            {
+                TotalSpent = customer.TotalSpend,
+                VehicleCount = customer.Vehicles.Count,
+                AppointmentCount = customer.Appointments.Count,
+                RecentVehicles = customer.Vehicles.OrderByDescending(v => v.CreatedAt).Take(3).Select(v => new DashboardVehicleDto
+                {
+                    Id = v.Id,
+                    PlateNumber = v.PlateNumber,
+                    Brand = v.Brand,
+                    Model = v.Model
+                }).ToList(),
+                UpcomingAppointments = customer.Appointments
+                    .Where(a => a.Status == AppointmentStatus.Pending || a.Status == AppointmentStatus.Confirmed)
+                    .OrderBy(a => a.AppointmentDate)
+                    .Take(3)
+                    .Select(a => new DashboardAppointmentDto
+                    {
+                        Id = a.Id,
+                        AppointmentDate = a.AppointmentDate,
+                        ServiceType = a.ServiceType,
+                        Status = a.Status.ToString(),
+                        PlateNumber = customer.Vehicles.FirstOrDefault(v => v.Id == a.VehicleId)?.PlateNumber ?? "N/A"
+                    }).ToList(),
+                RecentInvoices = customer.Invoices
+                    .OrderByDescending(i => i.Date)
+                    .Take(5)
+                    .Select(i => new DashboardInvoiceDto
+                    {
+                        Id = i.Id,
+                        InvoiceNumber = i.InvoiceNumber,
+                        TotalAmount = i.TotalAmount,
+                        Date = i.Date,
+                        PaymentStatus = i.PaymentStatus.ToString()
+                    }).ToList()
+            };
+
+            return ApiResponse<CustomerDashboardDto>.SuccessResponse(dashboardData);
         }
     }
 }
