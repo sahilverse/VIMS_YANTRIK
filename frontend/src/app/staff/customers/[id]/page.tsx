@@ -161,14 +161,6 @@ export default function CustomerProfilePage() {
                 </div>
                 <p className="text-3xl font-black italic">Rs. {customer.totalSpend.toLocaleString()}</p>
               </div>
-
-              <div className="pt-6 border-t border-zinc-800">
-                <div className="flex items-center gap-2 mb-2 text-amber-400">
-                  <Award className="h-4 w-4" />
-                  <span className="text-[10px] font-black uppercase tracking-widest">Loyalty Reward</span>
-                </div>
-                <p className="text-xl font-black">{customer.loyaltyPoints} <span className="text-xs font-bold text-zinc-500 uppercase tracking-widest ml-1">Points</span></p>
-              </div>
             </div>
           </div>
         </div>
