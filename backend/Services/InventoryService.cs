@@ -155,6 +155,9 @@ namespace Yantrik.Services
             _unitOfWork.Parts.Update(part);
             await _unitOfWork.CompleteAsync();
 
+            // Trigger real-time stock check
+            Hangfire.BackgroundJob.Enqueue<INotificationService>(x => x.CheckLowStockAndNotifyAsync());
+
             return ApiResponse<bool>.SuccessResponse(true, "Part updated successfully");
         }
 

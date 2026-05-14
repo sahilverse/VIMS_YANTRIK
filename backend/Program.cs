@@ -84,6 +84,7 @@ builder.Services.AddScoped<IAppointmentService, AppointmentService>();
 builder.Services.AddScoped<IReviewService, ReviewService>();
 builder.Services.AddScoped<IHistoryService, HistoryService>();
 builder.Services.AddScoped<IPartRequestService, PartRequestService>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 // Register Validators
@@ -190,11 +191,27 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 
-// Data Seeding
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
+    
+    // Seed Data
     await DbSeeder.SeedDataAsync(services);
+
+    // Register Recurring Jobs
+    var recurringJobManager = services.GetRequiredService<IRecurringJobManager>();
+    
+    recurringJobManager.AddOrUpdate<INotificationService>(
+        "low-stock-check",
+        service => service.CheckLowStockAndNotifyAsync(),
+        Cron.Daily(2, 15) // 8:00 AM Nepal Time
+    );
+
+    recurringJobManager.AddOrUpdate<INotificationService>(
+        "overdue-credit-check",
+        service => service.CheckOverdueCreditsAndNotifyAsync(),
+        Cron.Daily(3, 15) // 9:00 AM Nepal Time
+    );
 }
 
 app.Run();

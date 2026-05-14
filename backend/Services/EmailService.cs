@@ -159,5 +159,50 @@ namespace Yantrik.Services
 
             await SendEmailAsync(to, subject, body);
         }
+        public async Task SendOverdueReminderEmailAsync(string to, string customerName, string invoiceNumber, decimal totalAmount, string dueDate)
+        {
+            var subject = $"Payment Reminder: Invoice {invoiceNumber} is Overdue";
+            var body = $@"
+                <div style='font-family: Segoe UI, Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: auto; border: 1px solid #f0f0f0; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05);'>
+                    <div style='background-color: #000; padding: 30px; text-align: center; color: #fff;'>
+                        <h1 style='margin: 0; font-size: 24px; font-weight: 900; letter-spacing: -0.02em;'>YANTRIK VIMS</h1>
+                        <p style='margin: 5px 0 0 0; font-size: 12px; font-weight: 600; opacity: 0.6; text-transform: uppercase; letter-spacing: 0.1em;'>Payment Reminder</p>
+                    </div>
+                    <div style='padding: 40px;'>
+                        <h2 style='margin: 0 0 20px 0; font-size: 20px; font-weight: 800; color: #111;'>Hello {customerName},</h2>
+                        <p style='margin: 0 0 30px 0; font-size: 15px; color: #555; line-height: 1.6;'>This is a friendly reminder that invoice <strong>{invoiceNumber}</strong> is currently overdue. We would appreciate it if you could settle the outstanding balance at your earliest convenience.</p>
+                        
+                        <div style='background-color: #fff9f9; border-radius: 12px; padding: 25px; border: 1px solid #fee2e2; margin-bottom: 30px;'>
+                            <table style='width: 100%; border-collapse: collapse;'>
+                                <tr>
+                                    <td style='padding-bottom: 10px; font-size: 11px; font-weight: 800; color: #999; text-transform: uppercase; letter-spacing: 0.05em;'>Invoice Number</td>
+                                    <td style='padding-bottom: 10px; font-size: 11px; font-weight: 800; color: #999; text-transform: uppercase; letter-spacing: 0.05em; text-align: right;'>Due Date</td>
+                                </tr>
+                                <tr>
+                                    <td style='font-size: 16px; font-weight: 700; color: #111;'>{invoiceNumber}</td>
+                                    <td style='font-size: 16px; font-weight: 700; color: #b91c1c; text-align: right;'>{dueDate}</td>
+                                </tr>
+                                <tr>
+                                    <td colspan='2' style='padding-top: 20px; border-top: 1px solid #fee2e2; margin-top: 20px;'>
+                                        <div style='font-size: 11px; font-weight: 800; color: #999; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 5px;'>Amount Due</div>
+                                        <div style='font-size: 24px; font-weight: 900; color: #000;'>Rs. {totalAmount.ToString("N2")}</div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        
+                        <div style='margin-top: 40px; text-align: center;'>
+                            <p style='margin-bottom: 20px; font-size: 13px; color: #777;'>You can view and pay your invoice through our online portal.</p>
+                            <a href='http://localhost:3000' style='display: inline-block; background-color: #000; color: #fff; padding: 16px 32px; text-decoration: none; border-radius: 12px; font-weight: 700; font-size: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);'>Open Dashboard</a>
+                        </div>
+                    </div>
+                    <div style='background-color: #fafafa; padding: 20px; text-align: center; border-top: 1px solid #f0f0f0;'>
+                        <p style='margin: 0; font-size: 11px; color: #aaa; font-weight: 600;'>&copy; 2026 Yantrik VIMS. All rights reserved.</p>
+                    </div>
+                </div>
+            ";
+
+            await SendEmailAsync(to, subject, body);
+        }
     }
 }

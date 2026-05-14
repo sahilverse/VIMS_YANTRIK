@@ -179,6 +179,9 @@ namespace Yantrik.Services
                 await _unitOfWork.CompleteAsync();
                 await _unitOfWork.CommitTransactionAsync();
 
+                // Trigger real-time stock check
+                Hangfire.BackgroundJob.Enqueue<INotificationService>(x => x.CheckLowStockAndNotifyAsync());
+
                 return await GetSaleByIdAsync(invoice.Id);
             }
             catch (Exception ex)
