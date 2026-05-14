@@ -51,6 +51,9 @@ namespace Yantrik.Repositories
                 .Include(c => c.Vehicles)
                 .Include(c => c.User)
                 .Include(c => c.Invoices)
+                    .ThenInclude(i => i.Employee)
+                .Include(c => c.Appointments)
+                    .ThenInclude(a => a.Vehicle)
                 .FirstOrDefaultAsync(c => c.Id == id);
         }
 

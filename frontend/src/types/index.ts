@@ -28,6 +28,7 @@ export interface UserDto {
   email: string;
   fullName: string;
   role: RoleName;
+  profileId?: string;
   phone?: string;
   code?: string;
   isActive: boolean;
@@ -58,6 +59,17 @@ export interface Customer extends BaseEntity {
   lastPurchaseDate?: string;
   vehicles: Vehicle[];
   salesHistory?: SaleInvoiceDto[];
+  appointments?: AppointmentDto[];
+}
+
+export interface AppointmentDto {
+  id: string;
+  vehicleId: string;
+  plateNumber: string;
+  vehicleName: string;
+  serviceType: string;
+  appointmentDate: string;
+  status: string;
 }
 
 export interface Vehicle extends BaseEntity {

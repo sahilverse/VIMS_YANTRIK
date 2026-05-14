@@ -26,4 +26,11 @@ namespace Yantrik.DTOs
         public string Status { get; set; } = string.Empty;
     }
 
+    public class CompleteAppointmentRequest
+    {
+        public decimal Cost { get; set; }
+        public string? Description { get; set; }
+        public Guid EmployeeId { get; set; }
+    }
+
 }

@@ -14,6 +14,9 @@ namespace Yantrik.DTOs
         public string ReferenceNumber { get; set; } = string.Empty;
         public decimal? SubTotal { get; set; }
         public decimal? TaxAmount { get; set; }
+        public string? PlateNumber { get; set; }
+        public string? VehicleModel { get; set; }
+        public string? VehicleBrand { get; set; }
         public List<HistoryLineItemDto> LineItems { get; set; } = new();
     }
 

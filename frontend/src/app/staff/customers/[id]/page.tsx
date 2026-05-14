@@ -16,21 +16,33 @@ import {
   ArrowRight,
   Loader2,
   Clock,
-  CheckCircle2,
+  Search,
   AlertCircle
 } from 'lucide-react';
 import { useCustomerDetailQuery } from '@/hooks/api/useCustomerApi';
+import { useCustomerHistoryQuery } from '@/hooks/api/useHistoryApi';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { cn } from '@/lib/utils';
 import ViewSaleModal from '@/components/staff/sales/ViewSaleModal';
+import { format } from 'date-fns';
 
 export default function CustomerProfilePage() {
   const { id } = useParams();
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<'vehicles' | 'sales'>('sales');
+  const [activeTab, setActiveTab] = useState<'vehicles' | 'sales' | 'services'>('sales');
   const [selectedSaleId, setSelectedSaleId] = useState<string | null>(null);
+  const [timelineSearch, setTimelineSearch] = useState('');
 
-  const { data: customer, isLoading } = useCustomerDetailQuery(id as string);
+  const { data: customer, isLoading: isCustomerLoading } = useCustomerDetailQuery(id as string);
+
+  const { data: history, isLoading: isHistoryLoading } = useCustomerHistoryQuery(id as string, {
+    pageSize: 50,
+    search: timelineSearch || undefined,
+    type: 'Service'
+  });
+
+  const isLoading = isCustomerLoading;
 
   if (isLoading) {
     return (
@@ -164,22 +176,30 @@ export default function CustomerProfilePage() {
         {/* Right Column: Detailed View */}
         <div className="lg:col-span-2 space-y-6">
           {/* Tabs */}
-          <div className="bg-white p-2 rounded-3xl border border-zinc-100 shadow-sm flex gap-2">
+          <div className="bg-white p-2 rounded-3xl border border-zinc-100 shadow-sm flex flex-wrap gap-2">
             <button
               onClick={() => setActiveTab('sales')}
-              className={`flex-1 py-4 px-6 rounded-2xl text-sm font-black uppercase tracking-widest transition-all cursor-pointer flex items-center justify-center gap-3 ${activeTab === 'sales'
+              className={`flex-1 py-3 px-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all cursor-pointer flex items-center justify-center gap-2 ${activeTab === 'sales'
                 ? 'bg-zinc-950 text-white shadow-lg shadow-black/10'
                 : 'text-zinc-400 hover:text-zinc-600 hover:bg-zinc-50'}`}
             >
-              <Receipt className="h-4 w-4" /> Sales History
+              <Receipt className="h-4 w-4" /> Sales
+            </button>
+            <button
+              onClick={() => setActiveTab('services')}
+              className={`flex-1 py-3 px-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all cursor-pointer flex items-center justify-center gap-2 ${activeTab === 'services'
+                ? 'bg-zinc-950 text-white shadow-lg shadow-black/10'
+                : 'text-zinc-400 hover:text-zinc-600 hover:bg-zinc-50'}`}
+            >
+              <History className="h-4 w-4" /> Service History
             </button>
             <button
               onClick={() => setActiveTab('vehicles')}
-              className={`flex-1 py-4 px-6 rounded-2xl text-sm font-black uppercase tracking-widest transition-all cursor-pointer flex items-center justify-center gap-3 ${activeTab === 'vehicles'
+              className={`flex-1 py-3 px-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all cursor-pointer flex items-center justify-center gap-2 ${activeTab === 'vehicles'
                 ? 'bg-zinc-950 text-white shadow-lg shadow-black/10'
                 : 'text-zinc-400 hover:text-zinc-600 hover:bg-zinc-50'}`}
             >
-              <Car className="h-4 w-4" /> Vehicles ({customer.vehicles.length})
+              <Car className="h-4 w-4" /> Vehicles
             </button>
           </div>
 
@@ -190,10 +210,10 @@ export default function CustomerProfilePage() {
                 {!customer.salesHistory || customer.salesHistory.length === 0 ? (
                   <div className="p-20 text-center flex flex-col items-center">
                     <div className="p-4 bg-zinc-50 rounded-full mb-4">
-                      <History className="h-8 w-8 text-zinc-300" />
+                      <Receipt className="h-8 w-8 text-zinc-300" />
                     </div>
-                    <p className="font-bold text-zinc-900">No Transactions Yet</p>
-                    <p className="text-xs text-zinc-400 mt-1">This customer hasn't made any purchases yet.</p>
+                    <p className="font-bold text-zinc-900">No Sales Record</p>
+                    <p className="text-xs text-zinc-400 mt-1">This customer hasn't purchased any parts yet.</p>
                   </div>
                 ) : (
                   customer.salesHistory.map((sale) => (
@@ -211,7 +231,7 @@ export default function CustomerProfilePage() {
                           <div className="flex items-center gap-2 mt-1">
                             <Clock className="h-3 w-3 text-zinc-400" />
                             <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">
-                              {new Date(sale.date).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' })}
+                              {format(new Date(sale.date), 'MMM dd, yyyy')}
                             </p>
                           </div>
                         </div>
@@ -232,6 +252,84 @@ export default function CustomerProfilePage() {
                   ))
                 )}
               </div>
+            ) : activeTab === 'services' ? (
+              <div className="divide-y divide-zinc-50">
+                {/* Service History Search Header */}
+                <div className="p-6 bg-zinc-50/30 flex flex-col sm:flex-row items-center justify-between gap-4">
+                  <div className="relative w-full sm:w-64 group">
+                    <Search className="absolute left-3 top-2.5 h-3.5 w-3.5 text-zinc-400 group-focus-within:text-zinc-900 transition-colors" />
+                    <input
+                      type="text"
+                      placeholder="Search service history..."
+                      value={timelineSearch}
+                      onChange={(e) => setTimelineSearch(e.target.value)}
+                      className="w-full h-9 pl-9 pr-3 bg-white border border-zinc-200 rounded-xl text-[10px] font-bold outline-none focus:ring-1 focus:ring-zinc-200 transition-all"
+                    />
+                  </div>
+                  {timelineSearch && (
+                    <Button
+                      variant="ghost"
+                      onClick={() => setTimelineSearch('')}
+                      className="h-9 px-3 text-[9px] font-black uppercase tracking-widest text-zinc-400 hover:text-zinc-950"
+                    >
+                      Clear Filter
+                    </Button>
+                  )}
+                </div>
+
+                {isHistoryLoading ? (
+                  <div className="p-20 flex flex-col items-center justify-center space-y-4">
+                    <Loader2 className="h-8 w-8 text-zinc-900 animate-spin opacity-20" />
+                    <p className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em]">Loading Records...</p>
+                  </div>
+                ) : !history?.items || history.items.length === 0 ? (
+                  <div className="p-20 text-center flex flex-col items-center">
+                    <div className="p-4 bg-zinc-50 rounded-full mb-4">
+                      <History className="h-8 w-8 text-zinc-300" />
+                    </div>
+                    <p className="font-bold text-zinc-900">No Services Found</p>
+                    <p className="text-xs text-zinc-400 mt-1">No maintenance records found for this customer.</p>
+                  </div>
+                ) : (
+                  history.items.map((item) => (
+                    <div key={item.id} className="p-6 flex items-center justify-between hover:bg-zinc-50/50 transition-colors group">
+                      <div className="flex items-center gap-5">
+                        <div className="p-3 rounded-2xl bg-emerald-50 text-emerald-600 transition-colors">
+                          <History className="h-5 w-5" />
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <p className="text-sm font-black text-zinc-900">{item.title}</p>
+                            {item.plateNumber && (
+                              <Badge variant="outline" className="bg-zinc-50 font-black text-[9px] px-2 py-0 rounded-full border-zinc-200">
+                                {item.plateNumber}
+                              </Badge>
+                            )}
+                          </div>
+                          <p className="text-xs text-zinc-500 mt-0.5 line-clamp-1">{item.description}</p>
+                          <div className="flex items-center gap-2 mt-2 text-[9px] font-black text-zinc-400 uppercase tracking-[0.1em]">
+                            <Clock className="h-3 w-3" />
+                            {format(new Date(item.date), 'MMM dd, yyyy')}
+                            {item.vehicleBrand && item.vehicleModel && (
+                              <div className="flex items-center gap-1.5 ml-1 text-zinc-500">
+                                <span className="text-zinc-300">•</span>
+                                <Car className="h-3 w-3" />
+                                <span>{item.vehicleBrand} {item.vehicleModel}</span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm font-black text-zinc-900">
+                          {item.amount ? `Rs. ${item.amount.toLocaleString()}` : '—'}
+                        </p>
+                        <p className="text-[9px] font-black text-zinc-400 uppercase tracking-widest mt-1">{item.status}</p>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
             ) : (
               <div className="divide-y divide-zinc-50">
                 {customer.vehicles.length === 0 ? (
@@ -239,8 +337,8 @@ export default function CustomerProfilePage() {
                     <div className="p-4 bg-zinc-50 rounded-full mb-4">
                       <Car className="h-8 w-8 text-zinc-300" />
                     </div>
-                    <p className="font-bold text-zinc-900">No Vehicles Registered</p>
-                    <p className="text-xs text-zinc-400 mt-1">This customer doesn't have any vehicles linked to their account.</p>
+                    <p className="font-bold text-zinc-900">No Vehicles</p>
+                    <p className="text-xs text-zinc-400 mt-1">This customer doesn't have any vehicles yet.</p>
                   </div>
                 ) : (
                   customer.vehicles.map((v) => (
@@ -262,12 +360,15 @@ export default function CustomerProfilePage() {
                         </div>
                       </div>
 
-                      <Button 
-                        variant="ghost" 
-                        onClick={() => router.push(`/staff/appointments?search=${v.plateNumber}`)}
+                      <Button
+                        variant="ghost"
+                        onClick={() => {
+                          setActiveTab('services');
+                          setTimelineSearch(v.plateNumber);
+                        }}
                         className="h-10 px-4 rounded-xl text-xs font-black uppercase tracking-widest text-zinc-400 hover:text-zinc-950 hover:bg-zinc-100 flex items-center gap-2"
                       >
-                        View Service <ArrowRight className="h-3 w-3" />
+                        Service History <ArrowRight className="h-3 w-3" />
                       </Button>
                     </div>
                   ))

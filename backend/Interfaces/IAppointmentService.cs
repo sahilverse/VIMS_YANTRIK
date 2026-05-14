@@ -13,6 +13,7 @@ namespace Yantrik.Interfaces
         Task<bool> CancelAppointmentAsync(Guid userId, Guid appointmentId);
         Task<IEnumerable<AppointmentDto>> GetAllAppointmentsAsync(string? statusFilter = null);
         Task<AppointmentDto> UpdateAppointmentStatusAsync(Guid appointmentId, string status);
+        Task<AppointmentDto> CompleteAppointmentAsync(Guid appointmentId, CompleteAppointmentRequest request);
         Task<bool> DeleteAppointmentAsync(Guid appointmentId);
     }
 }

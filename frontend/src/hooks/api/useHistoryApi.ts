@@ -7,3 +7,11 @@ export function useMyHistoryQuery(params?: HistoryFilterParams) {
     queryFn: () => HistoryService.getMyHistory(params),
   });
 }
+
+export function useCustomerHistoryQuery(customerId: string, params?: HistoryFilterParams) {
+  return useQuery({
+    queryKey: ['customer-history', customerId, params],
+    queryFn: () => HistoryService.getCustomerHistory(customerId, params),
+    enabled: !!customerId,
+  });
+}

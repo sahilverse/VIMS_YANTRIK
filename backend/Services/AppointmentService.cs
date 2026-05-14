@@ -183,6 +183,9 @@ namespace Yantrik.Services
             if (appointment == null)
                 throw new Exception("Appointment not found");
 
+            if (appointment.Status == AppointmentStatus.Completed)
+                throw new Exception("Cannot change the status of a completed appointment");
+
             if (!Enum.TryParse<AppointmentStatus>(statusStr, true, out var status))
                 throw new Exception("Invalid status");
 
@@ -199,6 +202,58 @@ namespace Yantrik.Services
                 AppointmentDate = appointment.AppointmentDate,
                 Status = appointment.Status.ToString()
             };
+        }
+
+        public async Task<AppointmentDto> CompleteAppointmentAsync(Guid appointmentId, CompleteAppointmentRequest request)
+        {
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                var appointment = await _context.Appointments
+                    .Include(a => a.Vehicle)
+                    .FirstOrDefaultAsync(a => a.Id == appointmentId);
+
+                if (appointment == null)
+                    throw new Exception("Appointment not found");
+
+                if (appointment.Status == AppointmentStatus.Completed)
+                    throw new Exception("Appointment is already completed");
+
+                // 1. Update Appointment Status
+                appointment.Status = AppointmentStatus.Completed;
+
+                // 2. Create Service Record
+                var serviceRecord = new ServiceRecord
+                {
+                    AppointmentId = appointment.Id,
+                    ServiceType = appointment.ServiceType ?? "General Service",
+                    Description = request.Description,
+                    Cost = request.Cost,
+                    EmployeeId = request.EmployeeId,
+                    CreatedAt = DateTime.UtcNow
+                };
+
+                _context.ServiceRecords.Add(serviceRecord);
+
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+                return new AppointmentDto
+                {
+                    Id = appointment.Id,
+                    VehicleId = appointment.VehicleId,
+                    PlateNumber = appointment.Vehicle.PlateNumber,
+                    VehicleName = $"{appointment.Vehicle.Brand} {appointment.Vehicle.Model}",
+                    ServiceType = appointment.ServiceType,
+                    AppointmentDate = appointment.AppointmentDate,
+                    Status = appointment.Status.ToString()
+                };
+            }
+            catch (Exception)
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
         }
 
         public async Task<bool> DeleteAppointmentAsync(Guid appointmentId)

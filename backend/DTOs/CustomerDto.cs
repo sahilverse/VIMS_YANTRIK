@@ -15,6 +15,7 @@ namespace Yantrik.DTOs
         public string? Email { get; set; }
         public List<VehicleDto> Vehicles { get; set; } = new();
         public List<SaleInvoiceDto> SalesHistory { get; set; } = new();
+        public List<AppointmentDto> Appointments { get; set; } = new();
     }
 }
 

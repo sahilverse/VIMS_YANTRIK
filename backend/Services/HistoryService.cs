@@ -11,7 +11,7 @@ namespace Yantrik.Services
 {
     public interface IHistoryService
     {
-        Task<HistoryPagedResult> GetCustomerTimelineAsync(Guid userId, HistoryFilterDto filter);
+        Task<HistoryPagedResult> GetCustomerTimelineAsync(Guid id, HistoryFilterDto filter, bool isUserId = true);
     }
 
     public class HistoryFilterDto
@@ -42,10 +42,11 @@ namespace Yantrik.Services
             _context = context;
         }
 
-        public async Task<HistoryPagedResult> GetCustomerTimelineAsync(Guid userId, HistoryFilterDto filter)
+        public async Task<HistoryPagedResult> GetCustomerTimelineAsync(Guid id, HistoryFilterDto filter, bool isUserId = true)
         {
-            var customer = await _context.Customers
-                .FirstOrDefaultAsync(c => c.UserId == userId);
+            var customer = isUserId 
+                ? await _context.Customers.FirstOrDefaultAsync(c => c.UserId == id)
+                : await _context.Customers.FirstOrDefaultAsync(c => c.Id == id);
 
             if (customer == null)
                 return new HistoryPagedResult { Page = filter.Page, PageSize = filter.PageSize };
@@ -113,7 +114,12 @@ namespace Yantrik.Services
                 if (filter.EndDate.HasValue)
                     serviceQuery = serviceQuery.Where(sr => sr.CreatedAt <= filter.EndDate.Value);
                 if (!string.IsNullOrEmpty(filter.Search))
-                    serviceQuery = serviceQuery.Where(sr => sr.ServiceType.Contains(filter.Search) || (sr.Description != null && sr.Description.Contains(filter.Search)));
+                    serviceQuery = serviceQuery.Where(sr => 
+                        sr.ServiceType.Contains(filter.Search) || 
+                        (sr.Description != null && sr.Description.Contains(filter.Search)) ||
+                        (sr.Appointment.Vehicle.PlateNumber != null && sr.Appointment.Vehicle.PlateNumber.Contains(filter.Search)) ||
+                        (sr.Appointment.Vehicle.Brand != null && sr.Appointment.Vehicle.Brand.Contains(filter.Search)) ||
+                        (sr.Appointment.Vehicle.Model != null && sr.Appointment.Vehicle.Model.Contains(filter.Search)));
 
                 var serviceRecords = await serviceQuery
                     .OrderByDescending(sr => sr.CreatedAt)
@@ -126,7 +132,10 @@ namespace Yantrik.Services
                         Date = sr.CreatedAt,
                         Status = "Completed",
                         Amount = sr.Cost,
-                        ReferenceNumber = "SRV-" + sr.AppointmentId.ToString().Substring(0, 8).ToUpper()
+                        ReferenceNumber = "SRV-" + sr.AppointmentId.ToString().Substring(0, 8).ToUpper(),
+                        PlateNumber = sr.Appointment.Vehicle.PlateNumber,
+                        VehicleBrand = sr.Appointment.Vehicle.Brand,
+                        VehicleModel = sr.Appointment.Vehicle.Model
                     })
                     .ToListAsync();
 

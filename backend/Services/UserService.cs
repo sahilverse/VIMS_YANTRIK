@@ -161,6 +161,7 @@ namespace Yantrik.Services
                 Email = user.Email!,
                 FullName = user.Employee?.FullName ?? user.CustomerProfile?.FullName ?? "User",
                 Role = role,
+                ProfileId = user.Employee?.Id ?? user.CustomerProfile?.Id,
                 Phone = user.Employee?.Phone ?? user.CustomerProfile?.Phone,
                 Code = user.Employee?.EmployeeCode ?? user.CustomerProfile?.CustomerCode,
                 IsActive = user.IsActive
@@ -186,6 +187,7 @@ namespace Yantrik.Services
                 Email = u.Email!,
                 FullName = u.Employee?.FullName ?? string.Empty,
                 Role = _userManager.GetRolesAsync(u).Result.FirstOrDefault() ?? "Staff",
+                ProfileId = u.Employee?.Id,
                 Phone = u.Employee?.Phone,
                 Code = u.Employee?.EmployeeCode,
                 IsActive = u.IsActive

@@ -94,6 +94,19 @@ namespace Yantrik.Controllers
                         TotalAmount = i.TotalAmount,
                         PaymentStatus = i.PaymentStatus,
                         ItemCount = i.Items.Count
+                    }).ToList(),
+                Appointments = customer.Appointments
+                    .Where(a => a.Status != AppointmentStatus.Cancelled)
+                    .OrderByDescending(a => a.AppointmentDate)
+                    .Select(a => new AppointmentDto
+                    {
+                        Id = a.Id,
+                        VehicleId = a.VehicleId,
+                        PlateNumber = a.Vehicle?.PlateNumber ?? "N/A",
+                        VehicleName = $"{a.Vehicle?.Brand} {a.Vehicle?.Model}".Trim(),
+                        ServiceType = a.ServiceType,
+                        AppointmentDate = a.AppointmentDate,
+                        Status = a.Status.ToString()
                     }).ToList()
             };
 

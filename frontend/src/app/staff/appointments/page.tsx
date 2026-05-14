@@ -2,7 +2,13 @@
 
 import React, { useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { useAllAppointmentsQuery, useUpdateAppointmentStatusMutation, useDeleteAppointmentMutation } from '@/hooks/api/useAppointmentApi';
+import { 
+  useAllAppointmentsQuery, 
+  useUpdateAppointmentStatusMutation, 
+  useDeleteAppointmentMutation,
+  useCompleteAppointmentMutation 
+} from '@/hooks/api/useAppointmentApi';
+import { CompleteAppointmentModal } from '@/components/staff/CompleteAppointmentModal';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
@@ -27,13 +33,14 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { cn } from '@/lib/utils';
 
-const STATUSES = ['All', 'Pending', 'Confirmed', 'Done', 'Cancelled'];
+const STATUSES = ['All', 'Pending', 'Confirmed', 'Completed', 'Cancelled'];
 
 function StaffAppointmentsContent() {
   const searchParams = useSearchParams();
   const [searchTerm, setSearchTerm] = useState(searchParams.get('search') || '');
   const [statusFilter, setStatusFilter] = useState('All');
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isCompleteModalOpen, setIsCompleteModalOpen] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState<any>(null);
 
   const { data: appointmentsData, isLoading, isError } = useAllAppointmentsQuery(
@@ -41,6 +48,7 @@ function StaffAppointmentsContent() {
   );
 
   const updateStatusMutation = useUpdateAppointmentStatusMutation();
+  const completeMutation = useCompleteAppointmentMutation();
   const deleteMutation = useDeleteAppointmentMutation();
 
   const appointments = appointmentsData || [];
@@ -68,14 +76,34 @@ function StaffAppointmentsContent() {
   };
 
   const handleStatusChange = (id: string, newStatus: string) => {
+    if (newStatus === 'Completed') {
+      const appt = appointments.find((a: any) => a.id === id);
+      setSelectedAppointment(appt);
+      setIsCompleteModalOpen(true);
+      return;
+    }
     updateStatusMutation.mutate({ id, status: newStatus });
+  };
+
+  const confirmComplete = (data: any) => {
+    if (selectedAppointment) {
+      completeMutation.mutate({ 
+        id: selectedAppointment.id, 
+        request: data 
+      }, {
+        onSuccess: () => {
+          setIsCompleteModalOpen(false);
+          setSelectedAppointment(null);
+        }
+      });
+    }
   };
 
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
       case 'pending': return 'text-amber-500 bg-amber-50 border-amber-100';
       case 'confirmed': return 'text-blue-500 bg-blue-50 border-blue-100';
-      case 'done': return 'text-emerald-500 bg-emerald-50 border-emerald-100';
+      case 'completed': return 'text-emerald-500 bg-emerald-50 border-emerald-100';
       case 'cancelled': return 'text-red-500 bg-red-50 border-red-100';
       default: return 'text-zinc-500 bg-zinc-50 border-zinc-100';
     }
@@ -170,15 +198,16 @@ function StaffAppointmentsContent() {
                 <select
                   value={appointment.status}
                   onChange={(e) => handleStatusChange(appointment.id, e.target.value)}
-                  disabled={updateStatusMutation.isPending}
+                  disabled={updateStatusMutation.isPending || appointment.status === 'Completed'}
                   className={cn(
-                    "px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest border outline-none appearance-none cursor-pointer transition-all min-w-[140px] text-center",
+                    "px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest border outline-none appearance-none transition-all min-w-[140px] text-center",
+                    appointment.status === 'Completed' ? "cursor-not-allowed opacity-80" : "cursor-pointer",
                     getStatusColor(appointment.status)
                   )}
                 >
                   <option value="Pending">Pending</option>
                   <option value="Confirmed">Confirmed</option>
-                  <option value="Done">Done</option>
+                  <option value="Completed">Completed</option>
                   <option value="Cancelled">Cancelled</option>
                 </select>
 
@@ -211,6 +240,14 @@ function StaffAppointmentsContent() {
         isDestructive={true}
         onConfirm={confirmDelete}
         onClose={() => setIsDeleteModalOpen(false)}
+      />
+
+      <CompleteAppointmentModal
+        isOpen={isCompleteModalOpen}
+        appointment={selectedAppointment}
+        isSubmitting={completeMutation.isPending}
+        onClose={() => setIsCompleteModalOpen(false)}
+        onComplete={confirmComplete}
       />
     </div>
   );

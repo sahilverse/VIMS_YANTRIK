@@ -17,7 +17,11 @@ export interface BookAppointmentRequest {
   appointmentDate: string;
 }
 
-
+export interface CompleteAppointmentRequest {
+  cost: number;
+  description: string;
+  employeeId: string;
+}
 
 export const AppointmentService = {
   getMyAppointments: async (): Promise<AppointmentDto[]> => {
@@ -48,6 +52,11 @@ export const AppointmentService = {
 
   updateAppointmentStatus: async (id: string, status: string): Promise<AppointmentDto> => {
     const response = await api.patch<ApiResponse<AppointmentDto>>(`/appointments/${id}/status`, { status });
+    return response.data.data!;
+  },
+
+  completeAppointment: async (id: string, request: CompleteAppointmentRequest): Promise<AppointmentDto> => {
+    const response = await api.post<ApiResponse<AppointmentDto>>(`/appointments/${id}/complete`, request);
     return response.data.data!;
   },
 

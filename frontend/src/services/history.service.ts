@@ -12,6 +12,9 @@ export interface HistoryItemDto {
   referenceNumber?: string;
   subTotal?: number;
   taxAmount?: number;
+  plateNumber?: string;
+  vehicleBrand?: string;
+  vehicleModel?: string;
   lineItems?: HistoryLineItemDto[];
 }
 
@@ -42,6 +45,11 @@ export interface HistoryFilterParams {
 export const HistoryService = {
   getMyHistory: async (params?: HistoryFilterParams): Promise<HistoryPagedResult> => {
     const response = await api.get<ApiResponse<HistoryPagedResult>>('/history/my', { params });
+    return response.data.data!;
+  },
+
+  getCustomerHistory: async (customerId: string, params?: HistoryFilterParams): Promise<HistoryPagedResult> => {
+    const response = await api.get<ApiResponse<HistoryPagedResult>>(`/history/customer/${customerId}`, { params });
     return response.data.data!;
   },
 };

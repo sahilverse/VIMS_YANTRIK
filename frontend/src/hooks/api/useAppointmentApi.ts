@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { AppointmentService, BookAppointmentRequest } from '@/services/appointment.service';
+import { AppointmentService, BookAppointmentRequest, CompleteAppointmentRequest } from '@/services/appointment.service';
 import { queryKeys } from '@/lib/query-keys';
 import { toast } from 'sonner';
 
@@ -75,6 +75,23 @@ export const useUpdateAppointmentStatusMutation = () => {
     },
     onError: (error: any) => {
       toast.error(error.response?.data?.message || 'Failed to update status');
+    },
+  });
+};
+
+export const useCompleteAppointmentMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, request }: { id: string; request: CompleteAppointmentRequest }) => 
+      AppointmentService.completeAppointment(id, request),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.appointments.all });
+      queryClient.invalidateQueries({ queryKey: ['customer-history'] });
+      toast.success('Appointment completed and service record created');
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data?.message || 'Failed to complete appointment');
     },
   });
 };

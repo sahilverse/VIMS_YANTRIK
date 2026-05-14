@@ -99,6 +99,21 @@ namespace Yantrik.Controllers
         }
 
         [Authorize(Roles = "Admin,Staff")]
+        [HttpPost("{id}/complete")]
+        public async Task<ActionResult<ApiResponse<AppointmentDto>>> CompleteAppointment(Guid id, [FromBody] CompleteAppointmentRequest request)
+        {
+            try
+            {
+                var appointment = await _appointmentService.CompleteAppointmentAsync(id, request);
+                return Ok(ApiResponse<AppointmentDto>.SuccessResponse(appointment, "Appointment completed and service record created"));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ApiResponse<AppointmentDto>.FailureResponse(ex.Message));
+            }
+        }
+
+        [Authorize(Roles = "Admin,Staff")]
         [HttpDelete("staff/{id}")]
         public async Task<ActionResult<ApiResponse<bool>>> DeleteAppointment(Guid id)
         {
