@@ -62,10 +62,6 @@ export default function CustomerDashboard() {
           <header className="h-20 border-b border-zinc-100 flex items-center justify-between px-10 sticky top-0 bg-white/80 backdrop-blur-md z-10">
             <h1 className="text-xl font-bold tracking-tight">Center Overview</h1>
             <div className="flex items-center gap-6">
-              <button className="p-2.5 text-zinc-400 hover:text-zinc-900 hover:bg-zinc-50 rounded-xl transition-all cursor-pointer">
-                <Bell className="h-5 w-5" />
-              </button>
-              <div className="h-8 w-px bg-zinc-100" />
               <div className="flex items-center gap-4">
                 <div className="text-right hidden sm:block">
                   <p className="text-xs font-bold text-zinc-900">{user?.fullName}</p>

@@ -28,10 +28,16 @@ namespace Yantrik.Services
             _emailService = emailService;
         }
 
-        public async Task<ApiResponse<List<NotificationDto>>> GetUserNotificationsAsync(Guid userId)
+        public async Task<ApiResponse<List<NotificationDto>>> GetUserNotificationsAsync(Guid userId, string? type = null)
         {
-            var notifications = await _unitOfWork.Notifications
-                .Find(n => n.UserId == userId)
+            var query = _unitOfWork.Notifications.Find(n => n.UserId == userId);
+
+            if (!string.IsNullOrEmpty(type) && Enum.TryParse<NotificationType>(type, true, out var notificationType))
+            {
+                query = query.Where(n => n.Type == notificationType);
+            }
+
+            var notifications = await query
                 .OrderByDescending(n => n.CreatedAt)
                 .Take(50)
                 .Select(n => new NotificationDto
@@ -47,9 +53,16 @@ namespace Yantrik.Services
             return ApiResponse<List<NotificationDto>>.SuccessResponse(notifications);
         }
 
-        public async Task<ApiResponse<NotificationCountDto>> GetUnreadCountAsync(Guid userId)
+        public async Task<ApiResponse<NotificationCountDto>> GetUnreadCountAsync(Guid userId, string? type = null)
         {
-            var count = await _unitOfWork.Notifications.CountAsync(n => n.UserId == userId && !n.IsRead);
+            var query = _unitOfWork.Notifications.Find(n => n.UserId == userId && !n.IsRead);
+
+            if (!string.IsNullOrEmpty(type) && Enum.TryParse<NotificationType>(type, true, out var notificationType))
+            {
+                query = query.Where(n => n.Type == notificationType);
+            }
+
+            var count = await query.CountAsync();
             return ApiResponse<NotificationCountDto>.SuccessResponse(new NotificationCountDto { UnreadCount = count });
         }
 
@@ -66,11 +79,16 @@ namespace Yantrik.Services
             return ApiResponse<bool>.SuccessResponse(true);
         }
 
-        public async Task<ApiResponse<bool>> MarkAllAsReadAsync(Guid userId)
+        public async Task<ApiResponse<bool>> MarkAllAsReadAsync(Guid userId, string? type = null)
         {
-            var unreadNotifications = await _unitOfWork.Notifications
-                .Find(n => n.UserId == userId && !n.IsRead)
-                .ToListAsync();
+            var query = _unitOfWork.Notifications.Find(n => n.UserId == userId && !n.IsRead);
+
+            if (!string.IsNullOrEmpty(type) && Enum.TryParse<NotificationType>(type, true, out var notificationType))
+            {
+                query = query.Where(n => n.Type == notificationType);
+            }
+
+            var unreadNotifications = await query.ToListAsync();
 
             if (!unreadNotifications.Any())
                 return ApiResponse<bool>.SuccessResponse(true, "No unread notifications");
@@ -130,12 +148,11 @@ namespace Yantrik.Services
 
             if (!overdueInvoices.Any()) return;
 
-            var admins = await _userManager.GetUsersInRoleAsync("Admin");
-
             foreach (var invoice in overdueInvoices)
             {
                 if (invoice.Customer == null) continue;
 
+                // Check if already sent a reminder this week
                 var reminderExists = await _unitOfWork.Notifications.ExistsAsync(n => 
                     n.Type == NotificationType.OverduePayment && 
                     n.Message.Contains(invoice.InvoiceNumber) && 
@@ -147,6 +164,7 @@ namespace Yantrik.Services
 
                 if (invoice.Customer.User != null && !string.IsNullOrEmpty(invoice.Customer.User.Email))
                 {
+                    // Enqueue the email background job
                     Hangfire.BackgroundJob.Enqueue<IEmailService>(x => x.SendOverdueReminderEmailAsync(
                         invoice.Customer.User.Email,
                         invoice.Customer.FullName,
@@ -154,17 +172,16 @@ namespace Yantrik.Services
                         invoice.TotalAmount,
                         dueDateString
                     ));
-                }
-                foreach (var admin in admins)
-                {
-                    var notification = new Notification
+
+                    // Log that a reminder was sent 
+                    var log = new Notification
                     {
-                        UserId = admin.Id,
-                        Message = $"Overdue Payment: Invoice {invoice.InvoiceNumber} for {invoice.Customer.FullName} (Rs. {invoice.TotalAmount}) is older than 1 month.",
+                        UserId = invoice.Customer.UserId ?? Guid.Empty,
+                        Message = $"Email reminder sent for Invoice {invoice.InvoiceNumber}",
                         Type = NotificationType.OverduePayment,
-                        IsRead = false
+                        IsRead = true 
                     };
-                    await _unitOfWork.Notifications.AddAsync(notification);
+                    await _unitOfWork.Notifications.AddAsync(log);
                 }
             }
 

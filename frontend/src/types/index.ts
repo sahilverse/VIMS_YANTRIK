@@ -310,3 +310,15 @@ export interface CustomerReport {
   highSpenders: HighSpender[];
   pendingCredits: PendingCredit[];
 }
+
+export interface NotificationDto {
+  id: string;
+  message: string;
+  type: string;
+  isRead: boolean;
+  createdAt: string;
+}
+
+export interface NotificationCountDto {
+  unreadCount: number;
+}

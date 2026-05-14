@@ -18,6 +18,7 @@ import {
   Bell,
   LogOut
 } from 'lucide-react';
+import NotificationDropdown from '@/components/dashboard/NotificationDropdown';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
 
 const navItems = [
@@ -98,11 +99,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             </div>
 
             <div className="flex items-center gap-6 ml-8">
-              <button className="p-2.5 text-zinc-400 hover:text-zinc-900 hover:bg-zinc-50 rounded-xl transition-all relative cursor-pointer">
-                <Bell className="h-5 w-5" />
-                <span className="absolute top-2.5 right-2.5 h-2 w-2 bg-red-500 rounded-full border-2 border-white" />
-              </button>
-              <div className="h-8 w-px bg-zinc-100 mx-2" />
+              <NotificationDropdown />
+              <div className="h-8 w-px bg-zinc-100" />
               <div className="flex items-center gap-4">
                 <div className="text-right hidden sm:block">
                   <p className="text-xs font-bold text-zinc-900">{user?.fullName}</p>

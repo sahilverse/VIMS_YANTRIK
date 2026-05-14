@@ -29,22 +29,22 @@ namespace Yantrik.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetNotifications()
+        public async Task<IActionResult> GetNotifications([FromQuery] string? type = null)
         {
             var userId = GetUserId();
             if (userId == Guid.Empty) return Unauthorized();
 
-            var response = await _notificationService.GetUserNotificationsAsync(userId);
+            var response = await _notificationService.GetUserNotificationsAsync(userId, type);
             return Ok(response);
         }
 
         [HttpGet("unread-count")]
-        public async Task<IActionResult> GetUnreadCount()
+        public async Task<IActionResult> GetUnreadCount([FromQuery] string? type = null)
         {
             var userId = GetUserId();
             if (userId == Guid.Empty) return Unauthorized();
 
-            var response = await _notificationService.GetUnreadCountAsync(userId);
+            var response = await _notificationService.GetUnreadCountAsync(userId, type);
             return Ok(response);
         }
 
@@ -60,12 +60,12 @@ namespace Yantrik.Controllers
         }
 
         [HttpPut("read-all")]
-        public async Task<IActionResult> MarkAllAsRead()
+        public async Task<IActionResult> MarkAllAsRead([FromQuery] string? type = null)
         {
             var userId = GetUserId();
             if (userId == Guid.Empty) return Unauthorized();
 
-            var response = await _notificationService.MarkAllAsReadAsync(userId);
+            var response = await _notificationService.MarkAllAsReadAsync(userId, type);
             return Ok(response);
         }
     }
